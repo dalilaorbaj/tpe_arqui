@@ -14,10 +14,10 @@ GLOBAL _irq04Handler
 GLOBAL _irq05Handler
 
 GLOBAL _exception0Handler
+GLOBAL _exception_invalidOpcodeHandler
 
 EXTERN irqDispatcher		;para interrupciones de hardware
 EXTERN syscallDispatcher	;para interrupciones de software
-
 EXTERN exceptionDispatcher
 
 SECTION .text
@@ -140,6 +140,8 @@ _irq04Handler:
 _irq05Handler:
 	irqHandlerMaster 5
 
+
+
 ;Syscalls	
 _irq80Handler:
     pushState
@@ -157,6 +159,10 @@ _irq80Handler:
 ;Zero Division Exception
 _exception0Handler:
 	exceptionHandler 0
+
+;Invalid Opcode Exception
+_exception_invalidOpcodeHandler:
+	exceptionHandler 6
 
 haltcpu:
 	cli

@@ -53,4 +53,12 @@ int64_t sys_write(uint64_t fd, uint16_t * buf, uint64_t count){
     return write(fd, buf, count);
 }
 
-
+int64_t sys_get_time(time_struct * time){
+    time->seconds = getRTCSeconds();
+    time->minutes =  getRTCMinutes();
+    time->hour =  getRTCHours();
+    time->day = getRTCDayOfMonth();
+    time->month = getRTCMonth();
+    time->year = getRTCYear();
+    return 0;
+}

@@ -3,7 +3,7 @@
 
 
 int hasKey(){
-    return inb(0x64) & 1;
+    return in(0x64) & 1;
 }
 
 unsigned char getKey(){

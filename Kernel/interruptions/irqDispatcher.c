@@ -6,7 +6,8 @@
 La función irqDispatcher(uint64_t irq) recibe el número de interrupción (irq) y, usando un switch, decide qué función manejará esa interrupción.
 Si el número de interrupción es 0, llama a la función int_20().
 La función int_20() llama a timerHandler(), que normalmente maneja la interrupción del temporizador del sistema (timer tick). */
-
+static void int_20();
+static void int_21();
 // Array of function pointers for IRQ handlers
 static void (*irqHandlers[])(void) = {
 	int_20,    // IRQ 0 - Timer

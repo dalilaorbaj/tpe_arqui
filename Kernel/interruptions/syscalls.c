@@ -17,7 +17,7 @@
 // | 5 (quinto argumento)  | `r8`           |
 // | 6 (sexto argumento)   | `r9`           |
 
-void sysCallDispatcher(Registers * registers) {
+int64_t syscallDispatcher(Registers * registers) {
     switch (registers->rax) {   //en rax esta la syscall id
         case 4:
             sys_write(registers->rdi, (char *)registers->rsi, registers->rdx);

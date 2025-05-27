@@ -1,9 +1,6 @@
 #include <stdint.h>
 #include <keyboard.h>
 
-unsigned char in(unsigned short port); //devuelve el valor leido del puerto 64
-void out(unsigned short port, unsigned char value);
-
 
 int hasKey(){
     return inb(0x64) & 1;

@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <naiveConsole.h>
+#include <keyboard.h>
 
 
 extern void ncPrint(const char* string);

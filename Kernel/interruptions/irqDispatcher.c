@@ -1,6 +1,7 @@
 #include <time.h>
 #include <stdint.h>
 #include <irqDispatcher.h>
+#include <stddef.h>
 /* Este código implementa un despachador de interrupciones para el kernel, específicamente para interrupciones IRQ.
 
 La función irqDispatcher(uint64_t irq) recibe el número de interrupción (irq) y, usando un switch, decide qué función manejará esa interrupción.
@@ -8,12 +9,17 @@ Si el número de interrupción es 0, llama a la función int_20().
 La función int_20() llama a timerHandler(), que normalmente maneja la interrupción del temporizador del sistema (timer tick). */
 static void int_20();
 static void int_21();
+static void int_06();
+static void int_25();
+void keyboardHandler(void);
+void invalidOpcodeHandler(void);
+void usbHandler(void);
 // Array of function pointers for IRQ handlers
 static void (*irqHandlers[])(void) = {
 	int_20,    // IRQ 0 - Timer
-	NULL,      // IRQ 1
-	NULL,      // IRQ 2
-	NULL,      // IRQ 3
+	int_21,      // IRQ 1
+	int_25,      // IRQ 2
+	int_06,      // IRQ 3
 	NULL,      // IRQ 4
 	NULL,      // IRQ 5
 	NULL,      // IRQ 6

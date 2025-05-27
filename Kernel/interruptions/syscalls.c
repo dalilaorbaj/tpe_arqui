@@ -2,6 +2,7 @@
 #include <naiveConsole.h>
 #include <video.h>
 #include <keyboard.h>
+#include <rtc.h>
 
 #define STDOUT 1
 #define STDERR 2
@@ -24,7 +25,7 @@ int64_t syscallDispatcher(Registers * registers) {
             break;
 
         case 3:
-            sys_read(registers->rdi, (char *)registers->rsi, registers->rdx)
+            sys_read(registers->rdi, (char *)registers->rsi, registers->rdx);
             break;
     
         //aca vamos a tener que poner todo el resto de syscalls
@@ -50,7 +51,7 @@ int64_t sys_read(uint64_t fd, uint16_t * buf, uint64_t count){
 
 //text_mode
 int64_t sys_write(uint64_t fd, uint16_t * buf, uint64_t count){
-    return write(fd, buf, count);
+    return write(buf, count);
 }
 
 int64_t sys_get_time(time_struct * time){

@@ -15,7 +15,9 @@ GLOBAL _irq05Handler
 
 GLOBAL _exception0Handler
 
-EXTERN irqDispatcher
+EXTERN irqDispatcher		;para interrupciones de hardware
+EXTERN syscallDispatcher	;para interrupciones de software
+
 EXTERN exceptionDispatcher
 
 SECTION .text
@@ -138,6 +140,19 @@ _irq04Handler:
 _irq05Handler:
 	irqHandlerMaster 5
 
+;Syscalls	
+_irq80Handler:
+    pushState
+
+    mov rdi, rax    ; syscall ID
+    mov rsi, rbx    ; arg1
+    mov rdx, rcx    ; arg2
+    mov rcx, rdx    ; arg3
+
+    call syscallDispatcher
+
+    popState
+    iretq
 
 ;Zero Division Exception
 _exception0Handler:

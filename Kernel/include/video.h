@@ -1,3 +1,6 @@
+#ifndef VIDEO_DRIVER_H
+#define VIDEO_DRIVER_H
+
 #include <stdint.h>
 
 #define DEFAULT_FONT_SIZE 1
@@ -24,3 +27,5 @@ typedef struct{
     int64_t width;
     int64_t height;
 } Screen;
+
+#endif

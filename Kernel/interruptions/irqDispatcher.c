@@ -12,7 +12,7 @@ static void int_21();
 static void int_06();
 static void int_25();
 void keyboardHandler(void);
-void invalidOpcodeHandler(void);
+void _exception_invalidOpcodeHandler(void);
 void usbHandler(void);
 // Array of function pointers for IRQ handlers
 static void (*irqHandlers[])(void) = {
@@ -27,6 +27,8 @@ static void (*irqHandlers[])(void) = {
 	// Add more NULL entries if you need to handle more IRQs
 };
 
+void usbHandler(void) {}
+
 void irqDispatcher(uint64_t irq) {
 	if (irq < IDT_DIM && irqHandlers[irq] != NULL) {
 		irqHandlers[irq]();
@@ -38,11 +40,11 @@ static void int_20() {
 }
 
 static void int_21(){
-	keyboardHandler();
+	//keyboardHandler();
 }
 
 static void int_06(){
-	invalidOpcodeHandler();
+	//invalidOpcodeHandler();
 }
 
 //creo que el 22 no se usa por er la linea en cascada del PIC master/slave

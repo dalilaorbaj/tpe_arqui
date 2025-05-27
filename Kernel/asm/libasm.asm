@@ -1,5 +1,6 @@
 GLOBAL cpuVendor
 GLOBAL rtc
+GLOBAL hlt
 
 section .text
 	
@@ -38,3 +39,8 @@ rtc:
     mov rsp, rbp
     pop rbp
     ret
+
+hlt:
+	sti
+	hlt
+	ret

@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include <stdarg.h>
-#include <libc.h>
+#include <library.h>
 
 #define STDIN   0
 #define STDOUT  1
@@ -69,3 +69,4 @@ int64_t printf(const char *fmt, ...) {
     va_end(args);
     return ret;
 }
+

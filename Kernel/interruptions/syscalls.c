@@ -42,8 +42,8 @@ int64_t sys_read(uint64_t fd, uint16_t * buf, uint64_t count){
         return ERROR;
     }
     uint64_t i = 0;
-    while (i < count && bufHasNext()) {
-        buf[i++] = getBufCurrent();
+    while (i < count && bufferHasNext()) {
+        buf[i++] = getCurrent();
     }
     return i;  
 }

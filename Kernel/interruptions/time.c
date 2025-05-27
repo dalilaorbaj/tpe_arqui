@@ -1,6 +1,5 @@
 #include <time.h>
-#include <stdint.h>
-
+#include <lib.h>
 
 #define TICKS_PER_SEC 18
 static uint64_t ticksCount = 0;

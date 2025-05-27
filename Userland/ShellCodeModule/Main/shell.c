@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <naiveConsole.h>
 #include <keyboard.h>
+#include <library.h>
 
 
 extern void ncPrint(const char* string);
@@ -17,6 +18,13 @@ extern void ncPrintChar(char c);
 #define COMMAND_CLEAR "clear"
 #define COMMAND_ECHO "echo"
 #define COMMAND_EXIT "exit"
+
+// Punto de entrada del módulo
+int main() {
+    ncPrint("SHELL MAIN!\n");
+    shellLoop();
+    return 0;
+}
 
 // Función para leer una línea de entrada
 static void readLine(char* buffer) {
@@ -89,6 +97,8 @@ static void shellLoop() {
     char command[COMMAND_MAX_LENGTH];
     char args[ARGS_MAX_LENGTH];
     int running = 1;
+
+    putChar('>'); // Inicializar el cursor
     
     ncPrint("Welcome to the Simple Shell\n");
     ncPrint("Type 'help' for a list of commands\n");
@@ -126,8 +136,3 @@ static int strcmp(const char* s1, const char* s2) {
     return *(const unsigned char*)s1 - *(const unsigned char*)s2;
 }
 
-// Punto de entrada del módulo
-int main() {
-    shellLoop();
-    return 0;
-}

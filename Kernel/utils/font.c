@@ -3,7 +3,7 @@
 
 #include "font.h"
 
-static unsigned char fontBitMap[] = {
+unsigned char font_bitmap[] = {
 //   0 $00 'char0'
 //	width 8, bbx 0, bby -4, bbw 8, bbh 16
 	________,
@@ -3481,5 +3481,5 @@ static unsigned char fontBitMap[] = {
 };
 
 unsigned char * fontPixelMap(unsigned char c) {
-	return fontBitMap + FONT_HEIGHT * (c-31);
+	return font_bitmap + FONT_HEIGHT * (c-31);
 }

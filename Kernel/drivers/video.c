@@ -21,7 +21,7 @@ static VBEInfoPtr VBE_info = (VBEInfoPtr) 0x0000000000005C00;
 static Point current_point = {0,0};
 static Character buffer[CHAR_ROWS_FONT_MIN * CHAR_COLS_FONT_MIN];
 
-extern uint8_t font_bitmap[4096];
+extern unsigned char font_bitmap[4096];
 static uint64_t char_index = 0;
 
 static Color bg_color = {COLOR_OFF, COLOR_OFF, COLOR_OFF};

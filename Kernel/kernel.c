@@ -3,6 +3,7 @@
 #include <lib.h>
 #include <moduleLoader.h>
 #include <naiveConsole.h>
+#include <idtLoader.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -13,10 +14,9 @@ extern uint8_t endOfKernel;
 
 static const uint64_t PageSize = 0x1000;
 
-static void * const sampleCodeModuleAddress = (void*)0x400000;
-static void * const sampleDataModuleAddress = (void*)0x500000;
 /* Dirección para la shell */
-static void * const shellModuleAddress = (void*)0x600000;
+static void * const shellCodeModuleAddress = (void*)0x400000;
+static void * const shellDataModuleAddress = (void*)0x500000;
 
 typedef int (*EntryPoint)();
 
@@ -49,9 +49,8 @@ void * initializeKernelBinary()
 	ncPrint("[Loading modules]");
 	ncNewline();
 	void * moduleAddresses[] = {
-		sampleCodeModuleAddress,
-		sampleDataModuleAddress,
-		shellModuleAddress
+		shellCodeModuleAddress,
+		shellDataModuleAddress
 	};
 
 	loadModules(&endOfKernelBinary, moduleAddresses);
@@ -83,31 +82,16 @@ void * initializeKernelBinary()
 	return getStackBase();
 }
 
-int main()
-{	
-	ncPrint("[Kernel Main]");
-	ncNewline();
-	ncPrint("  Sample code module at 0x");
-	ncPrintHex((uint64_t)sampleCodeModuleAddress);
-	ncNewline();
-	ncPrint("  Calling the sample code module returned: ");
-	ncPrintHex(((EntryPoint)sampleCodeModuleAddress)());
-	ncNewline();
+int main(){	
+	
+	load_idt();
+	
+	ncPrint("[Cargando la shell]");
 	ncNewline();
 
-	ncPrint("  Sample data module at 0x");
-	ncPrintHex((uint64_t)sampleDataModuleAddress);
-	ncNewline();
-	ncPrint("  Sample data module contents: ");
-	ncPrint((char*)sampleDataModuleAddress);
-	ncNewline();
-	
-	ncPrint("[Cargando la Shell]");
-	ncNewline();
-	
-	// Llamada a la shell
-	((EntryPoint)shellModuleAddress)();
-	
+	//Llamada a la shell
+	((EntryPoint)shellCodeModuleAddress)();
+		
 	ncPrint("[Shell terminada]");
 	ncNewline();
 

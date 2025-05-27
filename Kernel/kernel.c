@@ -15,6 +15,8 @@ static const uint64_t PageSize = 0x1000;
 
 static void * const sampleCodeModuleAddress = (void*)0x400000;
 static void * const sampleDataModuleAddress = (void*)0x500000;
+/* Dirección para la shell */
+static void * const shellModuleAddress = (void*)0x600000;
 
 typedef int (*EntryPoint)();
 
@@ -48,7 +50,8 @@ void * initializeKernelBinary()
 	ncNewline();
 	void * moduleAddresses[] = {
 		sampleCodeModuleAddress,
-		sampleDataModuleAddress
+		sampleDataModuleAddress,
+		shellModuleAddress
 	};
 
 	loadModules(&endOfKernelBinary, moduleAddresses);
@@ -97,6 +100,15 @@ int main()
 	ncNewline();
 	ncPrint("  Sample data module contents: ");
 	ncPrint((char*)sampleDataModuleAddress);
+	ncNewline();
+	
+	ncPrint("[Cargando la Shell]");
+	ncNewline();
+	
+	// Llamada a la shell
+	((EntryPoint)shellModuleAddress)();
+	
+	ncPrint("[Shell terminada]");
 	ncNewline();
 
 	ncPrint("[Finished]");

@@ -1,28 +1,56 @@
-#include "syscalls.h"
+#include <syscalls.h>
+#include <naiveConsole.h>
+#include <video.h>
+#include <keyboard.h>
 
 #define STDOUT 1
 #define STDERR 2
 #define STDOUT_FORMAT 0x0F
 #define STDERR_FORMAT 0x0C
 
-void sysCallDispatcher(uint64_t syscall_id, uint64_t arg1, uint64_t arg2, uint64_t arg3) {
-    switch (syscall_id) {
+// | Argumento número      | Registro usado |
+// | --------------------- | -------------- |
+// | 1 (primer argumento)  | `rdi`          |
+// | 2 (segundo argumento) | `rsi`          |
+// | 3 (tercer argumento)  | `rdx`          |
+// | 4 (cuarto argumento)  | `rcx`          |
+// | 5 (quinto argumento)  | `r8`           |
+// | 6 (sexto argumento)   | `r9`           |
+
+void sysCallDispatcher(Registers * registers) {
+    switch (registers->rax) {   //en rax esta la syscall id
         case 4:
-            sys_write(arg1, (char *)arg2, arg3);
+            sys_write(registers->rdi, (char *)registers->rsi, registers->rdx);
             break;
 
         case 3:
-            sys_read(arg1)
+            sys_read(registers->rdi, (char *)registers->rsi, registers->rdx)
             break;
     
+        //aca vamos a tener que poner todo el resto de syscalls
+
         default:
+            return ERROR;
             break;
     }
 }
 
-void sys_write(uint64_t fd, char * buffer, uint64_t size){
-    uint8_t format = (fd == STDOUT) ? STDOUT_FORMAT : 0x0F;
-    for (int i = 0; i <= size; i++){
-        ncPrintCharColor(buffer[i], format);
+//	unsigned int fd	char __user *buf	size_t count (de la syscall table de linux)
+int64_t sys_read(uint64_t fd, uint16_t * buf, uint64_t count){
+    if (buf == 0 || count == 0) {
+        return ERROR;
     }
+    uint64_t i = 0;
+    while (i < count && bufHasNext()) {
+        buf[i++] = getBufCurrent();
+    }
+    return i;  
 }
+
+
+//text_mode
+int64_t sys_write(uint64_t fd, uint16_t * buf, uint64_t count){
+    return write(fd, buf, count);
+}
+
+

@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include <Keyboard.h>
+#include <keyboard.h>
 
 unsigned char in(unsigned short port); //devuelve el valor leido del puerto 64
 void out(unsigned short port, unsigned char value);
@@ -14,4 +14,4 @@ unsigned char getKey(){
     while(!hasKey());
     
     return in(0x60);
-}
+} 

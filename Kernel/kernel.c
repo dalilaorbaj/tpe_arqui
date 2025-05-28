@@ -4,6 +4,7 @@
 #include <moduleLoader.h>
 #include <naiveConsole.h>
 #include <idtLoader.h>
+#include <video.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -86,6 +87,8 @@ int main(){
 	
 	load_idt();
 	
+	write("x64BareBones Kernel\n", 20);
+/*
 	ncPrint("[Cargando la shell]");
 	ncNewline();
 
@@ -98,5 +101,6 @@ int main(){
 	ncNewline();
 
 	ncPrint("[Finished]");
+*/
 	return 0;
 }

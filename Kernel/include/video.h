@@ -83,5 +83,4 @@ struct vbe_mode_info_structure {
     uint8_t reserved1[206];
 } __attribute__ ((packed));
 
-
 #endif

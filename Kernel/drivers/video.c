@@ -128,12 +128,13 @@ static void tab(void) {
 
 
 int64_t draw_font(uint64_t x, uint64_t y, uint8_t ch, Color color, uint64_t size) {
-    if (ch < FIRST_ASCII || ch > LAST_ASCII) return ERROR;
+    if (ch < FIRST_ASCII || ch > LAST_ASCII) return ERROR; // chequeamos que sea un caracter imprimible
 
-    uint32_t letter_index = (ch - ' ') * FONT_HEIGHT;
-    for (uint64_t row = 0; row < FONT_HEIGHT; row++) {
-        for (uint64_t col = 0; col < FONT_WIDTH; col++) {
-            if ((font_bitmap[letter_index + row] >> (7 - col)) & 1) {
+    unsigned char *glyph = fontPixelMap(ch); // buscamos al caracter en el bitmap
+    for (uint64_t row = 0; row < FONT_HEIGHT; row++) { // itera sobre las "filas" de pixeles que ocupa el caracter
+        unsigned char bits = glyph[row];
+        for (uint64_t col = 0; col < FONT_WIDTH; col++) { // itera sobre las "columnas" de pixeles que ocupa el caracter
+            if ((bits >> (7 - col)) & 1) { // agarramos el bit correspondiente a la columna
                 draw_rectangle(x + col * size, y + row * size, size, size, color);
             }
         }
@@ -150,7 +151,6 @@ int64_t draw_pixel(uint64_t x, uint64_t y, Color color){
     vram[index+2] = color.red;
     return OK;
 }
-
 
 static void printLetter(Character letter) {
     if (current_point.x + FONT_WIDTH * font_size > WIDTH) {

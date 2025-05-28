@@ -89,6 +89,8 @@ int main(){
 	ncPrint("[Cargando la shell]");
 	ncNewline();
 
+	ncClear();
+
 	//Llamada a la shell
 	((EntryPoint)shellCodeModuleAddress)();
 		

@@ -1,7 +1,8 @@
 #include <stdint.h>
-#include <naiveConsole.h>
-#include <keyboard.h>
+#include "keyboard.h"
+#include "naiveConsole.h"
 #include <library.h>
+#include "regs_snapshot.h"
 
 
 extern void ncPrint(const char* string);
@@ -9,8 +10,17 @@ extern void ncNewline();
 //Implementar
 extern char ncGetChar();
 extern void ncPrintChar(char c);
+static void shellLoop();
+static void regsCommand();
+extern void invOpcode();
 
-#define BUFFER_SIZE 100
+int timeCommand();
+void divZeroCommand();
+void invOpcodeCommand();
+int sys_get_registers(RegsSnapshot *regs);
+void printRegsSnapshot(const RegsSnapshot *regs);
+
+#define SHELL_BUFFER_SIZE 100
 #define COMMAND_MAX_LENGTH 10
 #define ARGS_MAX_LENGTH 90
 
@@ -18,6 +28,10 @@ extern void ncPrintChar(char c);
 #define COMMAND_CLEAR "clear"
 #define COMMAND_ECHO "echo"
 #define COMMAND_EXIT "exit"
+#define COMMAND_TIME "time"
+#define COMMAND_DIVZERO "divzero"
+#define COMMAND_INVOPCODE "invopcode"
+#define COMMAND_REGS "regs"
 
 // Punto de entrada del módulo
 int main() {
@@ -27,7 +41,7 @@ int main() {
 }
 
 // Función para leer una línea de entrada
-static void readLine(char* buffer) {
+static void readLine(char* buffer, int buffer_size) {
     int index = 0;
     char c;
     
@@ -36,7 +50,7 @@ static void readLine(char* buffer) {
             // Manejo de backspace
             index--;
             ncPrint("\b \b"); // Borramos el caracter de la pantalla
-        } else if(c >= ' ' && c <= '~') { // Caracteres imprimibles
+        } else if(c >= ' ' && c <= '~' && index < buffer_size - 1) {
             buffer[index++] = c;
             ncPrintChar(c); // Echo del caracter
         }
@@ -47,23 +61,21 @@ static void readLine(char* buffer) {
 }
 
 // Función para parsear el comando y argumentos
-static void parseCommand(const char* buffer, char* command, char* args) {
+static void parseCommand(const char* buffer, char* command, int command_size, char* args, int args_size) {
     int i = 0, j = 0;
-    
     // Extraer el comando
-    while(buffer[i] != ' ' && buffer[i] != '\0' && i < COMMAND_MAX_LENGTH - 1) {
+    while(buffer[i] != ' ' && buffer[i] != '\0' && i < command_size - 1) {
         command[i] = buffer[i];
         i++;
     }
     command[i] = '\0';
-    
+
     // Saltar espacios
-    while(buffer[i] == ' ') {
-        i++;
-    }
-    
+    while(buffer[i] == ' ') i++;
+
     // Extraer argumentos
-    while(buffer[i] != '\0' && j < ARGS_MAX_LENGTH - 1) {
+    j = 0;
+    while(buffer[i] != '\0' && j < args_size - 1) {
         args[j++] = buffer[i++];
     }
     args[j] = '\0';
@@ -79,11 +91,7 @@ static void helpCommand() {
 }
 
 static void clearCommand() {
-    // Implementar limpieza de pantalla
-    // Por ahora, solo imprimimos varias líneas nuevas
-    for(int i = 0; i < 25; i++) {
-        ncNewline();
-    }
+    clearScreen();
 }
 
 static void echoCommand(const char* args) {
@@ -105,10 +113,10 @@ static void shellLoop() {
     
     while(running) {
         ncPrint("$ ");
-        readLine(buffer);
+        readLine(buffer, SHELL_BUFFER_SIZE);
         
         // Parsear el comando y argumentos
-        parseCommand(buffer, command, args);
+        parseCommand(buffer, command, COMMAND_MAX_LENGTH, args, ARGS_MAX_LENGTH);
         
         // Ejecutar el comando
         if(strcmp(command, COMMAND_HELP) == 0) {
@@ -117,22 +125,54 @@ static void shellLoop() {
             clearCommand();
         } else if(strcmp(command, COMMAND_ECHO) == 0) {
             echoCommand(args);
+        } else if(strcmp(command, COMMAND_TIME) == 0) {
+            timeCommand();
+        } else if(strcmp(command, COMMAND_DIVZERO) == 0) {
+            divZeroCommand();
+        } else if(strcmp(command, COMMAND_INVOPCODE) == 0) {
+            invOpcodeCommand();
+        } else if(strcmp(command, COMMAND_REGS) == 0) {
+            regsCommand();
         } else if(strcmp(command, COMMAND_EXIT) == 0) {
             running = 0;
-        } else if(command[0] != '\0') {
-            ncPrint("Command not found: ");
+        } else if (command[0] != '\0'){
+            ncPrint("Comando no encontrado: ");
             ncPrint(command);
             ncNewline();
         }
     }
 }
 
-// Función de comparación de strings (porque no podemos usar string.h)
-static int strcmp(const char* s1, const char* s2) {
-    while(*s1 && (*s1 == *s2)) {
-        s1++;
-        s2++;
+static void regsCommand() {
+    RegsSnapshot regs;
+    if (sys_get_registers(&regs) == 0) {
+        printRegsSnapshot(&regs);
+    } else {
+        ncPrint("Error al obtener los registros\n");
     }
-    return *(const unsigned char*)s1 - *(const unsigned char*)s2;
 }
+
+//(?) las funciones de abajo deberian ser static?
+
+
+void divZeroCommand() {
+    volatile int a = 1, b = 0;
+    a = a / b;
+}
+
+void invOpcodeCommand() {
+    invOpcode();
+}
+
+
+// ya esta definida en library.c asi que la comento aca
+// static int strcmp(const char* s1, const char* s2) {
+//     while(*s1 && (*s1 == *s2)) {
+//         s1++;
+//         s2++;
+//     }
+//     return *(const unsigned char*)s1 - *(const unsigned char*)s2;
+// }
+
+
 

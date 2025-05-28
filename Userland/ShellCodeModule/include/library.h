@@ -1,4 +1,7 @@
 #include <stdint.h>
+#include <stddef.h>
+
+#define ERROR -1
 
 int getChar();
 

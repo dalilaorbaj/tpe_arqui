@@ -14,5 +14,4 @@ clean:
 	cd ShellCodeModule; make clean
 	rm -rf *.bin
 
-
 .PHONY: ShellCodeModule all clean

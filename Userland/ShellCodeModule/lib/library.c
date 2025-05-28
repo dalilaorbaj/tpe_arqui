@@ -1,10 +1,23 @@
 #include <stdint.h>
 #include <stdarg.h>
+#include <stddef.h>
+#include "keyboard.h"
 #include <library.h>
-
 #define STDIN   0
 #define STDOUT  1
 #define STDERR  2
+
+int64_t sys_read(int, void*, uint64_t);
+int64_t sys_write(int, const void*, uint64_t);
+void hlt(void);
+int64_t sys_clear_screen(void);
+int64_t sys_set_font_size(uint64_t size);
+int64_t writeStr(int fd, const char *s);
+int64_t fprintf(int fd, const char *fmt, va_list args);
+void ncPrint(const char *string);
+void ncPrintDec(uint64_t value);
+void ncPrintHex(uint64_t value);
+void ncNewline(void);
 
 int getChar(){
     uint16_t c;

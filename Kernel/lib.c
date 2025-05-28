@@ -1,4 +1,15 @@
 #include <stdint.h>
+#include "regs_snapshot.h"
+
+int64_t sys_set_font_size(uint64_t size) { return 0; }
+int64_t sys_nano_sleep(uint64_t nanos) { return 0; }
+int64_t sys_clear_screen(void) { return 0; }
+int64_t sys_draw_pixel(uint64_t x, uint64_t y, uint64_t color, uint64_t size) { return 0; }
+int64_t sys_draw_rectangle(uint64_t x, uint64_t y, uint64_t width, uint64_t height, uint64_t color, uint64_t fill) { return 0; }
+int64_t sys_draw_letter(uint64_t x, uint64_t y, uint64_t letter, uint64_t color, uint64_t size) { return 0; }
+int64_t sys_get_screen_info(void *info) { return 0; }
+int64_t sys_get_registers(RegsSnapshot *regs) { return 0; }
+int64_t sys_beep(uint64_t freq) { return 0; }
 
 void * memset(void * destination, int32_t c, uint64_t length)
 {

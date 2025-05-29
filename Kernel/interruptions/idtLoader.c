@@ -6,6 +6,9 @@
 #pragma pack(push)		/* Push de la alineación actual */
 #pragma pack (1) 		/* Alinear las siguiente estructuras a 1 byte */
 
+extern void _lidt(void*);
+
+
 /* Descriptor de interrupcion (entrada de la IDT)*/
 typedef struct {
   uint16_t offset_l, selector;
@@ -17,9 +20,28 @@ typedef struct {
 #pragma pack(pop)		/* Reestablece la alinceación actual */
 
 //puntero a la IDT
-DESCR_INT * idt = (DESCR_INT *) 0;	// IDT de 255 entradas
+//DESCR_INT * idt = (DESCR_INT *) 0;	// IDT de 255 entradas
+//cambio el renglon de arriba por:
+#define IDT_ENTRIES 256
+static DESCR_INT idt[IDT_ENTRIES];
+
+#pragma pack(push,1)
+typedef struct {
+  uint16_t limit;
+  uint64_t base;
+} IDTR;
+#pragma pack(pop)
+
+static IDTR idtr = {
+  .limit = sizeof(idt) - 1,
+  .base  = (uint64_t)&idt
+};
+
+//hasta aca el reemplazo
+
 
 static void setup_IDT_entry (int index, uint64_t offset);
+
 
 void load_idt() {
 
@@ -28,7 +50,20 @@ void load_idt() {
   setup_IDT_entry (0x20, (uint64_t)&_irq00Handler); //timer tick
   setup_IDT_entry (0x00, (uint64_t)&_exception0Handler); //división por cero
   setup_IDT_entry(0x06, (uint64_t)&_exception_invalidOpcodeHandler); // Opcode inválido
-  setup_IDT_entry(0x80, (uint64_t)&_irq80Handler); // syscall handler
+  
+  //cambio esto
+  //setup_IDT_entry(0x80, (uint64_t)&_irq80Handler); // syscall handler
+  //por esto:
+  idt[0x80].selector  = 0x08;
+  idt[0x80].offset_l  = (uint64_t)&_irq80Handler & 0xFFFF;
+  idt[0x80].offset_m  = ((uint64_t)&_irq80Handler >> 16) & 0xFFFF;
+  idt[0x80].offset_h  = ((uint64_t)&_irq80Handler >> 32) & 0xFFFFFFFF;
+  idt[0x80].access    = ACS_SYSCALL;
+  idt[0x80].cero      = 0;
+  idt[0x80].other_cero= 0;
+
+  _lidt(&idtr);
+
 
 	//Solo interrupcion timer tick habilitadas
 	picMasterMask(0xFE); 

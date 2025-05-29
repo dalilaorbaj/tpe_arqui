@@ -31,51 +31,38 @@ int64_t sys_beep(uint64_t freq);
 // | 5 (quinto argumento)  | `r8`           |
 // | 6 (sexto argumento)   | `r9`           |
 
-int64_t syscallDispatcher(Registers * registers) {
-    switch (registers->rax) {
+
+int64_t syscallDispatcher(uint64_t syscall_num, uint64_t arg1, uint64_t arg2, uint64_t arg3, uint64_t arg4, uint64_t arg5, uint64_t arg6) {
+    switch (syscall_num) {
         case 0:
-            registers->rax = sys_get_time((time_struct *)registers->rdi);
-            break;
+            return sys_get_time((time_struct *)arg1);
         case 1:
-            registers->rax = sys_set_font_size(registers->rdi);
-            break;
+            return sys_set_font_size(arg1);
         case 2:
-            registers->rax = sys_nano_sleep(registers->rdi);
-            break;
+            return sys_nano_sleep(arg1);
         case 3:
-            registers->rax = sys_read(registers->rdi, (void *)registers->rsi, registers->rdx);
-            break;
+            return sys_read(arg1, (void *)arg2, arg3);
         case 4:
-            registers->rax = sys_write(registers->rdi, (void *)registers->rsi, registers->rdx);
-            break;
+            return sys_write(arg1, (void *)arg2, arg3);
         case 5:
-            registers->rax = sys_clear_screen();
-            break;
+            return sys_clear_screen();
         case 6:
-            registers->rax = sys_draw_pixel(registers->rdi, registers->rsi, registers->rdx, registers->rcx);
-            break;
+            return sys_draw_pixel(arg1, arg2, arg3, arg4);
         case 7:
-            registers->rax = sys_draw_rectangle(registers->rdi, registers->rsi, registers->rdx, registers->rcx, registers->r8, registers->r9);
-            break;
+            return sys_draw_rectangle(arg1, arg2, arg3, arg4, arg5, arg6);
         case 8:
-            registers->rax = sys_draw_letter(registers->rdi, registers->rsi, registers->rdx, registers->rcx, registers->r8);
-            break;
+            return sys_draw_letter(arg1, arg2, arg3, arg4, arg5);
         case 9:
-            registers->rax = sys_get_screen_info((void *)registers->rdi);
-            break;
+            return sys_get_screen_info((void *)arg1);
         case 10:
-            registers->rax = sys_get_registers((RegsSnapshot *)registers->rdi);
-            break;
+            return sys_get_registers((RegsSnapshot *)arg1);
         case 11:
-            registers->rax = sys_beep(registers->rdi);
-            break;
+            return sys_beep(arg1);
         case 20:
-            registers->rax = sys_get_key();
-            break;
+            return sys_get_key();
         default:
-            return ERROR;
+            return -1;
     }
-    return 0;
 }
 
 

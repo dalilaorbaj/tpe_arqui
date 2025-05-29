@@ -15,7 +15,8 @@ typedef struct time {
     uint8_t seconds;
 } time_struct;
 
-int64_t syscallDispatcher(Registers * regs);
+int64_t syscallDispatcher(uint64_t syscall_num, uint64_t arg1, uint64_t arg2, uint64_t arg3, uint64_t arg4, uint64_t arg5, uint64_t arg6);
+
 
 int64_t sys_get_time(time_struct * time);
 

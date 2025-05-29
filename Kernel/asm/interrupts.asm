@@ -1,4 +1,3 @@
-
 GLOBAL _cli
 GLOBAL _sti
 GLOBAL picMasterMask
@@ -13,6 +12,8 @@ GLOBAL _irq03Handler
 GLOBAL _irq04Handler
 GLOBAL _irq05Handler
 GLOBAL _irq80Handler
+global _lidt
+
 
 GLOBAL _exception0Handler
 GLOBAL _exception_invalidOpcodeHandler
@@ -57,6 +58,23 @@ SECTION .text
 	pop rcx
 	pop rbx
 	pop rax
+%endmacro
+
+%macro popStateMinusRax 0
+	pop r15
+	pop r14
+	pop r13
+	pop r12
+	pop r11
+	pop r10
+	pop r9
+	pop r8
+	pop rsi
+	pop rdi
+	pop rbp
+	pop rdx
+	pop rcx
+	pop rbx
 %endmacro
 
 %macro irqHandlerMaster 1
@@ -140,22 +158,26 @@ _irq04Handler:
 ;USB
 _irq05Handler:
 	irqHandlerMaster 5
+                ; vuelve a userland con RAX = retorno de syscall
 
-
-
-;Syscalls	
 _irq80Handler:
     pushState
 
-    mov rdi, rax    ; syscall ID
-    mov rsi, rbx    ; arg1
-    mov rdx, rcx    ; arg2
-    mov rcx, rdx    ; arg3
+    ; Pasar argumentos según la convención x86-64:
+    ; rdi = syscall_num (rax), rsi = arg1 (rdi), rdx = arg2 (rsi), 
+    ; rcx = arg3 (rdx), r8 = arg4 (rcx), r9 = arg5 (r8)
+    mov r9, r8      ; arg5 = r8
+    mov r8, rcx     ; arg4 = rcx  
+    mov rcx, rdx    ; arg3 = rdx
+    mov rdx, rsi    ; arg2 = rsi
+    mov rsi, rdi    ; arg1 = rdi
+    mov rdi, rax    ; syscall_num = rax
 
     call syscallDispatcher
 
     popState
     iretq
+
 
 ;Zero Division Exception
 _exception0Handler:
@@ -170,7 +192,10 @@ haltcpu:
 	hlt
 	ret
 
-
+_lidt:
+    mov rax, [rdi]        ; primero el limit y luego la base
+    lidt [rdi]
+    ret
 
 SECTION .bss
 	aux resq 1

@@ -61,6 +61,13 @@ int64_t clearScreen(void) {
     return sys_clear_screen();
 }
 
+int64_t beep(uint32_t frequency, int time) {
+    if (frequency < 20 || frequency > 20000 || time == 0) {
+        return ERROR;
+    }
+    return sys_beep(frequency, time);
+}
+
 int64_t setFontSize(uint64_t size) {
     return sys_set_font_size(size);
 }
@@ -69,19 +76,6 @@ size_t strlen(const char *s) {
     const char *p = s;
     while (*p) p++;
     return (size_t)(p - s);
-}
-
-char *numToStr(uint64_t num, uint8_t base) {
-    static char buf[65];
-    char *p = buf + sizeof(buf) - 1;
-    const char *digits = "0123456789abcdef";
-    if (base < 2 || base > 16) base = 10;
-    *p = '\0';
-    do {
-        *--p = digits[num % base];
-        num /= base;
-    } while (num);
-    return p;
 }
 
 int64_t puts(const char *s) {
@@ -101,11 +95,30 @@ int strcmp(const char *a, const char *b) {
 }
 
 
-int64_t printf(const char *fmt, ...) {
+// ---------- Main lib functions ------------
+// printf
+// http://www.firmcodes.com/write-printf-function-c/
+int64_t fprintf(uint64_t fd, const char * fmt, ...) {
     va_list args;
     va_start(args, fmt);
-    int64_t ret = fprintf(STDOUT, fmt, args);
+    
+    // int64_t out = vfprintf(fd, fmt, args);
+    
     va_end(args);
-    return ret;
+    // return out;
+    return 0;
 }
+
+int64_t printf(const char * fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    
+    // int64_t out = vfprintf(STDOUT, fmt, args);
+    
+    va_end(args);
+    // return out;
+    return 0;
+}
+
+
 

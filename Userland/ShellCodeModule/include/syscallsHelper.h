@@ -27,8 +27,8 @@ int64_t sys_nano_sleep(uint64_t nanos);
 // Registros
 int64_t sys_get_registers(RegsSnapshot * regs);  
 
-// Audio
-int64_t sys_beep(uint64_t freq);  
+// Sound
+int64_t sys_beep(uint32_t freq, int time);  
 
 // Video/pantalla
 int64_t sys_set_font_size(uint64_t size);

@@ -45,7 +45,7 @@ int64_t syscallDispatcher(uint64_t syscall_num, uint64_t arg1, uint64_t arg2, ui
         case 10:
             return sys_get_registers((RegsSnapshot *)arg1);
         case 11:
-            return sys_beep(arg1);
+            return sys_beep(arg1, arg2);
         case 20:
             return sys_get_key();
         default:
@@ -92,5 +92,13 @@ unsigned char sys_get_key(void) {
 int64_t sys_clear_screen(void){
     Color bgColor = {0, 0, 0}; 
     empty_screen(bgColor);
+    return 0;
+}
+
+int64_t sys_beep(uint32_t freq, int time) {
+    if (time == 0 || freq < 20 || freq > 20000) {
+        return -1;
+    }
+    beep(freq, time);
     return 0;
 }

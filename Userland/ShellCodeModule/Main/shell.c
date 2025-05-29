@@ -9,21 +9,23 @@ static void helpCommand();
 static void echoCommand();
 static void timeCommand();
 static void divZeroCommand();
+static void beepCommand();
 static void invOpcodeCommand();
 void printRegsSnapshot(const RegsSnapshot *regs);
 int64_t writeStr(int fd, const char *s);
 static void clearCommand();
 static void exitCommand();
 static void utcToUtc3(time_struct *time);
+static void clearKeyboardBuffer();
 
-#define COMMAND_HELP "help"
-#define COMMAND_CLEAR "clear"
-#define COMMAND_ECHO "echo"
-#define COMMAND_EXIT "exit"
-#define COMMAND_TIME "time"
-#define COMMAND_DIVZERO "divzero"
-#define COMMAND_INVOPCODE "invopcode"
-#define COMMAND_REGS "regs"
+// #define COMMAND_HELP "help"
+// #define COMMAND_CLEAR "clear"
+// #define COMMAND_ECHO "echo"
+// #define COMMAND_EXIT "exit"
+// #define COMMAND_TIME "time"
+// #define COMMAND_DIVZERO "divzero"
+// #define COMMAND_INVOPCODE "invopcode"
+// #define COMMAND_REGS "regs"
 
 static Option options[] = {
     {"help", helpCommand},
@@ -33,7 +35,8 @@ static Option options[] = {
     {"time", timeCommand},
     {"divzero", divZeroCommand},
     {"invopcode", invOpcodeCommand},
-    {"regs", regsCommand}
+    {"regs", regsCommand},
+    {"beep", beepCommand}
 };
 
 // Punto de entrada del módulo
@@ -70,16 +73,21 @@ static void helpCommand() {
     puts("Available commands:");
     puts("  help - Display this help message");
     puts("  clear - Clear the screen");
-    puts("  echo [text] - Display the provided text\n");
-    puts("  time - Show current date and time\n");
-    puts("  regs - Show CPU registers\n");
-    puts("  divzero - Test division by zero exception\n");
-    puts("  invopcode - Test invalid opcode exception\n");
-    puts("  exit - Exit the shell\n");
+    puts("  echo [text] - Display the provided text");
+    puts("  time - Show current date and time");
+    puts("  regs - Show CPU registers");
+    puts("  divzero - Test division by zero exception");
+    puts("  invopcode - Test invalid opcode exception");
+    puts("  exit - Exit the shell");
+    puts("  beep - Make a sound");
 }
 
 static void clearCommand() {
     clearScreen();
+}
+
+static void beepCommand() {
+    beep(440, 10000);
 }
 
 static void echoCommand(const char* args) {
@@ -117,7 +125,8 @@ static void shellLoop() {
     
     int found;
     while(running) {
-        putChar('$');
+        puts("");
+        putChar('>');  // Prompt
         gets(buffer, SHELL_BUFFER_SIZE);  // Usar readLine en lugar de gets
         
         if(strlen(buffer) == 0) {
@@ -157,8 +166,6 @@ static void regsCommand() {
     }
 }
 
-//(?) las funciones de abajo deberian ser static?
-
 
 static void divZeroCommand() {
     volatile int a = 1, b = 0;
@@ -168,10 +175,6 @@ static void divZeroCommand() {
 static void invOpcodeCommand() {
     invOpcode();
 }
-
-// static void clearCommand(){
-//     clearScreen();
-// }
 
 static void timeCommand(){
     time_struct actualTime;
@@ -230,9 +233,6 @@ static void exitCommand() {
     return 0;
 }
 
-static void echoComand() {
-    
-}
 
 
 

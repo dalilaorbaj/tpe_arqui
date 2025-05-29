@@ -4,6 +4,8 @@
 
 #define ERROR -1
 
+#define BUFF_SIZE 8096
+
 char getChar();
 
 int putChar(char c);
@@ -26,8 +28,10 @@ void hlt(void);
 
 int64_t writeStr(int fd, const char *s);
 
-int64_t fprintf(int fd, const char *fmt, va_list args);
+int64_t fprintf(uint64_t fd, const char * fmt, ...);
 
 int64_t puts(const char *s);
 
 char *gets(char *buf, uint16_t max_len);
+
+int64_t beep(uint32_t frequency, int time);

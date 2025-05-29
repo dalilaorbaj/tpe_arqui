@@ -1,25 +1,31 @@
-/* #include <stdint.h>
-#include <keyboard1.h>
-#include <keys.h>
+// #include <stdint.h>
+// #include <keyboard1.h>
+// #include <keys.h>
 
-static uint16_t buffer[BUFFER_SIZE];
-static uint64_t buffer_dim = 0;
-static uint64_t buffer_current = 0;
+/* El tratamiento del buffer de teclado es circular */
+/* static uint16_t buffer[BUFFER_SIZE];
+static uint64_t buffer_dim = 0; //cantidad de elementos en el buffer
+static uint64_t buffer_last = 0; //ultimo elemento agregado al buffer
+static uint64_t buffer_first = 0; //primer elemento del buffer
+static int shift_pressed = 0;
 
 extern uint8_t sys_getKey();
 
 #define PRESSED_KEY_SHIFT_MAP_SIZE 128
 
-int hasKey(){
-    return in(0x64) & 1;
-}
-
-unsigned char getKey(){
-    //espero a que haya algo
-    while(!hasKey());
+static uint8_t handlekey(uint8_t key){
+    if (key >= PRESSED_KEY_SHIFT_MAP_SIZE) {
+        return 0; // Invalid key
+    }
     
-    return in(0x60);
-} 
+    // Check if the key is a special key
+    if (key < FIRST_SPECIAL_KEY || key > LAST_SPECIAL_KEY) {
+        return pressedKeyShiftMap[key][shift_pressed];
+    }
+    
+    // Return the special key value
+    return pressedKeyShiftMap[key - FIRST_SPECIAL_KEY][shift_pressed];
+}
 
 uint64_t bufferHasNext(){
     return ( buffer_dim > 0 ) && ( buffer_current < buffer_dim );
@@ -32,42 +38,19 @@ uint16_t getCurrent(){
     return 0;
 }
 
-// void keyboardHandler() {
-//     if (hasKey()) {
-//         unsigned char scancode = in(0x60);
-        
-//         // Solo agregar al buffer si no está lleno
-//         if (buffer_dim < BUFFER_SIZE) {
-//             buffer[buffer_dim++] = scancode;
-//         }
-//     }
-// }
 
-static int shift_pressed = 0;
+
 
 void keyboardHandler() {
-    if (hasKey()) {
-        unsigned char scancode = in(0x60);
-
-        // Manejo de shift presionado/liberado
-        if (scancode == 0x2A || scancode == 0x36) { // Shift presionado
-            shift_pressed = 1;
-            return;
-        }
-        if (scancode == 0xAA || scancode == 0xB6) { // Shift liberado
-            shift_pressed = 0;
-            return;
-        }
-
-        if (scancode & 0x80)
-            return;
-
-        // Solo agregar al buffer si no está lleno y el scancode es válido
-        if (buffer_dim < BUFFER_SIZE && scancode > 0 && scancode < PRESSED_KEY_SHIFT_MAP_SIZE) {
-            char ascii = pressedKeyShiftMap[scancode][shift_pressed];
-            if (ascii) { // Solo guardamos caracteres imprimibles
-                buffer[buffer_dim++] = ascii;
-            }
-        }
+    uint8_t key = handlekey(sys_getKey());
+    
+    if (key == 0) {
+        return; // No key pressed
     }
+
+    //Agregamos la tecla al buffer
+    buffer[bufferLast++] = key;
+    bufferLast = bufferLast % BUFFER_SIZE;
+    bufferElementCount++;
+    return;
 } */

@@ -3,6 +3,7 @@
 #include <keyboard.h>
 #include <rtc.h>
 #include <regs_snapshot.h>
+#include <sound.h>
 
 #define STDOUT 1
 #define STDERR 2

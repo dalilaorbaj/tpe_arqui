@@ -17,45 +17,11 @@
 #endif
 
 
-// int getChar(){
-//     uint16_t c;
-//     while (sys_read(STDIN, &c, 1) != 1 || c > 0xFF) {
-//         hlt();
-//     }
-//     return (int)(c & 0xFF);
-// }
-
 char getChar(){
     uint16_t c;
     while(sys_read(STDIN, &c, 1)==0 || c>255);
     return (char) c;
 }
-
-
-// char * gets(char* buffer, uint16_t maxLen) {
-//      if (!buffer || maxLen == 0) return NULL;
-    
-//     int current, i = 0;
-
-//     while (1) {
-//         current = getChar();
-//         if(current=='\n' || current=='\r'){
-//             break;
-//         }
-//         if ((current == '\b' || current==127) && i > 0) {
-//             sys_write(STDOUT, "\b \b", 3);
-//             i--;
-//         } else if (current != '\b' && current != 127 && i < maxLen - 1 && current >= ' ' && current <= '~') {
-//             char temp = (char)current;
-//             sys_write(STDOUT, &temp, 1);
-//             buffer[i++] = (char)current;
-//         }
-//     }
-    
-//     sys_write(STDOUT, "\n", 1);
-//     buffer[i] = '\0';
-//     return buffer;
-// }
 
 char *gets(char* buffer, uint16_t maxLen) {
     int current, i = 0;

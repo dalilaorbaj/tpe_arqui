@@ -14,6 +14,7 @@ void printRegsSnapshot(const RegsSnapshot *regs);
 int64_t writeStr(int fd, const char *s);
 static void clearCommand();
 static void exitCommand();
+static void utcToUtc3(time_struct *time);
 
 #define COMMAND_HELP "help"
 #define COMMAND_CLEAR "clear"
@@ -37,37 +38,9 @@ static Option options[] = {
 
 // Punto de entrada del módulo
 int main() {
-    puts("Shell code module loaded successfully!");
-    puts("Initializing shellLoop...");
+    puts("Se cargó la shell correctamente!");
     shellLoop();
     return 0;
-}
-
-// Función para leer una línea de entrada
-static void readLine(char* buffer, int buffer_size) {
-    int index = 0;
-    char c;  
-    
-    while(index < buffer_size - 1) {
-        // Usar syscall sys_read para leer un caracter desde STDIN (fd = 0)
-        if(sys_read(0, (uint16_t *)&c, 1) > 0) {
-            if(c == '\n' || c == '\r') {
-                break; // Terminar la línea
-            } else if(c == '\b' && index > 0) {
-                // Manejo de backspace
-                index--;
-                puts("\b \b"); // Borramos el caracter de la pantalla
-            } else if(c >= ' ' && c <= '~') {
-                buffer[index++] = c;
-                // Para imprimir un caracter, crea un string
-                char temp[2] = {c, '\0'};
-                puts(temp); // Echo del caracter
-            }
-        }
-    }
-    
-    buffer[index] = '\0';
-    puts(""); // Salto de línea
 }
 
 
@@ -114,25 +87,6 @@ static void echoCommand(const char* args) {
     puts("");
 }
 
-static void testKeyboard() {
-    puts("Presiona una tecla (test directo):\n");
-    uint16_t c;
-    
-    // Test directo de sys_read
-    while(1) {
-        int result = sys_read(0, &c, 1);
-        if(result > 0) {
-            puts("Tecla detectada: ");
-            char temp[2] = {(char)c, '\0'};
-            puts(temp);
-            puts("\n");
-            break;
-        }
-        // Pequeña pausa para no saturar
-        for(int i = 0; i < 1000000; i++);
-    }
-}
-
 // Función para limpiar el buffer del teclado
 static void clearKeyboardBuffer() {
     uint16_t c;
@@ -157,18 +111,14 @@ static void shellLoop() {
     int running = 1;
 
     clearScreen();
-    testKeyboard();
-    
-    // Limpiar buffer después del test
-    clearKeyboardBuffer();
     
     puts("Welcome to the Simple Shell");
     puts("Type 'help' for a list of commands");
     
     int found;
     while(running) {
-        puts("$ ");
-        readLine(buffer, SHELL_BUFFER_SIZE);  // Usar readLine en lugar de gets
+        putChar('$');
+        gets(buffer, SHELL_BUFFER_SIZE);  // Usar readLine en lugar de gets
         
         if(strlen(buffer) == 0) {
             continue;
@@ -195,33 +145,6 @@ static void shellLoop() {
             puts("Comando no reconocido");
         }
         
-        //readLine(buffer, SHELL_BUFFER_SIZE);
-        /*
-        // Parsear el comando y argumentos
-        parseCommand(buffer, command, COMMAND_MAX_LENGTH, args, ARGS_MAX_LENGTH);
-        
-        // Ejecutar el comando
-        if(strcmp(command, COMMAND_HELP) == 0) {
-            helpCommand();
-        } else if(strcmp(command, COMMAND_CLEAR) == 0) {
-            clearCommand();
-        } else if(strcmp(command, COMMAND_ECHO) == 0) {
-            echoCommand(args);
-        } else if(strcmp(command, COMMAND_TIME) == 0) {
-            timeCommand();
-        } else if(strcmp(command, COMMAND_DIVZERO) == 0) {
-            divZeroCommand();
-        } else if(strcmp(command, COMMAND_INVOPCODE) == 0) {
-            invOpcodeCommand();
-        } else if(strcmp(command, COMMAND_REGS) == 0) {
-            regsCommand();
-        } else if(strcmp(command, COMMAND_EXIT) == 0) {
-            running = 0;
-        } else if (command[0] != '\0'){
-            puts("Comando no encontrado: ");
-            puts(command);
-            puts("");
-        } */
     }
 }
 
@@ -253,6 +176,8 @@ static void invOpcodeCommand() {
 static void timeCommand(){
     time_struct actualTime;
     sys_get_time(&actualTime);
+    utcToUtc3(&actualTime); // Convertir de UTC a UTC-3 (Argentina)
+    puts("Hora actual (UTC-3):");
     printf("%d/%d/%d [d/m/y]\n", actualTime.day, actualTime.month, actualTime.year);
     printf("%d:%d:%d [hour/min/sec] (Argentina)\n", actualTime.hour, actualTime.minutes, actualTime.seconds); 
 }
@@ -301,23 +226,14 @@ static void utcToUtc3(time_struct *time) {
 }
 
 static void exitCommand() {
-    puts("Exiting shell...\n");
-    
+    puts("Abandonando la shell...\n");
+    return 0;
 }
 
 static void echoComand() {
     
 }
 
-
-// ya esta definida en library.c asi que la comento aca
-// static int strcmp(const char* s1, const char* s2) {
-//     while(*s1 && (*s1 == *s2)) {
-//         s1++;
-//         s2++;
-//     }
-//     return *(const unsigned char*)s1 - *(const unsigned char*)s2;
-// }
 
 
 

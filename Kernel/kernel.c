@@ -4,6 +4,7 @@
 #include <moduleLoader.h>
 #include <idtLoader.h>
 #include <video.h>
+#include <syscalls.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -83,6 +84,8 @@ void * initializeKernelBinary()
 	return getStackBase();
 }
 
+static void testKeyboard();
+
 int main(){	
 	
 	load_idt();
@@ -105,7 +108,28 @@ int main(){
 	ncPrint("[Finished]");
 */
 	((EntryPoint)shellCodeModuleAddress)();
+	// testKeyboard();
+
 	write("[Shell terminada]\n", 18);
 	
 	return 0;
+}
+
+static void testKeyboard() {
+    write("Presiona una tecla (test directo):\n", 36);
+    uint16_t c;
+    
+    // Test directo de sys_read
+    while(1) {
+        int result = sys_read(STDIN, &c, 1);
+        if(result > 0) {
+            write("Tecla detectada: ", 17);
+            char temp[2] = {(char)c, '\0'};
+            write(temp, 2);
+            write("\n", 2);
+            break;
+        }
+        // Pequeña pausa para no saturar
+        for(int i = 0; i < 1000000; i++);
+    }
 }

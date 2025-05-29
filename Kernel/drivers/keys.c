@@ -135,7 +135,7 @@
 // };
 
 
-const uint16_t pressedKeyShiftMap[][2] = {
+/* const uint16_t pressedKeyShiftMap[][2] = {
         {00, 00},               // El scanCode empieza en 0x01, lo pongo para poder entrar directamente en lo que me dan.
         {0x1B, 0x1B},           // Escape key
         {'1', '!'},
@@ -225,4 +225,4 @@ const uint16_t pressedKeyShiftMap[][2] = {
         {0,0},                          //scan code (0x56) vacio
         {F11, F11},
         {F12, F12}
-};
+}; */

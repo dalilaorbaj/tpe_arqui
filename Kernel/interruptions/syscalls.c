@@ -29,9 +29,9 @@ int64_t syscallDispatcher(uint64_t syscall_num, uint64_t arg1, uint64_t arg2, ui
         case 2:
             return sys_nano_sleep(arg1);
         case 3:
-            return sys_read(arg1, (void *)arg2, arg3);
+            return sys_read(arg1, (char *)arg2, arg3);
         case 4:
-            return sys_write(arg1, (void *)arg2, arg3);
+            return sys_write(arg1, (char *)arg2, arg3);
         case 5:
             return sys_clear_screen();
         case 6:
@@ -56,13 +56,11 @@ int64_t syscallDispatcher(uint64_t syscall_num, uint64_t arg1, uint64_t arg2, ui
 
 //	unsigned int fd	char __user *buf	size_t count (de la syscall table de linux)
 int64_t sys_read(uint64_t fd, uint16_t * buf, uint64_t count){
-    if (buf == 0 || count == 0) {
-        return ERROR;
-    }
-    uint64_t i = 0;
-    while (i < count && bufferHasNext()) {
-        char c = getCurrent();  
-        buf[i] = (uint16_t)c;   
+    if(fd != STDIN) return -1;
+    int64_t i = 0;
+    char c;
+    while (i < count && (c = getchar()) != 0) {
+        buf[i] = c;   
         i++;
     }
     return i;  
@@ -71,7 +69,7 @@ int64_t sys_read(uint64_t fd, uint16_t * buf, uint64_t count){
 
 int64_t sys_write(uint64_t fd, const char * buf, uint64_t count){
     if (fd == 1) { // STDOUT
-        return write((const char *)buf, count);
+        return write(buf, count);
     }
     return -1;
 }

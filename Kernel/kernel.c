@@ -87,7 +87,7 @@ int main(){
 	
 	load_idt();
 	
-	write("x64BareBones Kernel\n", 20);
+	write("[Cargando la shell]\n", 20);
 /*
 	ncPrint("[Cargando la shell]");
 	ncNewline();
@@ -102,5 +102,8 @@ int main(){
 
 	ncPrint("[Finished]");
 */
+	((EntryPoint)shellCodeModuleAddress)();
+	write("[Shell terminada]\n", 18);
+	
 	return 0;
 }

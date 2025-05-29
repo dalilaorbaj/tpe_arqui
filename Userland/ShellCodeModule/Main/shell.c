@@ -5,6 +5,7 @@
 #include "regs_snapshot.h"
 
 
+
 extern void ncPrint(const char* string);
 extern void ncNewline();
 //Implementar
@@ -35,7 +36,8 @@ void printRegsSnapshot(const RegsSnapshot *regs);
 
 // Punto de entrada del módulo
 int main() {
-    ncPrint("SHELL MAIN!\n");
+    puts("Shell code module loaded successfully!\n");
+    //ncPrint("SHELL MAIN!\n");
     shellLoop();
     return 0;
 }
@@ -45,14 +47,14 @@ static void readLine(char* buffer, int buffer_size) {
     int index = 0;
     char c;
     
-    while((c = ncGetChar()) != '\n' && index < BUFFER_SIZE - 1) {
+    while((c = ncGetChar()) != '\n' && index < buffer_size - 1) {
         if(c == '\b' && index > 0) {
             // Manejo de backspace
             index--;
-            ncPrint("\b \b"); // Borramos el caracter de la pantalla
+            puts("\b \b"); // Borramos el caracter de la pantalla
         } else if(c >= ' ' && c <= '~' && index < buffer_size - 1) {
             buffer[index++] = c;
-            ncPrintChar(c); // Echo del caracter
+            puts(c); // Echo del caracter
         }
     }
     
@@ -83,11 +85,11 @@ static void parseCommand(const char* buffer, char* command, int command_size, ch
 
 // Comandos del shell
 static void helpCommand() {
-    ncPrint("Available commands:\n");
-    ncPrint("  help - Display this help message\n");
-    ncPrint("  clear - Clear the screen\n");
-    ncPrint("  echo [text] - Display the provided text\n");
-    ncPrint("  exit - Exit the shell\n");
+    writeStr("Available commands:\n");
+    puts("  help - Display this help message\n");
+    puts("  clear - Clear the screen\n");
+    puts("  echo [text] - Display the provided text\n");
+    puts("  exit - Exit the shell\n");
 }
 
 static void clearCommand() {
@@ -95,7 +97,7 @@ static void clearCommand() {
 }
 
 static void echoCommand(const char* args) {
-    ncPrint(args);
+    puts(args);
     ncNewline();
 }
 
@@ -106,13 +108,13 @@ static void shellLoop() {
     char args[ARGS_MAX_LENGTH];
     int running = 1;
 
-    putChar('>'); // Inicializar el cursor
+    puts('>'); // Inicializar el cursor
     
-    ncPrint("Welcome to the Simple Shell\n");
-    ncPrint("Type 'help' for a list of commands\n");
+    puts("Welcome to the Simple Shell\n");
+    puts("Type 'help' for a list of commands\n");
     
     while(running) {
-        ncPrint("$ ");
+        puts("$ ");
         readLine(buffer, SHELL_BUFFER_SIZE);
         
         // Parsear el comando y argumentos
@@ -136,7 +138,7 @@ static void shellLoop() {
         } else if(strcmp(command, COMMAND_EXIT) == 0) {
             running = 0;
         } else if (command[0] != '\0'){
-            ncPrint("Comando no encontrado: ");
+            puts("Comando no encontrado: ");
             ncPrint(command);
             ncNewline();
         }
@@ -148,7 +150,7 @@ static void regsCommand() {
     if (sys_get_registers(&regs) == 0) {
         printRegsSnapshot(&regs);
     } else {
-        ncPrint("Error al obtener los registros\n");
+        puts("Error al obtener los registros\n");
     }
 }
 

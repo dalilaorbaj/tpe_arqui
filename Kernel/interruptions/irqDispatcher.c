@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <irqDispatcher.h>
 #include <stddef.h>
+#include <keyboard.h>
 /* Este código implementa un despachador de interrupciones para el kernel, específicamente para interrupciones IRQ.
 
 La función irqDispatcher(uint64_t irq) recibe el número de interrupción (irq) y, usando un switch, decide qué función manejará esa interrupción.
@@ -11,13 +12,12 @@ static void int_20();
 static void int_21();
 static void int_06();
 static void int_25();
-void keyboardHandler(void);
 void _exception_invalidOpcodeHandler(void);
 void usbHandler(void);
 // Array of function pointers for IRQ handlers
 static void (*irqHandlers[])(void) = {
 	int_20,    // IRQ 0 - Timer
-	int_21,      // IRQ 1
+	int_21,      // IRQ 1 - Keyboard
 	int_25,      // IRQ 2
 	int_06,      // IRQ 3
 	NULL,      // IRQ 4
@@ -40,7 +40,7 @@ static void int_20() {
 }
 
 static void int_21(){
-	//keyboardHandler();
+	keyboardHandler();
 }
 
 static void int_06(){

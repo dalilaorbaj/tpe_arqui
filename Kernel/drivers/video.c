@@ -29,7 +29,6 @@ static Color font_color = {COLOR_ON, COLOR_ON, COLOR_ON};
 static Color error_color = {COLOR_ON, COLOR_OFF, COLOR_OFF};
 static uint64_t font_size = DEFAULT_FONT_SIZE;
 
-static void empty_screen(Color new_bg_color);
 static void tab();
 static void printLetter(Character letter);
 static void nl();
@@ -40,8 +39,10 @@ static void append(char c);
 
 
 
-static void empty_screen(Color new_bg_color){
+void empty_screen(Color new_bg_color){
     draw_rectangle(0, 0, WIDTH, HEIGHT, new_bg_color);
+    current_point.x = 0;
+    current_point.y = 0;
 }
 
 int64_t draw_rectangle(uint64_t x, uint64_t y, uint64_t width, uint64_t height, Color color){

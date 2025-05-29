@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <lib.h>
 #include <moduleLoader.h>
+#include <video.h>
 #include <naiveConsole.h>
 
 static void loadModule(uint8_t ** module, void * targetModuleAddress);

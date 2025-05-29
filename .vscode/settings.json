@@ -1,9 +1,11 @@
 {
     "files.associations": {
         "video.h": "c",
-        "naiveconsole.h": "c",
         "keyboard.h": "c",
         "interrupts.h": "c",
-        "irqdispatcher.h": "c"
+        "irqdispatcher.h": "c",
+        "regs_snapshot.h": "c",
+        "stdint.h": "c",
+        "stdarg.h": "c"
     }
 }

@@ -1,5 +1,6 @@
-#include <stdint.h>
 #include <stddef.h>
+#include <syscallsHelper.h>
+#include <stdarg.h>
 
 #define ERROR -1
 
@@ -20,3 +21,11 @@ int64_t puts(const char *s);
 int strcmp(const char *a, const char *b);
 
 int64_t printf(const char *fmt, ...);
+
+void hlt(void);
+
+int64_t writeStr(int fd, const char *s);
+
+int64_t fprintf(int fd, const char *fmt, va_list args);
+
+int64_t puts(const char *s);

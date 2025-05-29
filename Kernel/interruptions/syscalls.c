@@ -1,5 +1,4 @@
 #include <syscalls.h>
-#include <naiveConsole.h>
 #include <video.h>
 #include <keyboard.h>
 #include <rtc.h>
@@ -9,17 +8,6 @@
 #define STDERR 2
 #define STDOUT_FORMAT 0x0F
 #define STDERR_FORMAT 0x0C
-
-extern unsigned char sys_get_key(void);
-int64_t sys_set_font_size(uint64_t size);
-int64_t sys_nano_sleep(uint64_t nanos);
-int64_t sys_clear_screen(void);
-int64_t sys_draw_pixel(uint64_t x, uint64_t y, uint64_t color, uint64_t size);
-int64_t sys_draw_rectangle(uint64_t x, uint64_t y, uint64_t width, uint64_t height, uint64_t color, uint64_t fill);
-int64_t sys_draw_letter(uint64_t x, uint64_t y, uint64_t letter, uint64_t color, uint64_t size);
-int64_t sys_get_screen_info(void *info);
-int64_t sys_get_registers(RegsSnapshot *regs);
-int64_t sys_beep(uint64_t freq);
 
 
 // | Argumento número      | Registro usado |
@@ -73,7 +61,9 @@ int64_t sys_read(uint64_t fd, uint16_t * buf, uint64_t count){
     }
     uint64_t i = 0;
     while (i < count && bufferHasNext()) {
-        buf[i++] = getCurrent();
+        char c = getCurrent();  // ✅ Ahora getCurrent() devuelve char
+        buf[i] = (uint16_t)c;   // Cast explícito
+        i++;
     }
     return i;  
 }
@@ -99,4 +89,10 @@ int64_t sys_get_time(time_struct * time){
 
 unsigned char sys_get_key(void) {
     return getKey();
+}
+
+int64_t sys_clear_screen(void){
+    Color bgColor = {0, 0, 0}; 
+    empty_screen(bgColor);
+    return 0;
 }

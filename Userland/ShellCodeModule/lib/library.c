@@ -1,7 +1,6 @@
 #include <stdint.h>
 #include <stdarg.h>
 #include <stddef.h>
-#include "keyboard.h"
 #include <library.h>
 //#include "syscallsHelper.h"
 
@@ -9,18 +8,13 @@
 #define STDOUT  1
 #define STDERR  2
 
-int64_t sys_read(int, void*, uint64_t);
-int64_t sys_write(int, const void*, uint64_t);
-void hlt(void);
-int64_t sys_clear_screen(void);
-int64_t sys_set_font_size(uint64_t size);
-int64_t writeStr(int fd, const char *s);
-int64_t fprintf(int fd, const char *fmt, va_list args);
-void ncPrint(const char *string);
-void ncPrintDec(uint64_t value);
-void ncPrintHex(uint64_t value);
-void ncNewline(void);
-int64_t puts(const char *s);
+//dsp revisar si estan definidas en otros archivos
+#ifndef ERROR
+#define ERROR   -1
+#endif
+#ifndef EOF
+#define EOF     -1
+#endif
 
 
 int getChar(){
@@ -29,6 +23,32 @@ int getChar(){
         hlt();
     }
     return (int)(c & 0xFF);
+}
+
+char *gets(char *buf, size_t max_len) {
+    size_t i = 0;
+    int c;
+
+    if (max_len == 0 || buf == NULL) {
+        return NULL;
+    }
+
+    // Lee el primer carácter
+    c = getChar();
+    if (c == EOF) {
+        return NULL;
+    }
+
+    // Lee mientras haya espacio (dejando 1 byte para '\0')
+    while (i < max_len - 1 && c != EOF && c != '\n') {
+        buf[i++] = (char)c;
+        c = getChar();
+    }
+
+    // Termina la cadena
+    buf[i] = '\0';
+
+    return buf;
 }
 
 int putChar(char c){

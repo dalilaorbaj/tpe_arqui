@@ -2,7 +2,6 @@
 #include <string.h>
 #include <lib.h>
 #include <moduleLoader.h>
-#include <naiveConsole.h>
 #include <idtLoader.h>
 #include <video.h>
 

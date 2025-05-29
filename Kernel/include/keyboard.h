@@ -11,7 +11,8 @@ unsigned char getKey();
 
 uint64_t bufferHasNext();
 
-uint64_t getCurrent();
+char getCurrent();
 
+void keyboardHandler();
 
 #endif

@@ -1,21 +1,18 @@
 #include <stdint.h>
 #include <stdarg.h>
-#include "regs_snapshot.h"
-#include "time_struct.h"
-#include "naiveConsole.h"
 #include "library.h"
 
 // Declaraciones de las funciones implementadas en syscalls.asm
-extern int64_t sys_read(int fd, void *buf, uint64_t count);
+/* extern int64_t sys_read(int fd, void *buf, uint64_t count);
 extern int64_t sys_write(int fd, const void *buf, uint64_t count);
 extern int64_t sys_clear_screen(void);
 extern int64_t sys_set_font_size(uint64_t size);
 extern int64_t sys_get_registers(RegsSnapshot *snapshot);
 extern int64_t sys_get_time(time_struct *t);
+extern unsigned char sys_get_key(void); */
 extern void hlt(void);
-extern unsigned char sys_get_key(void);
 
-int timeCommand() {
+/* int timeCommand() {
     time_struct t;
     if (sys_get_time(&t) == 0) {
         ncPrint("Hora actual: ");
@@ -38,7 +35,7 @@ int timeCommand() {
         ncPrint("Error al obtener la hora\n");
     }
     return ERROR;
-}
+} */
 
 // void hlt(void) {
 //     hlt();

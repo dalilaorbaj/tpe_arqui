@@ -44,6 +44,7 @@ uint64_t write(const char *buffer, int64_t size);
 int64_t draw_font(uint64_t x, uint64_t y, uint8_t ch, Color color, uint64_t size); 
 int64_t draw_pixel(uint64_t x, uint64_t y, Color color);
 void set_font_color(Color color);
+void empty_screen(Color newBgColor);
 
 struct vbe_mode_info_structure {
     uint16_t attributes;	// deprecated, only bit 7 should be of interest to you, and it indicates the mode supports a linear frame buffer.

@@ -19,9 +19,6 @@ typedef struct {
 
 #pragma pack(pop)		/* Reestablece la alinceación actual */
 
-//puntero a la IDT
-//DESCR_INT * idt = (DESCR_INT *) 0;	// IDT de 255 entradas
-//cambio el renglon de arriba por:
 #define IDT_ENTRIES 256
 static DESCR_INT idt[IDT_ENTRIES];
 
@@ -37,7 +34,6 @@ static IDTR idtr = {
   .base  = (uint64_t)&idt
 };
 
-//hasta aca el reemplazo
 
 
 static void setup_IDT_entry (int index, uint64_t offset);
@@ -48,12 +44,10 @@ void load_idt() {
   _cli();
 
   setup_IDT_entry (0x20, (uint64_t)&_irq00Handler); //timer tick
+  setup_IDT_entry (0x21, (uint64_t)&_irq01Handler); //keyboard
   setup_IDT_entry (0x00, (uint64_t)&_exception0Handler); //división por cero
   setup_IDT_entry(0x06, (uint64_t)&_exception_invalidOpcodeHandler); // Opcode inválido
   
-  //cambio esto
-  //setup_IDT_entry(0x80, (uint64_t)&_irq80Handler); // syscall handler
-  //por esto:
   idt[0x80].selector  = 0x08;
   idt[0x80].offset_l  = (uint64_t)&_irq80Handler & 0xFFFF;
   idt[0x80].offset_m  = ((uint64_t)&_irq80Handler >> 16) & 0xFFFF;
@@ -65,8 +59,8 @@ void load_idt() {
   _lidt(&idtr);
 
 
-	//Solo interrupcion timer tick habilitadas
-	picMasterMask(0xFE); 
+	//Solo interrupcion timer tick y keyboard habilitadas
+	picMasterMask(0xFC); 
 	picSlaveMask(0xFF);
       
   //habilitar interrupciones a nivel de CPU

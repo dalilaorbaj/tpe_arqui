@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <naiveConsole.h>
 #include "regs_snapshot.h"
 
 int64_t sys_set_font_size(uint64_t size) { return 0; }

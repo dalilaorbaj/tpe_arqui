@@ -14,6 +14,7 @@ global sys_get_key
 
 section .text
 
+
 %macro base_syscall 1
     push rbp
     mov rbp, rsp
@@ -23,6 +24,7 @@ section .text
     pop rbp
     ret
 %endmacro
+
 
 sys_read:             base_syscall 3
 sys_write:            base_syscall 4

@@ -20,6 +20,7 @@ void divZeroCommand();
 void invOpcodeCommand();
 int sys_get_registers(RegsSnapshot *regs);
 void printRegsSnapshot(const RegsSnapshot *regs);
+int64_t writeStr(const char *s);
 
 #define SHELL_BUFFER_SIZE 100
 #define COMMAND_MAX_LENGTH 10
@@ -36,7 +37,7 @@ void printRegsSnapshot(const RegsSnapshot *regs);
 
 // Punto de entrada del módulo
 int main() {
-    puts("Shell code module loaded successfully!\n");
+    puts("Shell code module loaded successfully!");
     //ncPrint("SHELL MAIN!\n");
     shellLoop();
     return 0;
@@ -45,16 +46,16 @@ int main() {
 // Función para leer una línea de entrada
 static void readLine(char* buffer, int buffer_size) {
     int index = 0;
-    char c;
+    char * c;
     
-    while((c = ncGetChar()) != '\n' && index < buffer_size - 1) {
-        if(c == '\b' && index > 0) {
+    while((*c = ncGetChar()) != '\n' && index < buffer_size - 1) {
+        if(*c == '\b' && index > 0) {
             // Manejo de backspace
             index--;
             puts("\b \b"); // Borramos el caracter de la pantalla
-        } else if(c >= ' ' && c <= '~' && index < buffer_size - 1) {
-            buffer[index++] = c;
-            puts(c); // Echo del caracter
+        } else if(*c >= ' ' && *c <= '~' && index < buffer_size - 1) {
+            buffer[index++] = *c;
+            puts((const char *) c); // Echo del caracter
         }
     }
     
@@ -85,7 +86,7 @@ static void parseCommand(const char* buffer, char* command, int command_size, ch
 
 // Comandos del shell
 static void helpCommand() {
-    writeStr("Available commands:\n");
+    puts("Available commands:");
     puts("  help - Display this help message\n");
     puts("  clear - Clear the screen\n");
     puts("  echo [text] - Display the provided text\n");
@@ -103,15 +104,15 @@ static void echoCommand(const char* args) {
 
 // Función principal del shell
 static void shellLoop() {
-    char buffer[BUFFER_SIZE];
+    char buffer[SHELL_BUFFER_SIZE];
     char command[COMMAND_MAX_LENGTH];
     char args[ARGS_MAX_LENGTH];
     int running = 1;
 
-    puts('>'); // Inicializar el cursor
+    puts(">"); // Inicializar el cursor
     
-    puts("Welcome to the Simple Shell\n");
-    puts("Type 'help' for a list of commands\n");
+    puts("Welcome to the Simple Shell");
+    puts("Type 'help' for a list of commands");
     
     while(running) {
         puts("$ ");
@@ -150,7 +151,7 @@ static void regsCommand() {
     if (sys_get_registers(&regs) == 0) {
         printRegsSnapshot(&regs);
     } else {
-        puts("Error al obtener los registros\n");
+        puts("Error al obtener los registros");
     }
 }
 

@@ -2,6 +2,8 @@
     "files.associations": {
         "video.h": "c",
         "naiveconsole.h": "c",
-        "keyboard.h": "c"
+        "keyboard.h": "c",
+        "interrupts.h": "c",
+        "irqdispatcher.h": "c"
     }
 }

@@ -51,7 +51,7 @@ unsigned char getKey() {
 
 // Implementación de writeStr usando sys_write
 int64_t writeStr(int fd, const char *s) {
-    int64_t len = 0;
+    uint64_t len = 0;
     while (s[len]) len++;
     return sys_write(fd, s, len);
 }

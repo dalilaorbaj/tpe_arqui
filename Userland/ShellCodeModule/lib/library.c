@@ -3,6 +3,8 @@
 #include <stddef.h>
 #include "keyboard.h"
 #include <library.h>
+//#include "syscallsHelper.h"
+
 #define STDIN   0
 #define STDOUT  1
 #define STDERR  2
@@ -18,6 +20,8 @@ void ncPrint(const char *string);
 void ncPrintDec(uint64_t value);
 void ncPrintHex(uint64_t value);
 void ncNewline(void);
+int64_t puts(const char *s);
+
 
 int getChar(){
     uint16_t c;

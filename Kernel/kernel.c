@@ -22,6 +22,7 @@ static void * const shellDataModuleAddress = (void*)0x500000;
 typedef int (*EntryPoint)();
 
 
+
 void clearBSS(void * bssAddress, uint64_t bssSize)
 {
 	memset(bssAddress, 0, bssSize);
@@ -86,6 +87,8 @@ void * initializeKernelBinary()
 int main(){	
 	
 	load_idt();
+	
+
 	
 	write("[Cargando la shell]\n", 20);
 /*

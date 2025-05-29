@@ -21,6 +21,7 @@ int64_t sys_get_screen_info(void *info);
 int64_t sys_get_registers(RegsSnapshot *regs);
 int64_t sys_beep(uint64_t freq);
 
+
 // | Argumento número      | Registro usado |
 // | --------------------- | -------------- |
 // | 1 (primer argumento)  | `rdi`          |
@@ -91,10 +92,13 @@ int64_t sys_read(uint64_t fd, uint16_t * buf, uint64_t count){
 }
 
 
-//text_mode
-int64_t sys_write(uint64_t fd, uint16_t * buf, uint64_t count){
-    return write((const char *)buf, count);
+int64_t sys_write(uint64_t fd, const char * buf, uint64_t count){
+    if (fd == 1) { // STDOUT
+        return write((const char *)buf, count);
+    }
+    return -1;
 }
+
 
 int64_t sys_get_time(time_struct * time){
     time->seconds = getRTCSeconds();

@@ -3,7 +3,7 @@
 #include "library.h"
 
 // Declaraciones de las funciones implementadas en syscalls.asm
-/* extern int64_t sys_read(int fd, void *buf, uint64_t count);
+/* extern int64_t sys_read(int fd, char *buf, uint64_t count);
 extern int64_t sys_write(int fd, const void *buf, uint64_t count);
 extern int64_t sys_clear_screen(void);
 extern int64_t sys_set_font_size(uint64_t size);

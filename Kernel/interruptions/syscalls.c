@@ -61,8 +61,8 @@ int64_t sys_read(uint64_t fd, uint16_t * buf, uint64_t count){
     }
     uint64_t i = 0;
     while (i < count && bufferHasNext()) {
-        char c = getCurrent();  // ✅ Ahora getCurrent() devuelve char
-        buf[i] = (uint16_t)c;   // Cast explícito
+        char c = getCurrent();  
+        buf[i] = (uint16_t)c;   
         i++;
     }
     return i;  

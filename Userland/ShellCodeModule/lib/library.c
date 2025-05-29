@@ -17,39 +17,74 @@
 #endif
 
 
-int getChar(){
+// int getChar(){
+//     uint16_t c;
+//     while (sys_read(STDIN, &c, 1) != 1 || c > 0xFF) {
+//         hlt();
+//     }
+//     return (int)(c & 0xFF);
+// }
+
+char getChar(){
     uint16_t c;
-    while (sys_read(STDIN, &c, 1) != 1 || c > 0xFF) {
-        hlt();
-    }
-    return (int)(c & 0xFF);
+    while(sys_read(STDIN, &c, 1)==0 || c>255);
+    return (char) c;
 }
 
-char *gets(char *buf, size_t max_len) {
-    size_t i = 0;
-    int c;
 
-    if (max_len == 0 || buf == NULL) {
-        return NULL;
+// char * gets(char* buffer, uint16_t maxLen) {
+//      if (!buffer || maxLen == 0) return NULL;
+    
+//     int current, i = 0;
+
+//     while (1) {
+//         current = getChar();
+//         if(current=='\n' || current=='\r'){
+//             break;
+//         }
+//         if ((current == '\b' || current==127) && i > 0) {
+//             sys_write(STDOUT, "\b \b", 3);
+//             i--;
+//         } else if (current != '\b' && current != 127 && i < maxLen - 1 && current >= ' ' && current <= '~') {
+//             char temp = (char)current;
+//             sys_write(STDOUT, &temp, 1);
+//             buffer[i++] = (char)current;
+//         }
+//     }
+    
+//     sys_write(STDOUT, "\n", 1);
+//     buffer[i] = '\0';
+//     return buffer;
+// }
+
+char *gets(char* buffer, uint16_t maxLen) {
+    int current, i = 0;
+
+    while (1) {
+        current = getChar();
+        if (current == '\n' || current == '\r') {
+            break;
+        }
+        if (current == '\b' || current == 127) {
+            if (i > 0) {
+                /* retroceder un caracter en pantalla */
+                putChar('\b'); putChar(' '); putChar('\b');
+                i--;
+            }
+            continue;
+        }
+        if (i < maxLen - 1) {
+            putChar((char)current);
+            buffer[i++] = (char)current;
+        }
     }
-
-    // Lee el primer carácter
-    c = getChar();
-    if (c == EOF) {
-        return NULL;
-    }
-
-    // Lee mientras haya espacio (dejando 1 byte para '\0')
-    while (i < max_len - 1 && c != EOF && c != '\n') {
-        buf[i++] = (char)c;
-        c = getChar();
-    }
-
-    // Termina la cadena
-    buf[i] = '\0';
-
-    return buf;
+    putChar('\r'); 
+    putChar('\n');  
+    buffer[i] = '\0';
+    return buffer;
 }
+
+
 
 int putChar(char c){
     uint8_t uc = (uint8_t)c;
@@ -64,7 +99,7 @@ int64_t setFontSize(uint64_t size) {
     return sys_set_font_size(size);
 }
 
-size_t strLen(const char *s) {
+size_t strlen(const char *s) {
     const char *p = s;
     while (*p) p++;
     return (size_t)(p - s);
@@ -98,6 +133,7 @@ int strcmp(const char *a, const char *b) {
     }
     return (uint8_t)*a - (uint8_t)*b;
 }
+
 
 int64_t printf(const char *fmt, ...) {
     va_list args;

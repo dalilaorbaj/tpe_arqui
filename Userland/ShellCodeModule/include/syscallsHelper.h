@@ -13,7 +13,7 @@ typedef struct {
     uint8_t day;
     uint8_t month;
     uint16_t year;
-} time_struct;
+}time_struct;
 
 
 // Syscalls básicas

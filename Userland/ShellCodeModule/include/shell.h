@@ -1,3 +1,5 @@
+#include <library.h>
+
 #define SHELL_BUFFER_SIZE 100
 #define COMMAND_MAX_LENGTH 10
 #define ARGS_MAX_LENGTH 90

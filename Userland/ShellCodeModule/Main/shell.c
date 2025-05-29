@@ -1,15 +1,15 @@
 #include <stdint.h>
-#include <library.h>
 //#include "regs_snapshot.h"
 #include <shell.h>
 
 static void shellLoop();
 static void regsCommand();
 extern void invOpcode();
-
+static void helpCommand();
+static void echoCommand();
 static void timeCommand();
-void divZeroCommand();
-void invOpcodeCommand();
+static void divZeroCommand();
+static void invOpcodeCommand();
 void printRegsSnapshot(const RegsSnapshot *regs);
 int64_t writeStr(int fd, const char *s);
 static void clearCommand();
@@ -114,6 +114,41 @@ static void echoCommand(const char* args) {
     puts("");
 }
 
+static void testKeyboard() {
+    puts("Presiona una tecla (test directo):\n");
+    uint16_t c;
+    
+    // Test directo de sys_read
+    while(1) {
+        int result = sys_read(0, &c, 1);
+        if(result > 0) {
+            puts("Tecla detectada: ");
+            char temp[2] = {(char)c, '\0'};
+            puts(temp);
+            puts("\n");
+            break;
+        }
+        // Pequeña pausa para no saturar
+        for(int i = 0; i < 1000000; i++);
+    }
+}
+
+// Función para limpiar el buffer del teclado
+static void clearKeyboardBuffer() {
+    uint16_t c;
+    int attempts = 0;
+    const int MAX_ATTEMPTS = 1000;  // Evitar bucle infinito
+    
+    // Leer todas las teclas pendientes
+    while(attempts < MAX_ATTEMPTS) {
+        int result = sys_read(0, &c, 1);
+        if(result <= 0) {
+            break;  // No hay más teclas
+        }
+        attempts++;
+    }
+}
+
 // Función principal del shell
 static void shellLoop() {
     char buffer[SHELL_BUFFER_SIZE];
@@ -122,23 +157,44 @@ static void shellLoop() {
     int running = 1;
 
     clearScreen();
+    testKeyboard();
+    
+    // Limpiar buffer después del test
+    clearKeyboardBuffer();
     
     puts("Welcome to the Simple Shell");
     puts("Type 'help' for a list of commands");
     
+    int found;
     while(running) {
         puts("$ ");
-        gets(buffer, COMMAND_MAX_LENGTH);
-        if(strlen(buffer)==0){
-            return ;
+        readLine(buffer, SHELL_BUFFER_SIZE);  // Usar readLine en lugar de gets
+        
+        if(strlen(buffer) == 0) {
+            continue;
         }
-        for(int i=0 ; i<CANT_OPTIONS ; i++){
-            if(strcmp(buffer, options[i].name)==0){
-                options[i].function();
-                return;
+        
+        // Parsear comando para manejar argumentos
+        parseCommand(buffer, command, COMMAND_MAX_LENGTH, args, ARGS_MAX_LENGTH);
+        
+        found = 0;
+        for(int i = 0; i < CANT_OPTIONS; i++) {
+            if(strcmp(command, options[i].name) == 0) {
+                if(strcmp(command, "exit") == 0) {
+                    running = 0;
+                } else if(strcmp(command, "echo") == 0) {
+                    echoCommand(args);  // Pasar argumentos
+                } else {
+                    options[i].function();
+                }
+                found = 1;
+                break;
             }
         }
-        fprintf(STDERR, )
+        if(!found){
+            puts("Comando no reconocido");
+        }
+        
         //readLine(buffer, SHELL_BUFFER_SIZE);
         /*
         // Parsear el comando y argumentos
@@ -181,27 +237,75 @@ static void regsCommand() {
 //(?) las funciones de abajo deberian ser static?
 
 
-void divZeroCommand() {
+static void divZeroCommand() {
     volatile int a = 1, b = 0;
     a = a / b;
 }
 
-void invOpcodeCommand() {
+static void invOpcodeCommand() {
     invOpcode();
 }
 
-static void clearCommand(){
-    clearScreen();
-}
+// static void clearCommand(){
+//     clearScreen();
+// }
 
 static void timeCommand(){
     time_struct actualTime;
     sys_get_time(&actualTime);
-    
+    printf("%d/%d/%d [d/m/y]\n", actualTime.day, actualTime.month, actualTime.year);
+    printf("%d:%d:%d [hour/min/sec] (Argentina)\n", actualTime.hour, actualTime.minutes, actualTime.seconds); 
+}
+
+// Convertir UTC a UTC-3 
+static void utcToUtc3(time_struct *time) {
+    // Subtract 3 hours from the time
+    if (time->hour < 3) {
+        // Need to go back one day
+        time->hour = time->hour + 24 - 3;
+        
+        // Handle day rollover
+        time->day--;
+        
+        // Check for month rollover
+        if (time->day == 0) {
+            time->month--;
+            
+            // Handle month rollover
+            if (time->month == 0) {
+                time->month = 12;
+                time->year--;
+            }
+            
+            // Set the day to the last day of the previous month
+            switch (time->month) {
+                case 1: case 3: case 5: case 7: case 8: case 10: case 12:
+                    time->day = 31;
+                    break;
+                case 4: case 6: case 9: case 11:
+                    time->day = 30;
+                    break;
+                case 2:
+                    // Leap year check
+                    if ((time->year % 4 == 0 && time->year % 100 != 0) || (time->year % 400 == 0))
+                        time->day = 29;
+                    else
+                        time->day = 28;
+                    break;
+            }
+        }
+    } else {
+        // Simple case - just subtract 3 hour
+        time->hour -= 3;
+    }
 }
 
 static void exitCommand() {
     puts("Exiting shell...\n");
+    
+}
+
+static void echoComand() {
     
 }
 

@@ -28,7 +28,7 @@
  }
  
  //Make a beep
- void beep(uint64_t freq, uint64_t time) {
+void beep(uint64_t freq, uint64_t time) {
  	 play_sound(freq);
  	 sleepTicks(time);
  	//for (volatile uint64_t i = 0; i < time * 100000; i++); // Espera simple

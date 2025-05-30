@@ -21,7 +21,7 @@
 #define ESC 0x01
 #define F1  0x3B
 #define F2  0x3C
-#define F3  0x3D
+#define F3  0x3D 
 #define F4  0x3E
 #define F5  0x3F
 #define F6  0x40

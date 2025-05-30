@@ -92,11 +92,11 @@ void printRegsSnapshot(const RegsSnapshot *regs) {
     puts(hexBuffer);
     puts("\n");
     
-    puts("CS : ");
-    uint64ToHexString(regs->cs, hexBuffer);
-    puts(hexBuffer);
-    puts("  SS: ");
-    uint64ToHexString(regs->ss, hexBuffer);
-    puts(hexBuffer);
-    puts("\n");
+    // puts("CS : ");
+    // uint64ToHexString(regs->cs, hexBuffer);
+    // puts(hexBuffer);
+    // puts("  SS: ");
+    // uint64ToHexString(regs->ss, hexBuffer);
+    // puts(hexBuffer);
+    //puts("\n");
 }

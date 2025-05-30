@@ -1,9 +1,7 @@
 #include <stdint.h>
 
-typedef struct {
-    uint64_t r15, r14, r13, r12, r11, r10, r9, r8;
-    uint64_t rsi, rdi, rbp, rdx, rcx, rbx, rax;
-    uint64_t rip, cs, rflags, rsp, ss;
+typedef struct registers {
+    uint64_t rflags, rax, rbx, rcx, rdx, rsi, rdi, rbp, rsp, r8, r9, r10, r11, r12, r13, r14, r15, rip;
 } RegsSnapshot;
 
 typedef struct {
@@ -25,7 +23,7 @@ int64_t sys_get_time(time_struct * time);
 int64_t sys_nano_sleep(uint64_t nanos);  
 
 // Registros
-int64_t sys_get_registers(RegsSnapshot * regs);  
+int64_t sys_get_registers(RegsSnapshot * regs); 
 
 // Sound
 int64_t sys_beep(uint64_t freq, uint64_t time);  

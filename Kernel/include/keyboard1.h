@@ -5,8 +5,6 @@
 #define KEYBOARD_H
 
 #define BUFFER_SIZE 1024
-
-//dlul
 #define FIRST_SPECIAL_KEY LEFT_CONTROL
 #define LAST_SPECIAL_KEY  F12
 #define SPECIAL_KEYS_CANT  (LAST_SPECIAL_KEY - FIRST_SPECIAL_KEY + 1)
@@ -50,16 +48,12 @@ typedef enum {
     F12
 } specialCodes;
 
-int hasKey();
-unsigned char getKey();
+uint8_t getKey();
 
-uint64_t bufferHasNext();
-
-uint16_t getCurrent();
+int emptyBuffer();
 
 void keyboardHandler();
 
-//typedef void (*function_key)(void);
-//void setFKeyFunction(uint64_t key_number, function_key f);
+uint8_t getChar();
 
 #endif

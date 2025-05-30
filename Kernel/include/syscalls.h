@@ -2,9 +2,9 @@
 #include "regs_snapshot.h"
 
 
-typedef struct {
-    uint64_t rax, rbx, rcx, rdx, rbp, rsi, rdi, r8, r9, r10, r11, r12, r13, r14, r15;
-} Registers;
+// typedef struct {
+//     uint64_t rax, rbx, rcx, rdx, rbp, rsi, rdi, r8, r9, r10, r11, r12, r13, r14, r15;
+// } Registers;
 
 typedef struct time {
     uint8_t year;
@@ -20,7 +20,6 @@ int64_t sys_get_time(time_struct * time);
 int64_t sys_write(uint64_t fd, const char * buf, uint64_t count);
 int64_t sys_read(uint64_t fd, uint16_t * buf, uint64_t count);
 unsigned char sys_get_key(void);
-int64_t sys_get_registers(RegsSnapshot *regs);
 extern unsigned char sys_get_key(void);
 int64_t sys_set_font_size(uint64_t size);
 int64_t sys_nano_sleep(uint64_t nanos);

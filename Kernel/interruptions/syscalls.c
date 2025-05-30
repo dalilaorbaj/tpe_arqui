@@ -4,11 +4,15 @@
 #include <rtc.h>
 #include <regs_snapshot.h>
 #include <sound.h>
+#include <stddef.h>
 
 #define STDOUT 1
 #define STDERR 2
 #define STDOUT_FORMAT 0x0F
 #define STDERR_FORMAT 0x0C
+
+extern void get_snapshot();
+extern uint64_t registersArray[18];
 
 
 // | Argumento número      | Registro usado |
@@ -114,3 +118,40 @@ int64_t sys_beep(uint64_t freq, uint64_t time) {
     write("[sys_beep] finished beep\n", 24);
     return 0;
 }
+
+
+int64_t sys_get_registers(RegsSnapshot *regs) {
+    if (regs == NULL) {
+        return -1; 
+    }
+    
+    get_snapshot();
+    regs->rflags = registersArray[0];
+    regs->rax = registersArray[1];
+    regs->rbx = registersArray[2];
+    regs->rcx = registersArray[3];
+    regs->rdx = registersArray[4];
+    regs->rsi = registersArray[5];
+    regs->rbp = registersArray[6];
+    regs->rdi = registersArray[5];
+    regs->rbp = registersArray[5];
+    regs->rsp = registersArray[7];
+    regs->r8 = registersArray[8];
+    regs->r9 = registersArray[9];
+    regs->r10 = registersArray[10];
+    regs->r11 = registersArray[11];
+    regs->r12 = registersArray[12];
+    regs->r13 = registersArray[13];
+    regs->r14 = registersArray[14];
+    regs->r15 = registersArray[15];
+    regs->rip = registersArray[16];
+    return 0;
+}
+
+
+int64_t sys_set_font_size(uint64_t size) { return 0; }
+int64_t sys_nano_sleep(uint64_t nanos) { return 0; }
+int64_t sys_draw_pixel(uint64_t x, uint64_t y, uint64_t color, uint64_t size) { return 0; }
+int64_t sys_draw_rectangle(uint64_t x, uint64_t y, uint64_t width, uint64_t height, uint64_t color, uint64_t fill) { return 0; }
+int64_t sys_draw_letter(uint64_t x, uint64_t y, uint64_t letter, uint64_t color, uint64_t size) { return 0; }
+int64_t sys_get_screen_info(void *info) { return 0; }

@@ -11,7 +11,7 @@ static void timeCommand();
 static void divZeroCommand();
 static void beepCommand();
 static void invOpcodeCommand();
-static void pongisGolfCommand();
+static void pongisCommand();
 void printRegsSnapshot(const RegsSnapshot *regs);
 int64_t writeStr(int fd, const char *s);
 static void clearCommand();
@@ -30,7 +30,7 @@ static Option options[] = {
     {"invopcode", invOpcodeCommand},
     {"regs", regsCommand},
     {"beep", beepCommand}, 
-    {"pongisGolf", pongisGolfCommand}
+    {"pongis", pongisCommand}
 };
 
 // Punto de entrada del módulo
@@ -85,6 +85,7 @@ static void helpCommand() {
     puts("- Make a sound");
     writeStrColor("  pongisGolf ", (Color){129, 243, 255});
     puts("- Play Pongis Golf");
+
 }
 
 static void clearCommand() {
@@ -193,8 +194,8 @@ static void timeCommand(){
     printf("%d:%d:%d [hour/min/sec] (Argentina)\n", actualTime.hour, actualTime.minutes, actualTime.seconds); 
 }
 
-static void pongisGolfCommand(){
-    //startPongisGolf();
+static void pongisCommand(){
+    startPongisGolf();
     return;
 }
 

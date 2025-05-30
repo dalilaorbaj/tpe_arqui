@@ -1,7 +1,7 @@
 include ../Makefile.inc
 
 MODULE=0000-shell.bin
-SOURCES=$(wildcard Main/*.c) ./lib/library.c ../syscallsHelper.c ./lib/regs_snapshot.c
+SOURCES=$(wildcard Main/*.c) ./lib/library.c ../syscallsHelper.c ./lib/regs_snapshot.c ./Modules/pongisGolf.c
 OBJS=$(SOURCES:.c=.o)
 ASM_OBJS=../syscallsHelper.o ./lib/invopcode.o ./lib/functions.o
 

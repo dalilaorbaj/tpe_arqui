@@ -164,6 +164,34 @@ void printf(char * format, ...) {
     va_end(args);
 }
 
+float sqrtf(float number) {
+    if (number <= 0.0f) return 0.0f;
+    float x = number;
+    float y = 1.0f;
+    float epsilon = 0.00001f; // Precisión deseada
+
+    while ((x - y) > epsilon || (y - x) > epsilon) {
+        x = 0.5f * (x + y);
+        y = number / x;
+    }
+    return x;
+}
 
 
+int64_t draw_rectangle(uint64_t x, uint64_t y, uint64_t width, uint64_t height, uint64_t color) {
+    return sys_draw_rectangle(x, y, width, height, color);
+}
 
+int64_t draw_letter(uint64_t x, uint64_t y, uint64_t letter, uint64_t color, uint64_t size) {
+    return sys_draw_letter(x, y, letter, color, size);
+}
+
+int64_t draw_ball(uint64_t x, uint64_t y, uint64_t radius, uint64_t color) {
+    // Si no tienes una syscall específica para "ball", implementa como un círculo usando draw_rectangle o similar,
+    // o simplemente haz un wrapper vacío por ahora para evitar el error de linker.
+    // Ejemplo de stub:
+    if (radius == 0) return ERROR; // No se puede dibujar una pelota de radio 0
+    uint64_t diameter = radius * 2;
+    return sys_draw_rectangle(x - radius, y - radius, diameter, diameter, color);
+       
+}

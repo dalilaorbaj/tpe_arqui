@@ -1,3 +1,5 @@
+#ifndef SYSCALLS_HELPER_H
+#define SYSCALLS_HELPER_H
 #include <stdint.h>
 
 typedef struct registers {
@@ -52,3 +54,4 @@ int64_t sys_get_screen_info(Screen *info);
 // Teclado
 unsigned char sys_get_key(void);
 
+#endif

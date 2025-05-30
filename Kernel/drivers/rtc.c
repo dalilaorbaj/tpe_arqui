@@ -1,4 +1,3 @@
-#include <stdint.h>
 #include <rtc.h>
 
 extern uint8_t rtc(uint8_t mode);

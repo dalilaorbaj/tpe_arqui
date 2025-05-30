@@ -53,7 +53,7 @@ char *gets(char* buffer, uint16_t maxLen) {
 
 
 int putChar(char c){
-    uint8_t uc = (uint8_t)c;
+    char uc = c;
     return sys_write(STDOUT, &uc, 1) == 1 ? (int)c : ERROR;
 }
 
@@ -66,6 +66,13 @@ int64_t beep(uint64_t frequency, uint64_t time) {
         return ERROR;
     }
     return sys_beep(frequency, time);
+}
+
+int64_t get_screen_info(Screen *info) {
+    if (info == NULL) {
+        return ERROR;
+    }
+    return sys_get_screen_info(info);
 }
 
 int64_t setFontSize(uint64_t size) {
@@ -98,27 +105,69 @@ int strcmp(const char *a, const char *b) {
 // ---------- Main lib functions ------------
 // printf
 // http://www.firmcodes.com/write-printf-function-c/
-int64_t fprintf(uint64_t fd, const char * fmt, ...) {
-    va_list args;
-    va_start(args, fmt);
-    
-    // int64_t out = vfprintf(fd, fmt, args);
-    
-    va_end(args);
-    // return out;
-    return 0;
+static char * convert(uint32_t num, uint32_t base){
+    static char representation[] = "0123456789ABCDEF";
+    static char buffer[50]; 
+    char *ptr;
+
+    ptr = &buffer[49]; 
+    *ptr = '\0';
+
+    do{
+        *--ptr = representation[num % base];
+        num /= base;
+    }while(num != 0);
+
+    return ptr;
 }
 
-int64_t printf(const char * fmt, ...) {
+void printf(char * format, ...) {
     va_list args;
-    va_start(args, fmt);
+    va_start(args, format);
     
-    // int64_t out = vfprintf(STDOUT, fmt, args);
-    
+    char *p;
+    int i;
+    unsigned int u;
+    char *s;
+
+    for (p = format; *p != '\0'; p++) {
+        if (*p == '%') {
+            p++;
+            switch (*p) {
+                case 'd': // signed integer
+                    i = va_arg(args, int);
+                    if (i < 0) {
+                        putChar('-');
+                        i = -i;
+                    }
+                    writeStr(STDOUT, convert(i, 10));
+                    break;
+                case 'u': // unsigned integer
+                    u = va_arg(args, unsigned int);
+                    writeStr(STDOUT, convert(u, 10));
+                    break;
+                case 'x': // hexadecimal
+                    u = va_arg(args, unsigned int);
+                    writeStr(STDOUT, convert(u, 16));
+                    break;
+                case 's': // string
+                    s = va_arg(args, char *);
+                    writeStr(STDOUT, s);
+                    break;
+                case 'c': // character
+                    putChar((char)va_arg(args, int));
+                    break;
+                default:
+                    putChar(*p);
+            }
+        } else {
+            putChar(*p);
+        }
+    }
+
     va_end(args);
-    // return out;
-    return 0;
 }
+
 
 
 

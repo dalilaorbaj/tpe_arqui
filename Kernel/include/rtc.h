@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 #define RTC_SECONDS         0x00
 #define RTC_SECONDS_ALARM   0x01
 #define RTC_MINUTES         0x02

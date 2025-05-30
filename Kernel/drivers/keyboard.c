@@ -1,143 +1,133 @@
+#include <stdint.h>
 #include <keyboard.h>
 
-#define BUFFER_SIZE     1024
+#define BUFFER_SIZE 1024
+#define UNPRESSED_BIT   0x80 //indica si la tecla esta presionada o no
+#define SAVE_REGS_KEY 's'   //tecla para guardar los registros
+#define UPPER 1
+#define LOWER 0
+#define KEY_BITS_MASK   0x7F // mascara para obtener el valor de la tecla sin el bit de presionada
 #define LSHIFT          0x2A
 #define RSHIFT          0x36
-#define BMAYUS          0x3A
-#define RCNTRL          0xE01D
-#define LCNTRL          0x1D
-#define UNPRESSED_BIT   0x80
-#define KEY_BITS_MASK   0x7F
-#define LOWERMAP        0
-#define UPPERMAP        1
-#define KEY_VALUE(key)  ((key) & KEY_BITS_MASK)
-#define IS_PRESSED(key) (((key) & UNPRESSED_BIT) == 0)
-#define IS_SHIFT(key)   (KEY_VALUE(key) == LSHIFT || KEY_VALUE(key) == RSHIFT)
-#define IS_BMAYUS(key)  (KEY_VALUE(key) == BMAYUS)
-#define IS_CONTROL(key) (KEY_VALUE(key) == LCNTRL || KEY_VALUE(key) == RCNTRL)
-#define TO_UPPER(key)   (('a' <= (key) && (key) <= 'z')?(key) - 'a' + 'A':(key))
-#define TO_LOWER(key)   (('A' <= (key) && (key) <= 'Z')?(key) - 'A' + 'a':(key))
-#define IS_ALPHA(key)   ('A' <= TO_UPPER(key) && TO_UPPER(key) <= 'Z')
-#define ESC 0x01
-#define F1  0x3B
-#define F2  0x3C
-#define F3  0x3D 
-#define F4  0x3E
-#define F5  0x3F
-#define F6  0x40
-#define F7  0x41
-#define F8  0x42
-#define F9  0x43
-#define F10 0x44
+#define CPS_LOCK          0x3A
+#define RIGHT_CONTROL          0xE01D
+#define LEFT_CONTROL          0x1D
+#define DELTA 'a' - 'A'
 
-#define SAVE_REGS_KEY 's'
-
-static uint8_t lowerMapping[] = {
-      0,  0/*27*/, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=',
-   '\b', 0/*'\t'*/, 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']',
-   '\n',    0, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';','\'', '~',
-      0, '\\', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/',   0, '*',
-      0,  ' ',   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-      0,    0,  0/*38*/,   0, '-',  0/*37*/,   0,  0/*39*/, '+',   0,  0/*40*/,   0,   0,   0,
-      0,    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-};
-
-static uint8_t upperMapping[] = {
-      0,  0/*27*/, '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+',
-   '\b', 0/*'\t'*/, 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}',
-   '\n',    0, 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':','\"', '~',
-      0,  '|', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?',   0, '*',
-      0,  ' ',   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-      0,    0,   0,   0, '-',   0,   0,   0, '+',   0,   0,   0,   0,   0,
-      0,    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-};
-
-static uint8_t * keyMapping[] = {lowerMapping, upperMapping};
-
-static uint8_t map = LOWERMAP;
-static uint8_t keyBuffer[BUFFER_SIZE];
-static uint8_t bufferFirst = 0;
-static uint8_t bufferLast = 0;
-static uint8_t bufferElementCount = 0;
+/* El tratamiento del buffer de teclado es circular */
+static uint8_t buffer[BUFFER_SIZE];
+static uint8_t map = LOWER; //mapa de teclas actual
+static uint8_t buffer_dim = 0; //cantidad de elementos en el buffer
+static uint8_t buffer_last = 0; //ultimo elemento agregado al buffer
+static uint8_t buffer_first = 0; //primer elemento del buffer
+static uint8_t registersFlag = 0; //bandera para indicar si se debe guardar los registros
 static uint8_t blockMayus = 0;
 static uint8_t cntrlPressed = 0;
-static uint8_t inforegFlag = 0;
 
-static uint8_t handlekey(uint8_t key) {
-    if(cntrlPressed && (IS_PRESSED(key)) && SAVE_REGS_KEY == keyMapping[map][KEY_VALUE(key)]) {
-        inforegFlag = 1;
+
+extern int8_t keyMappingMatrix[2][128];
+extern uint8_t sys_getKey();
+
+static uint8_t isReleased(uint8_t key){
+    return (key & UNPRESSED_BIT);
+}
+
+static uint8_t isPressed(uint8_t key){
+    return !isReleased(key);
+}
+
+static uint8_t keyValue(uint8_t key) {
+    return (key & KEY_BITS_MASK);
+}
+
+static int isControlKey(uint8_t key){
+    return (keyValue(key) == LEFT_CONTROL || keyValue(key) == RIGHT_CONTROL);
+}
+
+static int isShiftKey(uint8_t key){
+    return (keyValue(key) == LSHIFT || keyValue(key) == RSHIFT);
+}
+
+static int isCapsLock(uint8_t key) {
+    return (keyValue(key) == CPS_LOCK);
+}
+
+static uint8_t toUpper(uint8_t key) {
+    return 'a' <= key && key <= 'z' ? key - DELTA : key;
+}
+
+static uint8_t toLower(uint8_t key) {
+    return 'A' <= key && key <= 'Z' ? key + DELTA : key;
+}
+
+static int isAlphaKey(uint8_t keyValue){
+    return 'A' <= toUpper(keyValue) && toUpper(keyValue) <= 'Z';
+}
+
+static uint8_t handlekey(uint8_t key){
+    if(cntrlPressed && isPressed(key) && SAVE_REGS_KEY == keyMappingMatrix[map][keyValue(key)]) {
+        registersFlag = 1;
         return 0;
     }
-    inforegFlag = 0;
-    if(IS_CONTROL(key)) {
-        cntrlPressed = (IS_PRESSED(key));
+    registersFlag = 0;
+    if(isControlKey(key)) {
+        cntrlPressed = (isPressed(key));
         return 0;
     }
-    if(IS_SHIFT(key)) {
-        map = (IS_PRESSED(key));
+    if(isShiftKey(key)) {
+        map = (isPressed(key));
         return 0;
     }
-    if(IS_BMAYUS(key) && IS_PRESSED(key)) {
+    if(isCapsLock(key) && isPressed(key)) {
         blockMayus = !blockMayus;
         return 0;
     }
-    if(!IS_PRESSED(key) || keyMapping[map][key] == 0) return 0;    
-    key = keyMapping[map][key];
-    if(IS_ALPHA(key) && blockMayus) {
-        key = (map == LOWERMAP)? TO_UPPER(key):TO_LOWER(key);
+    if(!isPressed(key) || keyMappingMatrix[map][key] == 0) return 0;    
+    key = keyMappingMatrix[map][key];
+    if(isAlphaKey(key) && blockMayus) {
+        key = (map == LOWER)? toUpper(key):toLower(key);
     }
     return key;
 }
 
-extern uint8_t sys_getKey();
 
 uint8_t getKey() {
-    uint8_t out;
+    uint8_t toReturn;
     do {
-        out = handlekey(sys_getKey());
-    } while (out == 0);    
-    return out;
+        toReturn = handlekey(sys_getKey());
+    } while (toReturn == 0);    
+    return toReturn;
 }
 
-int bufferIsEmpty() {
-    return bufferElementCount == 0;
+int emptyBuffer(){
+    return buffer_dim == 0;
 }
 
-int bufferIsFull() {
-    return bufferElementCount == BUFFER_SIZE;
-}
 
-static void appendInBuffer(uint8_t key) {
-    if(bufferIsFull()) {
-        //?
+void keyboardHandler() {
+    uint8_t key = handlekey(sys_getKey());
+    
+    if (key == 0) {
+        return; 
     }
-    keyBuffer[bufferLast++] = key;
-    bufferLast = bufferLast % BUFFER_SIZE;
-    bufferElementCount++;
+
+    //Agregamos la tecla al buffer
+    buffer[buffer_last++] = key;
+    buffer_last = buffer_last % BUFFER_SIZE;
+    buffer_dim++;
     return;
 }
 
-static uint8_t getNextInBuffer() {
-    if(bufferIsEmpty()) {
+static uint8_t next(){
+    if (emptyBuffer()){
         return 0;
     }
-    bufferElementCount--;
-    uint8_t out = keyBuffer[bufferFirst++];
-    bufferFirst = bufferFirst % BUFFER_SIZE;
-    return out;
+    buffer_dim--;
+    uint8_t toReturn = buffer[buffer_first++];
+    buffer_first = buffer_first % BUFFER_SIZE;
+    return toReturn;
 }
 
-void keyboard_handler() {
-    uint8_t out = handlekey(sys_getKey());
-    if(out == 0) 
-        return;
-    appendInBuffer(out);
-}
-
-uint8_t getchar() {
-    return getNextInBuffer();
-}
-
-uint8_t mustUpdateInforeg() {
-    return inforegFlag;
+uint8_t getChar(){
+    return next();
 }

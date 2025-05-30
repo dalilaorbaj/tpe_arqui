@@ -1,11 +1,14 @@
 #include <video.h>
 #include <font.h>
+#include <stddef.h>
 
 //Estructura que contiene información sobre el modo de video (resolución, bits por píxel, etc.)
 static VBEInfoPtr VBE_info = (VBEInfoPtr) 0x0000000000005C00;
 
 #define WIDTH VBE_info->width
 #define HEIGHT VBE_info->height
+#define BPP VBE_info->bpp
+#define PITCH VBE_info->pitch
       
 #define CHAR_ROWS_FONT_MIN 25
 #define CHAR_COLS_FONT_MIN 80
@@ -30,7 +33,7 @@ static Color error_color = {COLOR_ON, COLOR_OFF, COLOR_OFF};
 static uint64_t font_size = DEFAULT_FONT_SIZE;
 
 static void tab();
-static void printLetter(Character letter);
+static void draw_letter(Character letter);
 static void nl();
 static void bs();
 static void printAgain();
@@ -55,14 +58,19 @@ int64_t draw_rectangle(uint64_t x, uint64_t y, uint64_t width, uint64_t height, 
     return OK;
 }
 
-int64_t get_screen_data(Screen * screen){
-    (*screen).width = WIDTH;
-    (*screen).height = HEIGHT;
+int64_t get_screen_info(Screen * screen){
+    if(screen == NULL) {
+        return ERROR;
+    }
+    screen->width = WIDTH;
+    screen->height = HEIGHT;
+    screen->bpp = BPP;
+    screen->pitch = PITCH;
     return OK;
 }
 
  
-uint64_t write(const char * buf, int64_t size) {
+uint64_t write(const char * buf, int64_t size, Color color) {
     uint64_t i = 0;
     while (i < (uint64_t)size && buf[i]) {
         switch (buf[i]) {
@@ -71,9 +79,9 @@ uint64_t write(const char * buf, int64_t size) {
             case '\t': tab(); break;
             default:
                 if (buf[i] >= FIRST_ASCII && buf[i] <= LAST_ASCII) {
-                    //Character c = { buf[i], STDOUT };
+                    set_font_color(color); // Cambiamos el color de la fuente
                     append(buf[i]);
-                    printLetter((Character){buf[i], STDOUT});
+                    draw_letter((Character){buf[i], STDOUT});
                 }
                 break;
         }
@@ -123,7 +131,7 @@ static void tab(void) {
     for (int i = 0; i < 4; i++) {
         Character c = { ' ', STDOUT };
         buffer[char_index++] = c;
-        printLetter(c);
+        draw_letter(c);
     }
 }
 
@@ -153,7 +161,7 @@ int64_t draw_pixel(uint64_t x, uint64_t y, Color color){
     return OK;
 }
 
-static void printLetter(Character letter) {
+static void draw_letter(Character letter) {
     if (current_point.x + FONT_WIDTH * font_size > WIDTH) {
         current_point.x = 0;
         current_point.y += FONT_HEIGHT * font_size;
@@ -174,7 +182,7 @@ static void printAgain(void) {
     empty_screen(bg_color);
     uint64_t j = 0;
     for (uint64_t i = start; i < char_index; i++, j++) {
-        printLetter(buffer[i]);
+        draw_letter(buffer[i]);
         buffer[j] = buffer[i];
     }
     char_index = j;

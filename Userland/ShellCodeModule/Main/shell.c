@@ -11,21 +11,14 @@ static void timeCommand();
 static void divZeroCommand();
 static void beepCommand();
 static void invOpcodeCommand();
+static void pongisGolfCommand();
 void printRegsSnapshot(const RegsSnapshot *regs);
 int64_t writeStr(int fd, const char *s);
 static void clearCommand();
 static void exitCommand();
-static void utcToUtc3(time_struct *time);
+static void utcToMinusUtc3(time_struct *time);
 static void clearKeyboardBuffer();
 
-// #define COMMAND_HELP "help"
-// #define COMMAND_CLEAR "clear"
-// #define COMMAND_ECHO "echo"
-// #define COMMAND_EXIT "exit"
-// #define COMMAND_TIME "time"
-// #define COMMAND_DIVZERO "divzero"
-// #define COMMAND_INVOPCODE "invopcode"
-// #define COMMAND_REGS "regs"
 
 static Option options[] = {
     {"help", helpCommand},
@@ -36,7 +29,8 @@ static Option options[] = {
     {"divzero", divZeroCommand},
     {"invopcode", invOpcodeCommand},
     {"regs", regsCommand},
-    {"beep", beepCommand}
+    {"beep", beepCommand}, 
+    {"pongisGolf", pongisGolfCommand}
 };
 
 // Punto de entrada del módulo
@@ -78,8 +72,9 @@ static void helpCommand() {
     puts("  regs - Show CPU registers");
     puts("  divzero - Test division by zero exception");
     puts("  invopcode - Test invalid opcode exception");
-    puts("  exit - Exit the shell");
+    puts("  exit - Exit the shell"); //chequear si se puede salir de la shell
     puts("  beep - Make a sound");
+    puts("  pongisGolf - Play Pongis Golf");
 }
 
 static void clearCommand() {
@@ -120,7 +115,7 @@ static void shellLoop() {
 
     clearScreen();
     
-    puts("Welcome to the Simple Shell");
+    puts("====Welcome to the Simple Shell====");
     puts("Type 'help' for a list of commands");
     
     int found;
@@ -179,33 +174,35 @@ static void invOpcodeCommand() {
 static void timeCommand(){
     time_struct actualTime;
     sys_get_time(&actualTime);
-    utcToUtc3(&actualTime); // Convertir de UTC a UTC-3 (Argentina)
+    utcToMinusUtc3(&actualTime); // Convertir de UTC a UTC-3 (Argentina)
     puts("Hora actual (UTC-3):");
     printf("%d/%d/%d [d/m/y]\n", actualTime.day, actualTime.month, actualTime.year);
     printf("%d:%d:%d [hour/min/sec] (Argentina)\n", actualTime.hour, actualTime.minutes, actualTime.seconds); 
 }
 
+static void pongisGolfCommand(){
+    //startPongisGolf();
+    return;
+}
+
 // Convertir UTC a UTC-3 
-static void utcToUtc3(time_struct *time) {
-    // Subtract 3 hours from the time
+static void utcToMinusUtc3(time_struct *time) {
+    // le quitamos 3 horas a la hora UTC
     if (time->hour < 3) {
-        // Need to go back one day
+        // Si la hora es menor a 3, debemos restar un día y ajustar la hora
         time->hour = time->hour + 24 - 3;
         
-        // Handle day rollover
         time->day--;
         
-        // Check for month rollover
+        // Chequeamos si hay que ajustar el mes y el año
         if (time->day == 0) {
             time->month--;
             
-            // Handle month rollover
             if (time->month == 0) {
                 time->month = 12;
                 time->year--;
             }
             
-            // Set the day to the last day of the previous month
             switch (time->month) {
                 case 1: case 3: case 5: case 7: case 8: case 10: case 12:
                     time->day = 31;
@@ -214,7 +211,7 @@ static void utcToUtc3(time_struct *time) {
                     time->day = 30;
                     break;
                 case 2:
-                    // Leap year check
+                    // chqueamos si es año bisiesto
                     if ((time->year % 4 == 0 && time->year % 100 != 0) || (time->year % 400 == 0))
                         time->day = 29;
                     else
@@ -223,14 +220,14 @@ static void utcToUtc3(time_struct *time) {
             }
         }
     } else {
-        // Simple case - just subtract 3 hour
+        // Si la hora es mayor o igual a 3, simplemente restamos 3 horas
         time->hour -= 3;
     }
 }
 
 static void exitCommand() {
     puts("Abandonando la shell...\n");
-    return 0;
+    return ;
 }
 
 

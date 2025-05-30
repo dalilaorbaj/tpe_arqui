@@ -31,20 +31,23 @@ typedef struct{
     uint8_t blue;
 } Color;
 
-typedef struct{
-    int64_t width;
-    int64_t height;
+typedef struct {
+    uint32_t width;
+    uint32_t height;
+    uint32_t bpp;
+    uint32_t pitch;
 } Screen;
 
 typedef struct vbe_mode_info_structure * VBEInfoPtr;
 
 int64_t draw_rectangle(uint64_t x, uint64_t y, uint64_t width, uint64_t height, Color color);
-int64_t get_screen_data(Screen * screen); 
-uint64_t write(const char *buffer, int64_t size); 
+int64_t get_screen_info(Screen * screen); 
+//uint64_t write(const char * buf, int64_t size, Color color);
 int64_t draw_font(uint64_t x, uint64_t y, uint8_t ch, Color color, uint64_t size); 
 int64_t draw_pixel(uint64_t x, uint64_t y, Color color);
 void set_font_color(Color color);
 void empty_screen(Color newBgColor);
+
 
 struct vbe_mode_info_structure {
     uint16_t attributes;	// deprecated, only bit 7 should be of interest to you, and it indicates the mode supports a linear frame buffer.

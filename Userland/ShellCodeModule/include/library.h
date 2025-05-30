@@ -22,16 +22,14 @@ int64_t puts(const char *s);
 
 int strcmp(const char *a, const char *b);
 
-int64_t printf(const char *fmt, ...);
-
 void hlt(void);
 
 int64_t writeStr(int fd, const char *s);
 
-int64_t fprintf(uint64_t fd, const char * fmt, ...);
+int64_t writeStrColor(int fd, const char *s);
 
-int64_t puts(const char *s);
+void printf(char * format, ...);
 
 char *gets(char *buf, uint16_t max_len);
 
-int64_t beep(uint64_t frequency, uint64_t time);
+int64_t beep(uint64_t frequency, uint64_t time);

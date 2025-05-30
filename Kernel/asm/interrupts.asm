@@ -181,6 +181,7 @@ _irq80Handler:
     iretq
 
 
+
 ;Zero Division Exception
 _exception0Handler:
 	exceptionHandler 0

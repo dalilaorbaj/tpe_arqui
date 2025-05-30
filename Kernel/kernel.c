@@ -88,36 +88,34 @@ void * initializeKernelBinary()
 	return getStackBase();
 }
 
-static void testKeyboard();
 
-//dsp borrar
-static void print_reg(const char *name, uint64_t value) {
-    char buffer[40];
-    int i = 0, j;
-    // Copiar el nombre
-    while (name[i] != 0) {
-        buffer[i] = name[i];
-        i++;
-    }
-    buffer[i++] = ':';
-    buffer[i++] = ' ';
-    buffer[i++] = '0';
-    buffer[i++] = 'x';
+//dsp borrar era para probar que imprima los regs en el kernel
+// static void print_reg(const char *name, uint64_t value) {
+//     char buffer[40];
+//     int i = 0, j;
+//     while (name[i] != 0) {
+//         buffer[i] = name[i];
+//         i++;
+//     }
+//     buffer[i++] = ':';
+//     buffer[i++] = ' ';
+//     buffer[i++] = '0';
+//     buffer[i++] = 'x';
 
-    // Convertir a hexadecimal (16 dígitos)
-    for (j = 0; j < 16; j++) {
-        int shift = (15 - j) * 4;
-        uint8_t digit = (value >> shift) & 0xF;
-        buffer[i++] = (digit < 10) ? ('0' + digit) : ('a' + digit - 10);
-    }
-    buffer[i++] = '\n';
-    write(buffer, i);
-}
+//     for (j = 0; j < 16; j++) {
+//         int shift = (15 - j) * 4;
+//         uint8_t digit = (value >> shift) & 0xF;
+//         buffer[i++] = (digit < 10) ? ('0' + digit) : ('a' + digit - 10);
+//     }
+//     buffer[i++] = '\n';
+//     write(buffer, i);
+// }
 
 int main(){	
 	
 	load_idt();
 	
+	/*
 	//para probar snapshot en Kernel
 	RegsSnapshot regsSnapshot;
 	sys_get_registers(&regsSnapshot);
@@ -140,7 +138,7 @@ int main(){
     print_reg("r14", regsSnapshot.r14);
     print_reg("r15", regsSnapshot.r15);
     print_reg("rflags", regsSnapshot.rflags);
-	
+	*/
 
 	write("[Cargando la shell]\n", 20);
 /*
@@ -157,9 +155,8 @@ int main(){
 
 	ncPrint("[Finished]");
 */
-	//((EntryPoint)shellCodeModuleAddress)();
-
-	//write("[Shell terminada]\n", 18);
+	((EntryPoint)shellCodeModuleAddress)();
+	write("[Shell terminada]\n", 18);
 	
 	return 0;
 }

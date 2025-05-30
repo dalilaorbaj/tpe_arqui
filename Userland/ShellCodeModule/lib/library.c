@@ -4,10 +4,6 @@
 #include <library.h>
 //#include "syscallsHelper.h"
 
-#define STDIN   0
-#define STDOUT  1
-#define STDERR  2
-
 //dsp revisar si estan definidas en otros archivos
 #ifndef ERROR
 #define ERROR   -1

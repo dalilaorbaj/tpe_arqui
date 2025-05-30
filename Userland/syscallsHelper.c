@@ -16,11 +16,11 @@ int64_t writeStr(int fd, const char *s) {
     return sys_write(fd, s, len);
 }
 
-// int64_t writeStrColor(int fd, const char *s, Color color) {
-//     uint64_t len = 0;
-//     while (s[len]) len++;
-//     return sys_write_color(fd, s, len, color);
-// }
+int64_t writeStrColor(const char *s, Color color) {
+    uint64_t len = 0;
+    while (s[len]) len++;
+    return sys_write_color(STDOUT, s, len, color);
+}
 
 
 

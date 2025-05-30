@@ -4,6 +4,12 @@ typedef struct registers {
     uint64_t rflags, rax, rbx, rcx, rdx, rsi, rdi, rbp, rsp, r8, r9, r10, r11, r12, r13, r14, r15, rip;
 } RegsSnapshot;
 
+typedef struct{
+    uint8_t red;
+    uint8_t green;
+    uint8_t blue;
+} Color;
+
 typedef struct {
     uint8_t seconds;
     uint8_t minutes;
@@ -23,7 +29,7 @@ typedef struct {
 // Syscalls básicas
 int64_t sys_read(uint64_t fd, uint16_t * buffer, uint64_t amount);
 int64_t sys_write(uint64_t fd, const char * buffer, uint64_t amount);
-// int64_t sys_write_color(uint64_t fd, const char * buf, uint64_t count, uint64_t color);
+int64_t sys_write_color(uint64_t fd, const char * buf, uint64_t count, Color color);
 
 // Tiempo
 int64_t sys_get_time(time_struct * time);

@@ -64,17 +64,27 @@ static void parseCommand(const char* buffer, char* command, int command_size, ch
 
 // Comandos del shell
 static void helpCommand() {
-    puts("Available commands:");
-    puts("  help - Display this help message");
-    puts("  clear - Clear the screen");
-    puts("  echo [text] - Display the provided text");
-    puts("  time - Show current date and time");
-    puts("  regs - Show CPU registers");
-    puts("  divzero - Test division by zero exception");
-    puts("  invopcode - Test invalid opcode exception");
-    puts("  exit - Exit the shell"); //chequear si se puede salir de la shell
-    puts("  beep - Make a sound");
-    puts("  pongisGolf - Play Pongis Golf");
+    writeStrColor("Available commands:\n", (Color){129, 201, 255});
+    writeStrColor("  help ", (Color){129, 243, 255});
+    puts("- Display this help message");
+    writeStrColor("  clear ", (Color){129, 243, 255});
+    puts("- Clear the screen");
+    writeStrColor("  echo [text] ", (Color){129, 243, 255});
+    puts("- Display the provided text");
+    writeStrColor("  time ", (Color){129, 243, 255});
+    puts("- Show current date and time");
+    writeStrColor("  regs ", (Color){129, 243, 255});
+    puts("- Show CPU registers");
+    writeStrColor("  divzero ", (Color){129, 243, 255});
+    puts("- Test division by zero exception");
+    writeStrColor("  invopcode ", (Color){129, 243, 255});
+    puts("- Test invalid opcode exception");
+    writeStrColor("  exit ", (Color){129, 243, 255});
+    puts("- Exit the shell"); //chequear si se puede salir de la shell
+    writeStrColor("  beep ", (Color){129, 243, 255});
+    puts("- Make a sound");
+    writeStrColor("  pongisGolf ", (Color){129, 243, 255});
+    puts("- Play Pongis Golf");
 }
 
 static void clearCommand() {
@@ -115,13 +125,16 @@ static void shellLoop() {
 
     clearScreen();
     
-    puts("====Welcome to the Simple Shell====");
-    puts("Type 'help' for a list of commands");
+    writeStrColor("====Welcome to the Simple Shell====\n", (Color){158, 255, 220});
+    timeCommand();  // Mostrar hora al iniciar
+
+    puts("");
+    writeStrColor("Type 'help' for a list of commands\n", (Color){158, 255, 220});
     
     int found;
     while(running) {
-        puts("");
-        putChar('>');  // Prompt
+        puts("");  
+        writeStrColor("$> ", (Color){255, 158, 161}); // Prompt
         gets(buffer, SHELL_BUFFER_SIZE);  // Usar readLine en lugar de gets
         
         if(strlen(buffer) == 0) {

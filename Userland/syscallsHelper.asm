@@ -29,7 +29,7 @@ section .text
 
 sys_read:             base_syscall 3
 sys_write:            base_syscall 4
-; sys_write_color:      base_syscall 12
+sys_write_color:      base_syscall 12
 sys_nano_sleep:       base_syscall 2
 sys_get_time:         base_syscall 0
 sys_set_font_size:    base_syscall 1

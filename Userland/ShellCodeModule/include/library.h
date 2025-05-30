@@ -2,11 +2,9 @@
 #include <syscallsHelper.h>
 #include <stdarg.h>
 
-typedef struct{
-    uint8_t red;
-    uint8_t green;
-    uint8_t blue;
-} Color;
+#define STDIN   0
+#define STDOUT  1
+#define STDERR  2
 
 #define ERROR -1
 
@@ -32,7 +30,7 @@ void hlt(void);
 
 int64_t writeStr(int fd, const char *s);
 
-int64_t writeStrColor(int fd, const char *s, Color color);
+int64_t writeStrColor(const char *s, Color color);
 
 void printf(char * format, ...);
 

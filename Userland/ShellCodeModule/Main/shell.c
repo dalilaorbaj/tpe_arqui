@@ -83,7 +83,7 @@ static void helpCommand() {
     puts("- Exit the shell"); //chequear si se puede salir de la shell
     writeStrColor("  beep ", (Color){129, 243, 255});
     puts("- Make a sound");
-    writeStrColor("  pongisGolf ", (Color){129, 243, 255});
+    writeStrColor("  pongis ", (Color){129, 243, 255});
     puts("- Play Pongis Golf");
 
 }

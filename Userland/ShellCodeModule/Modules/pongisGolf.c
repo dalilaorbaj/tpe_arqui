@@ -1,59 +1,129 @@
 #include <pongisGolf.h>
 
+#define OK 1
+
+// Constantes de alineación
+#define ALIGN_LEFT   0
+#define ALIGN_CENTER 1
+#define ALIGN_RIGHT  2
+
 static void singlePlayer(uint32_t width, uint32_t height);
 static void multiPlayer(uint32_t width, uint32_t height);
 //void draw_ball(uint64_t x, uint64_t y, uint64_t radius, uint64_t color);
 static void printString(const char *str, uint64_t x, uint64_t y, uint64_t size, uint32_t width, uint32_t height);
+static void printString2(const char *str, uint64_t x, uint64_t y, uint64_t size, uint32_t width, uint32_t height, int alignment);
 static int basicPlay(Player *players, int player_count, float *ball_x, float *ball_y, float *ball_vx, float *ball_vy, float ball_radius, uint64_t ball_color, float hole_x, float hole_y, float hole_radius, uint64_t hole_color, uint32_t width, uint32_t height);
 //int get_player_input(int player);
 //void show_game_over_screen(int winner);
 
+Screen screen;
+// Calcular posición inicial y espaciado vertical
+uint64_t baseY;  // Empezar a un tercio de la pantalla
+uint64_t verticalSpacing;  // Espacio entre líneas (ajusta según necesites)
+uint64_t currentY;
+
+
+static void moveCurrentY(uint64_t verticalSpacing) {
+    currentY += verticalSpacing;
+}
 
 void startPongisGolf(){
     puts("Starting Pongis Golf...");
     clearScreen();
-    Screen screen;
-    if(get_screen_info(&screen) != 0){
+    
+    if(get_screen_info(&screen) <0 ){
         puts("Failed to get screen info.");
         return;
     }
+
+    baseY = screen.height / 3;
+    verticalSpacing = FONT_HEIGHT * 3;
+    currentY = baseY;  // Iniciar desde un tercio de la pantalla
+
     draw_rectangle(0, 0, screen.width, screen.height, 0x00FF00); // Fill the screen with green
     //printText();
 
-    printString("Choose how many players: ", screen.width / 2 - 10, screen.height / 2 - 10, 3, screen.width, screen.height);
-    printString("1. Single Player", screen.width / 2 - 10, screen.height / 2 - 5, 3, screen.width, screen.height);
-    printString("2. Multiplayer", screen.width / 2 - 10, screen.height / 2, 3, screen.width, screen.height);
-    printString("3. Exit", screen.width / 2 - 10, screen.height / 2 + 5, 3, screen.width, screen.height);
-    printString("Press '1' for Single Player or '2' for Multiplayer", screen.width / 2 - 10, screen.height / 2 + 10, 2, screen.width, screen.height);
+
+    printString2("Choose how many players: ", screen.width/2, currentY, 3, screen.width, screen.height, ALIGN_CENTER);
+    moveCurrentY(verticalSpacing);
+
+    //Opciones de menú
+    printString2("1. Single Player", screen.width / 2, currentY, 2, screen.width, screen.height, ALIGN_CENTER);
+    moveCurrentY(verticalSpacing - 10);
+
+    printString2("2. Multiplayer", screen.width / 2, currentY, 2, screen.width, screen.height, ALIGN_CENTER);
+    moveCurrentY(verticalSpacing - 10);
+    printString2("3. Exit", screen.width / 2, currentY, 2, screen.width, screen.height, ALIGN_CENTER);
+    moveCurrentY(verticalSpacing - 10);
+
+    printString2("Press '1' for Single Player or '2' for Multiplayer", screen.width / 2, currentY + 20, 1, screen.width, screen.height, ALIGN_CENTER);
+
+
 
     char choice;
-    while((choice=getChar())!= '1' && choice != '2' && choice != '3') {
-        clearScreen();
-        switch(choice){
-            case '1':
-                singlePlayer(screen.width, screen.height);
-                break;
-            case '2':
-                multiPlayer(screen.width, screen.height);
-                break;
-            case '3':
-                puts("Exiting Pongis Golf...");
-                return;
-            default:
-                puts("Invalid choice. Please select 1, 2, or 3.");
+    do {
+        choice = getChar();
+    
+        if (choice == '1') {
+            clearScreen();
+            singlePlayer(screen.width, screen.height);
+            return;
+        } else if (choice == '2') {
+            clearScreen();
+            multiPlayer(screen.width, screen.height);
+            return;
+        } else if (choice == '3') {
+            puts("Exiting Pongis Golf...");
+            return;
+        } else {
+            // Opcional: mostrar mensaje de error
+            printString("Invalid choice. Please select 1, 2, or 3.", screen.width / 2 - 10, screen.height - 30, 2, screen.width, screen.height);
         }
-    }
+    } while (1); // Bucle infinito hasta que se elija una opción válida
     return;
 }
 
+
+static void printString2(const char *str, uint64_t x, uint64_t y, uint64_t size, uint32_t width, uint32_t height, int alignment) {
+    if (str == NULL || y >= height) {
+        return; // Invalid input
+    }
+    
+    // Calcular la longitud de la cadena
+    uint64_t str_length = strlen(str);
+    
+    // Ajustar la coordenada X según la alineación
+    if (alignment == ALIGN_CENTER) {
+        uint64_t string_width = str_length * FONT_WIDTH * size;
+        x = (width - string_width) / 2;
+    } 
+    else if (alignment == ALIGN_RIGHT) {
+        uint64_t string_width = str_length * FONT_WIDTH * size;
+        x = width - string_width - x; // x actúa como margen derecho
+    }
+    
+    // Verificar límites
+    if (x >= width) return;
+    
+    // Dibujar el texto
+    uint64_t i = 0;
+    while (str[i] != '\0' && x + i * FONT_WIDTH * size < width) {
+        draw_letter(x + i * FONT_WIDTH * size, y, str[i], 0xFF0000, size);
+        i++;
+    }
+}
 
 static void printString(const char *str, uint64_t x, uint64_t y, uint64_t size, uint32_t width, uint32_t height) {
     if (str == NULL || x >= width || y >= height) {
         return; // Invalid input
     }
+   // uint64_t centerX = x - strlen(str) * FONT_WIDTH * size;
+    uint64_t str_length = strlen(str);
+    uint64_t string_width = str_length * FONT_WIDTH * size;
+    uint64_t centerX = (width - string_width) / 2;
     uint64_t i = 0;
-    while (str[i] != '\0' && x + i * FONT_WIDTH * size < width) {
-        draw_letter(x + i * FONT_WIDTH * size, y, str[i], 0x00FF00, size); // Draw each character in green
+    while (str[i] != '\0' && centerX + i * FONT_WIDTH * size < width) {
+        draw_letter(centerX + i * FONT_WIDTH * size, y, str[i], 0xFF0000, size); // Draw each character in green
         i++;
     }
 }
@@ -185,9 +255,11 @@ static int basicPlay(Player *players, int player_count, float *ball_x, float *ba
             draw_ball((uint64_t)players[i].x, (uint64_t)players[i].y, (uint64_t)players[i].radius, players[i].color);
         }
 
+        //unsigned char sys_get_key(void);
+
         // Input jugadores
         uint16_t key = 0;
-        if (sys_read(0, &key, 1) > 0) {
+        if (sys_get_key > 0) {
             for (int i = 0; i < player_count; i++) {
                 if (key == players[i].up && players[i].y - 5 > players[i].radius)
                     players[i].y -= 5;

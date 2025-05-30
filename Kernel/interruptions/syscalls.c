@@ -196,7 +196,7 @@ int64_t sys_draw_letter(uint64_t x, uint64_t y, uint64_t letter, uint64_t color,
 }
 
 int64_t sys_get_screen_info(Screen *info) {
-    //esto no se si va 
+    // esto no se si va 
     if (info == NULL) {
         return -1;
     }

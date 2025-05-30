@@ -14,6 +14,7 @@
 #define LEFT_CONTROL          0x1D
 #define DELTA 'a' - 'A'
 
+
 /* El tratamiento del buffer de teclado es circular */
 static uint8_t buffer[BUFFER_SIZE];
 static uint8_t map = LOWER; //mapa de teclas actual
@@ -131,3 +132,4 @@ static uint8_t next(){
 uint8_t getChar(){
     return next();
 }
+

@@ -51,8 +51,8 @@ int64_t syscallDispatcher(uint64_t syscall_num, uint64_t arg1, uint64_t arg2, ui
             return sys_get_registers((RegsSnapshot *)arg1);
         case 11:
             return sys_beep(arg1, arg2);
-        // case 12:
-        //     return sys_write_color(arg1, (char *)arg2, arg3, arg4); 
+        case 12:
+            return sys_write_color(arg1, (char *)arg2, arg3, arg4); 
         case 20:
             return sys_get_key();
         default:
@@ -82,9 +82,10 @@ int64_t sys_write(uint64_t fd, const char * buf, uint64_t count){
     return -1;
 }
 
-int64_t sys_write_color(uint64_t fd, const char * buf, uint64_t count, Color color) {
+int64_t sys_write_color(uint64_t fd, const char * buf, uint64_t count, uint64_t color) {
+    Color c = { (uint8_t)(color >> 16), (uint8_t)(color >> 8), (uint8_t)color };
     if (fd == STDOUT || fd == STDERR) {
-        return write(buf, count, color);
+        return write(buf, count, c);
     }
     return -1;
 }

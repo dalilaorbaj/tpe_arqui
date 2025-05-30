@@ -14,7 +14,7 @@ typedef struct time {
 int64_t syscallDispatcher(uint64_t syscall_num, uint64_t arg1, uint64_t arg2, uint64_t arg3, uint64_t arg4, uint64_t arg5, uint64_t arg6);
 int64_t sys_get_time(time_struct * time);
 int64_t sys_write(uint64_t fd, const char * buf, uint64_t count);
-int64_t sys_write_color(uint64_t fd, const char * buf, uint64_t count, Color color);
+int64_t sys_write_color(uint64_t fd, const char * buf, uint64_t count, uint64_t color);
 int64_t sys_read(uint64_t fd, uint16_t * buf, uint64_t count);
 unsigned char sys_get_key(void);
 int64_t sys_set_font_size(uint64_t size);

@@ -23,6 +23,7 @@ typedef struct {
 // Syscalls básicas
 int64_t sys_read(uint64_t fd, uint16_t * buffer, uint64_t amount);
 int64_t sys_write(uint64_t fd, const char * buffer, uint64_t amount);
+// int64_t sys_write_color(uint64_t fd, const char * buf, uint64_t count, uint64_t color);
 
 // Tiempo
 int64_t sys_get_time(time_struct * time);

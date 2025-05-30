@@ -29,7 +29,7 @@ static void printString(const char *str, uint64_t x, uint64_t y, uint64_t size) 
     }
     uint64_t i = 0;
     while (str[i] != '\0' && x + i * size < WIDTH) {
-        draw_font(x + i * size, y, str[i], (Color){255, 255, 255}, size); // Draw each character in white
+        draw_font(x + i * CHARACTER_WIDTH * size, y, str[i], (Color){0, 255, 0}, size); // Draw each character in green
         i++;
     }
 }

@@ -2,6 +2,12 @@
 #include <syscallsHelper.h>
 #include <stdarg.h>
 
+typedef struct{
+    uint8_t red;
+    uint8_t green;
+    uint8_t blue;
+} Color;
+
 #define ERROR -1
 
 #define BUFF_SIZE 8096
@@ -26,10 +32,10 @@ void hlt(void);
 
 int64_t writeStr(int fd, const char *s);
 
-int64_t writeStrColor(int fd, const char *s);
+int64_t writeStrColor(int fd, const char *s, Color color);
 
 void printf(char * format, ...);
 
 char *gets(char *buf, uint16_t max_len);
 
-int64_t beep(uint64_t frequency, uint64_t time);
+int64_t beep(uint64_t frequency, uint64_t time);

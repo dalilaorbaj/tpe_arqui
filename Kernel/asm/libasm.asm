@@ -51,6 +51,7 @@ hlt:
 get_snapshot:
 	cli ; evitamos interrupciones durante la captura del snapshot
 
+	;pushState
 	pushfq
 	pop qword [registersArray] ; guardamos rflags
 	
@@ -88,7 +89,7 @@ get_snapshot:
 
 	; restauramos rax
 	mov rax, [registersArray + 8]
-
+	;popState
 	sti
 	ret
 

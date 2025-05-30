@@ -124,27 +124,28 @@ int64_t sys_get_registers(RegsSnapshot *regs) {
     if (regs == NULL) {
         return -1; 
     }
+
     
     get_snapshot();
+    
     regs->rflags = registersArray[0];
-    regs->rax = registersArray[1];
-    regs->rbx = registersArray[2];
-    regs->rcx = registersArray[3];
-    regs->rdx = registersArray[4];
-    regs->rsi = registersArray[5];
-    regs->rbp = registersArray[6];
-    regs->rdi = registersArray[5];
-    regs->rbp = registersArray[5];
-    regs->rsp = registersArray[7];
-    regs->r8 = registersArray[8];
-    regs->r9 = registersArray[9];
-    regs->r10 = registersArray[10];
-    regs->r11 = registersArray[11];
-    regs->r12 = registersArray[12];
-    regs->r13 = registersArray[13];
-    regs->r14 = registersArray[14];
-    regs->r15 = registersArray[15];
-    regs->rip = registersArray[16];
+    regs->rax    = registersArray[1];
+    regs->rbx    = registersArray[2];
+    regs->rcx    = registersArray[3];
+    regs->rdx    = registersArray[4];
+    regs->rsi    = registersArray[5];
+    regs->rdi    = registersArray[6];
+    regs->rbp    = registersArray[7];
+    regs->rsp    = registersArray[8];
+    regs->r8     = registersArray[9];
+    regs->r9     = registersArray[10];
+    regs->r10    = registersArray[11];
+    regs->r11    = registersArray[12];
+    regs->r12    = registersArray[13];
+    regs->r13    = registersArray[14];
+    regs->r14    = registersArray[15];
+    regs->r15    = registersArray[16];
+    regs->rip    = registersArray[17];
     return 0;
 }
 

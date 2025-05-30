@@ -118,6 +118,7 @@ int main(){
 	
 	load_idt();
 	
+	//para probar snapshot en Kernel
 	RegsSnapshot regsSnapshot;
 	sys_get_registers(&regsSnapshot);
 	write("SNAPSHOT:\n", 15);
@@ -139,7 +140,7 @@ int main(){
     print_reg("r14", regsSnapshot.r14);
     print_reg("r15", regsSnapshot.r15);
     print_reg("rflags", regsSnapshot.rflags);
-
+	
 
 	write("[Cargando la shell]\n", 20);
 /*

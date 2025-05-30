@@ -36,6 +36,6 @@ sys_draw_pixel:       base_syscall 6
 sys_draw_rectangle:   base_syscall 7
 sys_draw_letter:      base_syscall 8
 sys_get_screen_info:  base_syscall 9
-sys_get_registers: base_syscall 10
-sys_beep: base_syscall 11
-sys_get_key: base_syscall 20
+sys_get_registers:    base_syscall 10
+sys_beep:             base_syscall 11
+sys_get_key:          base_syscall 20

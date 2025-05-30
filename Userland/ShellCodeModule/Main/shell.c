@@ -159,10 +159,10 @@ static void shellLoop() {
 
 static void regsCommand() {
     RegsSnapshot regs;
-    if (sys_get_registers(&regs) == 0) {
-        printRegsSnapshot(&regs);
-    } else {
+    if (sys_get_registers(&regs) == -1) {
         puts("Error al obtener los registros");
+    } else {
+        printRegsSnapshot(&regs);
     }
 }
 

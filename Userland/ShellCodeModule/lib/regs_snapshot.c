@@ -1,10 +1,13 @@
 #include <stdint.h>
 #include <library.h>
 
+#define STDOUT 1
+
+static void uint64ToHexString(uint64_t value, char* buffer);
 
 // Helper function to convert uint64_t to hex string
 static void uint64ToHexString(uint64_t value, char* buffer) {
-    const char hexChars[] = "0123456789ABCDEF";
+    static const char hexChars[] = "0123456789ABCDEF";
     buffer[0] = '0';
     buffer[1] = 'x';
     
@@ -17,86 +20,78 @@ static void uint64ToHexString(uint64_t value, char* buffer) {
 // Imprime todos los registros del snapshot recibido
 void printRegsSnapshot(const RegsSnapshot *regs) {
     char hexBuffer[19]; // "0x" + 16 hex digits + null terminator
-    
-    puts("Registro de CPU actual:\n");
-    
-    puts("RAX: ");
+
+    writeStr(STDOUT, "Registro de CPU actual:\n");
+
+    writeStr(STDOUT, "RAX: ");
     uint64ToHexString(regs->rax, hexBuffer);
-    puts(hexBuffer);
-    puts("  RBX: ");
+    writeStr(STDOUT, hexBuffer);
+    writeStr(STDOUT, "  RBX: ");
     uint64ToHexString(regs->rbx, hexBuffer);
-    puts(hexBuffer);
-    puts("\n");
-    
-    puts("RCX: ");
+    writeStr(STDOUT, hexBuffer);
+    writeStr(STDOUT, "\n");
+
+    writeStr(STDOUT, "RCX: ");
     uint64ToHexString(regs->rcx, hexBuffer);
-    puts(hexBuffer);
-    puts("  RDX: ");
+    writeStr(STDOUT, hexBuffer);
+    writeStr(STDOUT, "  RDX: ");
     uint64ToHexString(regs->rdx, hexBuffer);
-    puts(hexBuffer);
-    puts("\n");
-    
-    puts("RSI: ");
+    writeStr(STDOUT, hexBuffer);
+    writeStr(STDOUT, "\n");
+
+    writeStr(STDOUT, "RSI: ");
     uint64ToHexString(regs->rsi, hexBuffer);
-    puts(hexBuffer);
-    puts("  RDI: ");
+    writeStr(STDOUT, hexBuffer);
+    writeStr(STDOUT, "  RDI: ");
     uint64ToHexString(regs->rdi, hexBuffer);
-    puts(hexBuffer);
-    puts("\n");
-    
-    puts("RBP: ");
+    writeStr(STDOUT, hexBuffer);
+    writeStr(STDOUT, "\n");
+
+    writeStr(STDOUT, "RBP: ");
     uint64ToHexString(regs->rbp, hexBuffer);
-    puts(hexBuffer);
-    puts("  RSP: ");
+    writeStr(STDOUT, hexBuffer);
+    writeStr(STDOUT, "  RSP: ");
     uint64ToHexString(regs->rsp, hexBuffer);
-    puts(hexBuffer);
-    puts("\n");
-    
-    puts("R8 : ");
+    writeStr(STDOUT, hexBuffer);
+    writeStr(STDOUT, "\n");
+
+    writeStr(STDOUT, "R8 : ");
     uint64ToHexString(regs->r8, hexBuffer);
-    puts(hexBuffer);
-    puts("  R9 : ");
+    writeStr(STDOUT, hexBuffer);
+    writeStr(STDOUT, "  R9 : ");
     uint64ToHexString(regs->r9, hexBuffer);
-    puts(hexBuffer);
-    puts("\n");
-    
-    puts("R10: ");
+    writeStr(STDOUT, hexBuffer);
+    writeStr(STDOUT, "\n");
+
+    writeStr(STDOUT, "R10: ");
     uint64ToHexString(regs->r10, hexBuffer);
-    puts(hexBuffer);
-    puts("  R11: ");
+    writeStr(STDOUT, hexBuffer);
+    writeStr(STDOUT, "  R11: ");
     uint64ToHexString(regs->r11, hexBuffer);
-    puts(hexBuffer);
-    puts("\n");
-    
-    puts("R12: ");
+    writeStr(STDOUT, hexBuffer);
+    writeStr(STDOUT, "\n");
+
+    writeStr(STDOUT, "R12: ");
     uint64ToHexString(regs->r12, hexBuffer);
-    puts(hexBuffer);
-    puts("  R13: ");
+    writeStr(STDOUT, hexBuffer);
+    writeStr(STDOUT, "  R13: ");
     uint64ToHexString(regs->r13, hexBuffer);
-    puts(hexBuffer);
-    puts("\n");
-    
-    puts("R14: ");
+    writeStr(STDOUT, hexBuffer);
+    writeStr(STDOUT, "\n");
+
+    writeStr(STDOUT, "R14: ");
     uint64ToHexString(regs->r14, hexBuffer);
-    puts(hexBuffer);
-    puts("  R15: ");
+    writeStr(STDOUT, hexBuffer);
+    writeStr(STDOUT, "  R15: ");
     uint64ToHexString(regs->r15, hexBuffer);
-    puts(hexBuffer);
-    puts("\n");
-    
-    puts("RIP: ");
+    writeStr(STDOUT, hexBuffer);
+    writeStr(STDOUT, "\n");
+
+    writeStr(STDOUT, "RIP: ");
     uint64ToHexString(regs->rip, hexBuffer);
-    puts(hexBuffer);
-    puts("  RFLAGS: ");
+    writeStr(STDOUT, hexBuffer);
+    writeStr(STDOUT, "  RFLAGS: ");
     uint64ToHexString(regs->rflags, hexBuffer);
-    puts(hexBuffer);
-    puts("\n");
-    
-    // puts("CS : ");
-    // uint64ToHexString(regs->cs, hexBuffer);
-    // puts(hexBuffer);
-    // puts("  SS: ");
-    // uint64ToHexString(regs->ss, hexBuffer);
-    // puts(hexBuffer);
-    //puts("\n");
+    writeStr(STDOUT, hexBuffer);
+    writeStr(STDOUT, "\n");
 }

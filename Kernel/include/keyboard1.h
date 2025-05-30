@@ -48,6 +48,9 @@ typedef enum {
     F12
 } specialCodes;
 
+//Función para manejar las teclas especiales
+typedef void (*function_key)(void);
+
 uint8_t getKey();
 
 int emptyBuffer();

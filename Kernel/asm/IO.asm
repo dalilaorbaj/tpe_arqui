@@ -16,7 +16,6 @@ in:
     in al, dx
 
     leave
-    pop rbp
     ret
 
 ; primer parámetro (rdi): valor
@@ -30,7 +29,6 @@ out:
     out dx, al      ;ejecutamos la salida del puerto
 
     leave
-    pop rbp
     ret
 
     

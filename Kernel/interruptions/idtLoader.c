@@ -47,7 +47,8 @@ void load_idt() {
   setup_IDT_entry (0x21, (uint64_t)&_irq01Handler); //keyboard
   setup_IDT_entry (0x00, (uint64_t)&_exception0Handler); //división por cero
   setup_IDT_entry(0x06, (uint64_t)&_exception_invalidOpcodeHandler); // Opcode inválido
-  
+  setup_IDT_entry(0x08, (uint64_t)&_exception8Handler); // Doble fault
+
   idt[0x80].selector  = 0x08;
   idt[0x80].offset_l  = (uint64_t)&_irq80Handler & 0xFFFF;
   idt[0x80].offset_m  = ((uint64_t)&_irq80Handler >> 16) & 0xFFFF;

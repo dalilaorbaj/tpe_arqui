@@ -61,7 +61,7 @@ int64_t clearScreen(void) {
     return sys_clear_screen();
 }
 
-int64_t beep(uint32_t frequency, int time) {
+int64_t beep(uint64_t frequency, uint64_t time) {
     if (frequency < 20 || frequency > 20000 || time == 0) {
         return ERROR;
     }

@@ -19,7 +19,7 @@ uint64_t secondsElapsed() {
 void sleepTicks(uint64_t delayTicks) {
     uint64_t start = ticksCount;
     while ((ticksCount - start) < delayTicks) {
-        hlt();
+        _hlt();
     }
 }
 

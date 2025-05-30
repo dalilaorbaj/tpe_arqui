@@ -13,7 +13,7 @@ void _irq05Handler(void);
 void _irq80Handler(void);
 
 void _exception0Handler(void);
-
+void _exception8Handler(void);
 void _exception_invalidOpcodeHandler(void);
 
 void _cli(void);

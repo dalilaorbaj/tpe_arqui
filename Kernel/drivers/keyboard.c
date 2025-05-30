@@ -32,12 +32,6 @@
 
 #define SAVE_REGS_KEY 's'
 
-/*
-#define F11 0x45
-#define F12 0x46
-*/
-
-// ONLY PRINTABLE
 static uint8_t lowerMapping[] = {
       0,  0/*27*/, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=',
    '\b', 0/*'\t'*/, 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']',
@@ -60,7 +54,6 @@ static uint8_t upperMapping[] = {
 
 static uint8_t * keyMapping[] = {lowerMapping, upperMapping};
 
-// empiezo en lowerMapping
 static uint8_t map = LOWERMAP;
 static uint8_t keyBuffer[BUFFER_SIZE];
 static uint8_t bufferFirst = 0;
@@ -115,9 +108,8 @@ int bufferIsFull() {
 }
 
 static void appendInBuffer(uint8_t key) {
-    // err
     if(bufferIsFull()) {
-        //exep?
+        //?
     }
     keyBuffer[bufferLast++] = key;
     bufferLast = bufferLast % BUFFER_SIZE;
@@ -142,7 +134,6 @@ void keyboard_handler() {
     appendInBuffer(out);
 }
 
-// TODO revisar el return value
 uint8_t getchar() {
     return getNextInBuffer();
 }

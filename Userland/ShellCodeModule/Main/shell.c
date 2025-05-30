@@ -87,7 +87,7 @@ static void clearCommand() {
 }
 
 static void beepCommand() {
-    beep(440, 10000);
+    beep(440, 18);
 }
 
 static void echoCommand(const char* args) {

@@ -41,6 +41,6 @@ rtc:
     ret
 
 hlt:
-	;sti
+	sti
 	hlt
 	ret

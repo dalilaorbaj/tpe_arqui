@@ -30,4 +30,4 @@ int64_t sys_draw_rectangle(uint64_t x, uint64_t y, uint64_t width, uint64_t heig
 int64_t sys_draw_letter(uint64_t x, uint64_t y, uint64_t letter, uint64_t color, uint64_t size);
 int64_t sys_get_screen_info(void *info);
 int64_t sys_get_registers(RegsSnapshot *regs);
-int64_t sys_beep(uint32_t freq, int time);
+int64_t sys_beep(uint64_t freq, uint64_t time);

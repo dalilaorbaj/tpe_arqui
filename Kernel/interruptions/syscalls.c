@@ -96,10 +96,21 @@ int64_t sys_clear_screen(void){
     return 0;
 }
 
-int64_t sys_beep(uint32_t freq, int time) {
+// int64_t sys_beep(uint32_t freq, int time) {
+//     if (time == 0 || freq < 20 || freq > 20000) {
+//         return -1;
+//     }
+//     beep(freq, time);
+//     return 0;
+// }
+
+int64_t sys_beep(uint64_t freq, uint64_t time) {
+    write("[sys_beep] called\n", 17);
     if (time == 0 || freq < 20 || freq > 20000) {
+        write("[sys_beep] invalid args\n", 24);
         return -1;
     }
     beep(freq, time);
+    write("[sys_beep] finished beep\n", 24);
     return 0;
 }

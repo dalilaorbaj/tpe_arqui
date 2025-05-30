@@ -11,6 +11,6 @@ char *cpuVendor(char *result);
 unsigned char in(unsigned short port); //devuelve el valor leido del puerto 64
 void out(unsigned short port, unsigned char value);
 
-void hlt();
+void _hlt();
 
 #endif

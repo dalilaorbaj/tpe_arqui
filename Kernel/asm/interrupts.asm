@@ -17,6 +17,8 @@ global _lidt
 
 GLOBAL _exception0Handler
 GLOBAL _exception_invalidOpcodeHandler
+GLOBAL _exception8Handler
+
 
 EXTERN irqDispatcher		;para interrupciones de hardware
 EXTERN syscallDispatcher	;para interrupciones de software
@@ -182,6 +184,10 @@ _irq80Handler:
 ;Zero Division Exception
 _exception0Handler:
 	exceptionHandler 0
+
+;double fault exception
+_exception8Handler:
+    exceptionHandler 8
 
 ;Invalid Opcode Exception
 _exception_invalidOpcodeHandler:

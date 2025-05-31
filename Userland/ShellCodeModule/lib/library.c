@@ -197,3 +197,4 @@ int64_t draw_ball(uint64_t x, uint64_t y, uint64_t radius, uint64_t color) {
     }
     return count;
 }
+

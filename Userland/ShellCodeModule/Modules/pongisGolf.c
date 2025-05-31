@@ -247,14 +247,6 @@ static int basicPlay(Player *players, int player_count, float *ball_x, float *ba
         // Input jugadores
         char key = getChar();
 
-        // // Debug: mostrar el valor de la tecla leída
-        // void printKeyDebug(char key) {
-        //     char debugStr[32];
-        //     printf("Tecla leída: %d ('%c')", (int)key, key);
-        //     puts(debugStr);
-        // }
-        // printKeyDebug(key);
-
         for (int i = 0; i < player_count; i++) {
             if (key == players[i].up)
                 players[i].y -= 50;
@@ -264,6 +256,10 @@ static int basicPlay(Player *players, int player_count, float *ball_x, float *ba
                 players[i].x -= 50;
             else if (key == players[i].right)
                 players[i].x += 50;
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 
                 
             float dx = (*ball_x) - players[i].x;
@@ -315,7 +311,11 @@ static int basicPlay(Player *players, int player_count, float *ball_x, float *ba
             break;
         }
 
+<<<<<<< Updated upstream
         // sys_nano_sleep(0.1);
+=======
+        sys_nano_sleep(10);
+>>>>>>> Stashed changes
     }
     return winner;
 }

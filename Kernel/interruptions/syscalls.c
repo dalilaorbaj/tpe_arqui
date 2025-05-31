@@ -66,7 +66,7 @@ int64_t syscallDispatcher(uint64_t syscall_num, uint64_t arg1, uint64_t arg2, ui
 int64_t sys_read(uint64_t fd, uint16_t * buf, uint64_t count){
     if(fd != STDIN) return -1;
     int64_t i = 0;
-    char c;
+    uint8_t c;
     while (i < count && (c = getChar()) != 0) {
         buf[i] = c;   
         i++;

@@ -5,7 +5,7 @@
 extern void hlt(void);
 
 // Implementación de getKey (stub, deberías hacer syscall real si tu kernel la soporta)
-unsigned char getKey() {
+uint16_t getKey() {
     return sys_get_key();
 }
 

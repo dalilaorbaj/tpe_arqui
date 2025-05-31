@@ -29,7 +29,8 @@ static void moveCurrentY(uint64_t verticalSpacing) {
 
 void startPongisGolf(){
     puts("Starting Pongis Golf...");
-    clearScreen();
+    //clearScreen();
+    //no se si este clear es el que genera el efecto glitching 
     
     if(get_screen_info(&screen) <0 ){
         puts("Failed to get screen info.");
@@ -258,32 +259,56 @@ static int basicPlay(Player *players, int player_count, float *ball_x, float *ba
         //unsigned char sys_get_key(void);
 
         // Input jugadores
-        uint16_t key = 0;
-        if (sys_get_key > 0) {
-            for (int i = 0; i < player_count; i++) {
-                if (key == players[i].up && players[i].y - 5 > players[i].radius)
-                    players[i].y -= 5;
-                else if (key == players[i].down && players[i].y + 5 < height - players[i].radius)
-                    players[i].y += 5;
-                else if (key == players[i].left && players[i].x - 5 > players[i].radius)
-                    players[i].x -= 5;
-                else if (key == players[i].right && players[i].x + 5 < width - players[i].radius)
-                    players[i].x += 5;
-                else if (key == players[i].hit) {
-                    // Si el jugador está cerca de la pelota, golpearla
-                    float dx = (*ball_x) - players[i].x;
-                    float dy = (*ball_y) - players[i].y;
-                    float dist = (float)sqrtf(dx*dx + dy*dy);
-                    if (dist < players[i].radius + ball_radius + 5) {
-                        float norm = (float)sqrtf(dx*dx + dy*dy);
-                        if (norm != 0) {
-                            *ball_vx += (dx / norm) * 8;
-                            *ball_vy += (dy / norm) * 8;
-                        }
+        uint16_t key = getKeyRaw();
+
+        // for (int i = 0; i < player_count; i++) {
+        //     if (key == players[i].up && players[i].y - 5 > players[i].radius)
+        //         players[i].y -= 5;
+        //     else if (key == players[i].down && players[i].y + 5 < height - players[i].radius)
+        //         players[i].y += 5;
+        //     else if (key == players[i].left && players[i].x - 5 > players[i].radius)
+        //         players[i].x -= 5;
+        //     else if (key == players[i].right && players[i].x + 5 < width - players[i].radius)
+        //         players[i].x += 5;
+        //     else if (key == players[i].hit) {
+        //         // Si el jugador está cerca de la pelota, golpearla
+        //         float dx = (*ball_x) - players[i].x;
+        //         float dy = (*ball_y) - players[i].y;
+        //         float dist = (float)sqrtf(dx*dx + dy*dy);
+        //         if (dist < players[i].radius + ball_radius + 5) {
+        //             float norm = (float)sqrtf(dx*dx + dy*dy);
+        //             if (norm != 0) {
+        //                 *ball_vx += (dx / norm) * 8;
+        //                 *ball_vy += (dy / norm) * 8;
+        //             }
+        //         }
+        //     }
+        // }
+
+        for (int i = 0; i < player_count; i++) {
+            if (key == players[i].up && players[i].y - 5 > players[i].radius)
+                players[i].y -= 5;
+            else if (key == players[i].down && players[i].y + 5 < height - players[i].radius)
+                players[i].y += 5;
+            else if (key == players[i].left && players[i].x - 5 > players[i].radius)
+                players[i].x -= 5;
+            else if (key == players[i].right && players[i].x + 5 < width - players[i].radius)
+                players[i].x += 5;
+            else if (key == players[i].hit) {
+                // Si el jugador está cerca de la pelota, golpearla
+                float dx = (*ball_x) - players[i].x;
+                float dy = (*ball_y) - players[i].y;
+                float dist = (float)sqrtf(dx*dx + dy*dy);
+                if (dist < players[i].radius + ball_radius + 5) {
+                    float norm = (float)sqrtf(dx*dx + dy*dy);
+                    if (norm != 0) {
+                        *ball_vx += (dx / norm) * 8;
+                        *ball_vy += (dy / norm) * 8;
                     }
                 }
             }
         }
+    
 
         // Actualizar posición de la pelota
         *ball_x += *ball_vx;

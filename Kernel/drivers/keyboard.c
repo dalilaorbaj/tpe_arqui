@@ -14,7 +14,6 @@
 #define LEFT_CONTROL          0x1D
 #define DELTA 'a' - 'A'
 
-
 /* El tratamiento del buffer de teclado es circular */
 static uint8_t buffer[BUFFER_SIZE];
 static uint8_t map = LOWER; //mapa de teclas actual
@@ -25,9 +24,9 @@ static uint8_t registersFlag = 0; //bandera para indicar si se debe guardar los 
 static uint8_t blockMayus = 0;
 static uint8_t cntrlPressed = 0;
 
-
 extern int8_t keyMappingMatrix[2][128];
-extern uint8_t sys_getKey();
+
+extern uint16_t sys_getKey();
 
 static uint8_t isReleased(uint8_t key){
     return (key & UNPRESSED_BIT);
@@ -65,6 +64,21 @@ static int isAlphaKey(uint8_t keyValue){
     return 'A' <= toUpper(keyValue) && toUpper(keyValue) <= 'Z';
 }
 
+int isArrowKey(uint8_t key) {
+    return (keyValue(key) == 72 || keyValue(key) == 75 || 
+            keyValue(key) == 77 || keyValue(key) == 80);
+}
+
+int getArrowDirection(uint8_t scanCode) {
+    switch(scanCode) {
+        case 72: return KEY_UP;
+        case 75: return KEY_LEFT;
+        case 77: return KEY_RIGHT;
+        case 80: return KEY_DOWN;
+        default: return 0;
+    }
+}
+
 static uint8_t handlekey(uint8_t key){
     if(cntrlPressed && isPressed(key) && SAVE_REGS_KEY == keyMappingMatrix[map][keyValue(key)]) {
         registersFlag = 1;
@@ -83,6 +97,11 @@ static uint8_t handlekey(uint8_t key){
         blockMayus = !blockMayus;
         return 0;
     }
+
+    if(isArrowKey(key)) {
+        return getArrowDirection(keyValue(key));
+    }
+
     if(!isPressed(key) || keyMappingMatrix[map][key] == 0) return 0;    
     key = keyMappingMatrix[map][key];
     if(isAlphaKey(key) && blockMayus) {
@@ -92,8 +111,8 @@ static uint8_t handlekey(uint8_t key){
 }
 
 
-uint8_t getKey() {
-    uint8_t toReturn;
+uint16_t getKey() {
+    uint16_t toReturn;
     do {
         toReturn = handlekey(sys_getKey());
     } while (toReturn == 0);    
@@ -106,7 +125,7 @@ int emptyBuffer(){
 
 
 void keyboardHandler() {
-    uint8_t key = handlekey(sys_getKey());
+    uint16_t key = handlekey(sys_getKey());
     
     if (key == 0) {
         return; 
@@ -119,12 +138,12 @@ void keyboardHandler() {
     return;
 }
 
-static uint8_t next(){
+static uint16_t next(){
     if (emptyBuffer()){
         return 0;
     }
     buffer_dim--;
-    uint8_t toReturn = buffer[buffer_first++];
+    uint16_t toReturn = buffer[buffer_first++];
     buffer_first = buffer_first % BUFFER_SIZE;
     return toReturn;
 }

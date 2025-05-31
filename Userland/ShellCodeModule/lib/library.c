@@ -12,7 +12,6 @@
 #define EOF     -1
 #endif
 
-
 char getChar(){
     uint16_t c;
     while(sys_read(STDIN, &c, 1)==0 || c>255);
@@ -20,7 +19,8 @@ char getChar(){
 }
 
 char *gets(char* buffer, uint16_t maxLen) {
-    int current, i = 0;
+    int i = 0;
+    char current;
 
     while (1) {
         current = getChar();
@@ -187,11 +187,20 @@ int64_t draw_letter(uint64_t x, uint64_t y, uint64_t letter, uint64_t color, uin
 }
 
 int64_t draw_ball(uint64_t x, uint64_t y, uint64_t radius, uint64_t color) {
-    // Si no tienes una syscall específica para "ball", implementa como un círculo usando draw_rectangle o similar,
-    // o simplemente haz un wrapper vacío por ahora para evitar el error de linker.
-    // Ejemplo de stub:
-    if (radius == 0) return ERROR; // No se puede dibujar una pelota de radio 0
-    uint64_t diameter = radius * 2;
-    return sys_draw_rectangle(x - radius, y - radius, diameter, diameter, color);
-       
+    int64_t count = 0;
+    for (int64_t dy = -((int64_t)radius); dy <= (int64_t)radius; dy++) {
+        for (int64_t dx = -((int64_t)radius); dx <= (int64_t)radius; dx++) {
+            if (dx*dx + dy*dy <= (int64_t)radius * (int64_t)radius) {
+                count += draw_rectangle(x + dx, y + dy, 1, 1, color); // O usa draw_pixel si tienes
+            }
+        }
+    }
+    return count;
+}
+
+uint16_t getKeyRaw(void) {
+    uint16_t c;
+    while (sys_read(STDIN, &c, 2) == 0) {
+    }
+    return c;
 }

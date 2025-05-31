@@ -114,7 +114,7 @@ void * initializeKernelBinary()
 int main(){	
 	
 	load_idt();
-	
+	initKeyMappingMatrix();
 	/*
 	//para probar snapshot en Kernel
 	RegsSnapshot regsSnapshot;

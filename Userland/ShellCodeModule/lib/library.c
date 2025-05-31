@@ -197,10 +197,3 @@ int64_t draw_ball(uint64_t x, uint64_t y, uint64_t radius, uint64_t color) {
     }
     return count;
 }
-
-uint16_t getKeyRaw(void) {
-    uint16_t c;
-    while (sys_read(STDIN, &c, 2) == 0) {
-    }
-    return c;
-}

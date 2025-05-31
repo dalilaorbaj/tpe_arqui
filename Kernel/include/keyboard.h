@@ -16,7 +16,7 @@
 #define KEY_RIGHT 0x4D00  // 130 decimal
 #define KEY_DOWN  0x5000  // 131 decimal
 
-uint16_t getKey();
+uint8_t getKey();
 
 int emptyBuffer();
 

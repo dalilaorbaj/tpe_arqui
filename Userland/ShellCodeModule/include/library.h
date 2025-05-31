@@ -12,8 +12,6 @@
 
 char getChar();
 
-uint16_t getKeyRaw(void);
-
 int putChar(char c);
 
 int64_t clearScreen(void);

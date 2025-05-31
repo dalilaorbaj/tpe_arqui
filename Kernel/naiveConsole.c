@@ -10,7 +10,7 @@ static uint8_t * currentVideo = (uint8_t*)0xB8000;
 static const uint32_t width = 80;
 static const uint32_t height = 25 ;
 
-extern uint16_t getKey(); // en keyboard.c
+extern uint8_t getKey(); // en keyboard.c
 
 void ncPrint(const char * string)
 {

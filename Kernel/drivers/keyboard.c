@@ -26,7 +26,7 @@ static uint8_t cntrlPressed = 0;
 
 extern int8_t keyMappingMatrix[2][128];
 
-extern uint16_t sys_getKey();
+extern uint8_t sys_getKey();
 
 static uint8_t isReleased(uint8_t key){
     return (key & UNPRESSED_BIT);
@@ -111,8 +111,8 @@ static uint8_t handlekey(uint8_t key){
 }
 
 
-uint16_t getKey() {
-    uint16_t toReturn;
+uint8_t getKey() {
+    uint8_t toReturn;
     do {
         toReturn = handlekey(sys_getKey());
     } while (toReturn == 0);    
@@ -125,7 +125,7 @@ int emptyBuffer(){
 
 
 void keyboardHandler() {
-    uint16_t key = handlekey(sys_getKey());
+    uint8_t key = handlekey(sys_getKey());
     
     if (key == 0) {
         return; 

@@ -7,11 +7,15 @@
 #define ALIGN_CENTER 1
 #define ALIGN_RIGHT  2
 
+#define PLAYER1_COLOR 0x0000FF // Azul
+#define PLAYER2_COLOR 0xFF0000 // Rojo
+#define BALL_COLOR 0xFFFFFF // Blanco
+#define HOLE_COLOR 0x00FF00 // Verde
+
 static void singlePlayer(uint32_t width, uint32_t height);
 static void multiPlayer(uint32_t width, uint32_t height);
 //void draw_ball(uint64_t x, uint64_t y, uint64_t radius, uint64_t color);
-static void printString(const char *str, uint64_t x, uint64_t y, uint64_t size, uint32_t width, uint32_t height);
-static void printString2(const char *str, uint64_t x, uint64_t y, uint64_t size, uint32_t width, uint32_t height, int alignment);
+static void printString(const char *str, uint64_t x, uint64_t y, uint64_t size, uint32_t width, uint32_t height, int alignment);
 static int basicPlay(Player *players, int player_count, float *ball_x, float *ball_y, float *ball_vx, float *ball_vy, float ball_radius, uint64_t ball_color, float hole_x, float hole_y, float hole_radius, uint64_t hole_color, uint32_t width, uint32_t height);
 //int get_player_input(int player);
 //void show_game_over_screen(int winner);
@@ -45,20 +49,19 @@ void startPongisGolf(){
     //printText();
 
 
-    printString2("Choose how many players: ", screen.width/2, currentY, 3, screen.width, screen.height, ALIGN_CENTER);
+    printString("Choose how many players: ", screen.width/2, currentY, 3, screen.width, screen.height, ALIGN_CENTER);
     moveCurrentY(verticalSpacing);
 
     //Opciones de menú
-    printString2("1. Single Player", screen.width / 2, currentY, 2, screen.width, screen.height, ALIGN_CENTER);
+    printString("1. Single Player", screen.width / 2, currentY, 2, screen.width, screen.height, ALIGN_CENTER);
     moveCurrentY(verticalSpacing - 10);
 
-    printString2("2. Multiplayer", screen.width / 2, currentY, 2, screen.width, screen.height, ALIGN_CENTER);
+    printString("2. Multiplayer", screen.width / 2, currentY, 2, screen.width, screen.height, ALIGN_CENTER);
     moveCurrentY(verticalSpacing - 10);
-    printString2("3. Exit", screen.width / 2, currentY, 2, screen.width, screen.height, ALIGN_CENTER);
+    printString("3. Exit", screen.width / 2, currentY, 2, screen.width, screen.height, ALIGN_CENTER);
     moveCurrentY(verticalSpacing - 10);
 
-    printString2("Press '1' for Single Player or '2' for Multiplayer", screen.width / 2, currentY + 20, 1, screen.width, screen.height, ALIGN_CENTER);
-
+    printString("Press '1' for Single Player or '2' for Multiplayer", screen.width / 2, currentY + 20, 1, screen.width, screen.height, ALIGN_CENTER);
 
 
     char choice;
@@ -78,14 +81,14 @@ void startPongisGolf(){
             return;
         } else {
             // Opcional: mostrar mensaje de error
-            printString("Invalid choice. Please select 1, 2, or 3.", screen.width / 2 - 10, screen.height - 30, 2, screen.width, screen.height);
+            printString("Invalid choice. Please select 1, 2, or 3.", screen.width / 2, screen.height - 30, 2, screen.width, screen.height, ALIGN_CENTER);
         }
     } while (1); // Bucle infinito hasta que se elija una opción válida
     return;
 }
 
 
-static void printString2(const char *str, uint64_t x, uint64_t y, uint64_t size, uint32_t width, uint32_t height, int alignment) {
+static void printString(const char *str, uint64_t x, uint64_t y, uint64_t size, uint32_t width, uint32_t height, int alignment) {
     if (str == NULL || y >= height) {
         return; // Invalid input
     }
@@ -110,21 +113,6 @@ static void printString2(const char *str, uint64_t x, uint64_t y, uint64_t size,
     uint64_t i = 0;
     while (str[i] != '\0' && x + i * FONT_WIDTH * size < width) {
         draw_letter(x + i * FONT_WIDTH * size, y, str[i], 0xFF0000, size);
-        i++;
-    }
-}
-
-static void printString(const char *str, uint64_t x, uint64_t y, uint64_t size, uint32_t width, uint32_t height) {
-    if (str == NULL || x >= width || y >= height) {
-        return; // Invalid input
-    }
-   // uint64_t centerX = x - strlen(str) * FONT_WIDTH * size;
-    uint64_t str_length = strlen(str);
-    uint64_t string_width = str_length * FONT_WIDTH * size;
-    uint64_t centerX = (width - string_width) / 2;
-    uint64_t i = 0;
-    while (str[i] != '\0' && centerX + i * FONT_WIDTH * size < width) {
-        draw_letter(centerX + i * FONT_WIDTH * size, y, str[i], 0xFF0000, size); // Draw each character in green
         i++;
     }
 }
@@ -164,7 +152,7 @@ static void printString(const char *str, uint64_t x, uint64_t y, uint64_t size, 
 //         // Dibujar jugador
 //         draw_ball((uint64_t)player_x, (uint64_t)player_y, (uint64_t)player_radius, player_color);
 
-//         printString("Single Player Mode", width / 2 - 100, 30, 2);
+//         printString("Single Player Mode", width / 2, height - 30, 2, width, height, ALIGN_CENTER);
 
 //         // Input jugador
 //         uint16_t key = 0;
@@ -228,7 +216,7 @@ static void printString(const char *str, uint64_t x, uint64_t y, uint64_t size, 
 //         float hx = ball_x - hole_x;
 //         float hy = ball_y - hole_y;
 //         if (sqrtf(hx*hx + hy*hy) < hole_radius) {
-//             printString("¡Ganaste!", screen.width / 2 - 50, screen.height / 2, 3);
+//             printString("¡Ganaste!", width / 2, height / 2, 3, width, height, ALIGN_CENTER);
 //             sys_nano_sleep(60);
 //             break;
 //         }
@@ -256,55 +244,47 @@ static int basicPlay(Player *players, int player_count, float *ball_x, float *ba
             draw_ball((uint64_t)players[i].x, (uint64_t)players[i].y, (uint64_t)players[i].radius, players[i].color);
         }
 
-        //unsigned char sys_get_key(void);
-
         // Input jugadores
-        uint16_t key = getKeyRaw();
+        char key = getChar();
 
-        // for (int i = 0; i < player_count; i++) {
-        //     if (key == players[i].up && players[i].y - 5 > players[i].radius)
-        //         players[i].y -= 5;
-        //     else if (key == players[i].down && players[i].y + 5 < height - players[i].radius)
-        //         players[i].y += 5;
-        //     else if (key == players[i].left && players[i].x - 5 > players[i].radius)
-        //         players[i].x -= 5;
-        //     else if (key == players[i].right && players[i].x + 5 < width - players[i].radius)
-        //         players[i].x += 5;
-        //     else if (key == players[i].hit) {
-        //         // Si el jugador está cerca de la pelota, golpearla
-        //         float dx = (*ball_x) - players[i].x;
-        //         float dy = (*ball_y) - players[i].y;
-        //         float dist = (float)sqrtf(dx*dx + dy*dy);
-        //         if (dist < players[i].radius + ball_radius + 5) {
-        //             float norm = (float)sqrtf(dx*dx + dy*dy);
-        //             if (norm != 0) {
-        //                 *ball_vx += (dx / norm) * 8;
-        //                 *ball_vy += (dy / norm) * 8;
-        //             }
-        //         }
-        //     }
+        // // Debug: mostrar el valor de la tecla leída
+        // void printKeyDebug(char key) {
+        //     char debugStr[32];
+        //     printf("Tecla leída: %d ('%c')", (int)key, key);
+        //     puts(debugStr);
         // }
+        // printKeyDebug(key);
 
         for (int i = 0; i < player_count; i++) {
-            if (key == players[i].up && players[i].y - 5 > players[i].radius)
-                players[i].y -= 5;
-            else if (key == players[i].down && players[i].y + 5 < height - players[i].radius)
-                players[i].y += 5;
-            else if (key == players[i].left && players[i].x - 5 > players[i].radius)
-                players[i].x -= 5;
-            else if (key == players[i].right && players[i].x + 5 < width - players[i].radius)
-                players[i].x += 5;
-            else if (key == players[i].hit) {
-                // Si el jugador está cerca de la pelota, golpearla
-                float dx = (*ball_x) - players[i].x;
-                float dy = (*ball_y) - players[i].y;
-                float dist = (float)sqrtf(dx*dx + dy*dy);
-                if (dist < players[i].radius + ball_radius + 5) {
-                    float norm = (float)sqrtf(dx*dx + dy*dy);
-                    if (norm != 0) {
-                        *ball_vx += (dx / norm) * 8;
-                        *ball_vy += (dy / norm) * 8;
-                    }
+            if (key == players[i].up)
+                players[i].y -= 50;
+            else if (key == players[i].down)
+                players[i].y += 50;
+            else if (key == players[i].left)
+                players[i].x -= 50;
+            else if (key == players[i].right)
+                players[i].x += 50;
+            // else if (key == players[i].hit) {
+            //     // Si el jugador está cerca de la pelota, golpearla
+            //     float dx = (*ball_x) - players[i].x;
+            //     float dy = (*ball_y) - players[i].y;
+            //     float dist = (float)sqrtf(dx*dx + dy*dy);
+            //     if (dist < players[i].radius + ball_radius + 5) {
+            //         float norm = (float)sqrtf(dx*dx + dy*dy);
+            //         if (norm != 0) {
+            //             *ball_vx += (dx / norm) * 8;
+            //             *ball_vy += (dy / norm) * 8;
+            //         }
+            //     }
+
+            float dx = (*ball_x) - players[i].x;
+            float dy = (*ball_y) - players[i].y;
+            float dist = sqrtf(dx*dx + dy*dy);
+            if (dist < players[i].radius + ball_radius + 5) {
+                float norm = sqrtf(dx*dx + dy*dy);
+                if (norm != 0) {
+                    *ball_vx += (dx / norm) * 8;
+                    *ball_vy += (dy / norm) * 8;
                 }
             }
         }
@@ -346,44 +326,48 @@ static int basicPlay(Player *players, int player_count, float *ball_x, float *ba
             break;
         }
 
-        sys_nano_sleep(10);
+        sys_nano_sleep(0.5);
     }
     return winner;
 }
 
 static void singlePlayer(uint32_t width, uint32_t height) {
-    Player player = {width / 4, height / 2, 10, 0x0000FF, 0x4800, 0x5000, 0x4B00, 0x4D00, ' '};
+    Player player = {width / 4, height / 2, 10, PLAYER1_COLOR, 'w', 's', 'a', 'd'};
     float ball_x = width / 2, ball_y = height / 2, ball_vx = 0, ball_vy = 0;
     float ball_radius = 8;
-    uint64_t ball_color = 0xFFFFFF;
-    float hole_x = width * 3 / 4, hole_y = height / 2, hole_radius = 12;
-    uint64_t hole_color = 0x00FF00;
+    uint64_t ball_color = BALL_COLOR;
+    float hole_x = width * 3 / 4;
+    float hole_y = height / 2;
+    float hole_radius = 12;
+    uint64_t hole_color = HOLE_COLOR;
 
     basicPlay(&player, 1, &ball_x, &ball_y, &ball_vx, &ball_vy, ball_radius, ball_color, hole_x, hole_y, hole_radius, hole_color, width, height);
 
-    printString("¡Ganaste!", width / 2 - 50, height / 2, 3, width, height);
+    printString("¡Ganaste!", width / 2 - 50, height / 2, 3, width, height, ALIGN_CENTER);
     sys_nano_sleep(60);
 }
 
 static void multiPlayer(uint32_t width, uint32_t height) {
     Player players[2] = {
-        {width / 4, height / 2, 10, 0x0000FF, 0x4800, 0x5000, 0x4B00, 0x4D00, ' '}, // Flechas
-        {width * 3 / 4, height / 2, 10, 0xFF0000, 'w', 's', 'a', 'd', 'e'}           // WASD + 'e' para golpear
+        {width / 4, height / 2, 10, PLAYER1_COLOR, 'i', 'k', 'j', 'l'},
+        {width * 3 / 4, height / 2, 10, PLAYER2_COLOR, 'w', 's', 'a', 'd'}           
     };
     float ball_x = width / 2, ball_y = height / 2, ball_vx = 0, ball_vy = 0;
     float ball_radius = 8;
-    uint64_t ball_color = 0xFFFFFF;
-    float hole_x = width / 2, hole_y = height / 4, hole_radius = 12;
-    uint64_t hole_color = 0x00FF00;
+    uint64_t ball_color = BALL_COLOR;
+    float hole_x = width / 2;
+    float hole_y = height / 4;
+    float hole_radius = 12;
+    uint64_t hole_color = HOLE_COLOR;
 
     int winner = basicPlay(players, 2, &ball_x, &ball_y, &ball_vx, &ball_vy, ball_radius, ball_color, hole_x, hole_y, hole_radius, hole_color, width, height);
 
     if (winner == 0)
-        printString("¡Jugador 1 gana!", width / 2 - 80, height / 2, 3, width, height);
+        printString("¡Jugador 1 gana!", width / 2 - 80, height / 2, 3, width, height, ALIGN_CENTER);
     else if (winner == 1)
-        printString("¡Jugador 2 gana!", width / 2 - 80, height / 2, 3, width, height);
+        printString("¡Jugador 2 gana!", width / 2 - 80, height / 2, 3, width, height, ALIGN_CENTER);
     else
-        printString("¡Empate!", width / 2 - 50, height / 2, 3, width, height);
+        printString("¡Empate!", width / 2 - 50, height / 2, 3, width, height, ALIGN_CENTER);
     
     sys_nano_sleep(60);
 }

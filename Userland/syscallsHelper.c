@@ -24,3 +24,10 @@ int64_t writeStrColor(const char *s, Color color) {
 
 
 
+void zoomIn() {
+    return sys_zoom_in();
+}
+
+void zoomOut() {
+    return sys_zoom_out();
+}

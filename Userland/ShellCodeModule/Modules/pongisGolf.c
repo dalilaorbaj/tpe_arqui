@@ -227,96 +227,96 @@ static void printString(const char *str, uint64_t x, uint64_t y, uint64_t size, 
 
 static int basicPlay(Player *players, int player_count, float *ball_x, float *ball_y, float *ball_vx, float *ball_vy, float ball_radius, uint64_t ball_color,
                      float hole_x, float hole_y, float hole_radius, uint64_t hole_color, uint32_t width, uint32_t height) {
-    float ball_friction = 0.98f;
-    int winner = -1;
+//     float ball_friction = 0.98f;
+         int winner = -1;
 
-    while (1) {
-        clearScreen();
+//     while (1) {
+//         clearScreen();
 
-        // Dibujar hoyo
-        draw_ball((uint64_t)hole_x, (uint64_t)hole_y, (uint64_t)hole_radius, hole_color);
+//         // Dibujar hoyo
+//         draw_ball((uint64_t)hole_x, (uint64_t)hole_y, (uint64_t)hole_radius, hole_color);
 
-        // Dibujar pelota
-        draw_ball((uint64_t)(*ball_x), (uint64_t)(*ball_y), (uint64_t)ball_radius, ball_color);
+//         // Dibujar pelota
+//         draw_ball((uint64_t)(*ball_x), (uint64_t)(*ball_y), (uint64_t)ball_radius, ball_color);
 
-        // Dibujar jugadores
-        for (int i = 0; i < player_count; i++) {
-            draw_ball((uint64_t)players[i].x, (uint64_t)players[i].y, (uint64_t)players[i].radius, players[i].color);
-        }
+//         // Dibujar jugadores
+//         for (int i = 0; i < player_count; i++) {
+//             draw_ball((uint64_t)players[i].x, (uint64_t)players[i].y, (uint64_t)players[i].radius, players[i].color);
+//         }
 
-        // Input jugadores
-        char key = getChar();
+//         // Input jugadores
+//         char key = getChar();
 
-        for (int i = 0; i < player_count; i++) {
-            if (key == players[i].up)
-                players[i].y -= 50;
-            else if (key == players[i].down)
-                players[i].y += 50;
-            else if (key == players[i].left)
-                players[i].x -= 50;
-            else if (key == players[i].right)
-                players[i].x += 50;
-<<<<<<< Updated upstream
-=======
+//         for (int i = 0; i < player_count; i++) {
+//             if (key == players[i].up)
+//                 players[i].y -= 50;
+//             else if (key == players[i].down)
+//                 players[i].y += 50;
+//             else if (key == players[i].left)
+//                 players[i].x -= 50;
+//             else if (key == players[i].right)
+//                 players[i].x += 50;
+// <<<<<<< Updated upstream
+// =======
 
->>>>>>> Stashed changes
+// >>>>>>> Stashed changes
 
                 
-            float dx = (*ball_x) - players[i].x;
-            float dy = (*ball_y) - players[i].y;
-            float dist = sqrtf(dx*dx + dy*dy);
-            if (dist < players[i].radius + ball_radius + 5) {
-                float norm = sqrtf(dx*dx + dy*dy);
-                if (norm != 0) {
-                    *ball_vx += (dx / norm) * 8;
-                    *ball_vy += (dy / norm) * 8;
-                }
-            }
-        }
+//             float dx = (*ball_x) - players[i].x;
+//             float dy = (*ball_y) - players[i].y;
+//             float dist = sqrtf(dx*dx + dy*dy);
+//             if (dist < players[i].radius + ball_radius + 5) {
+//                 float norm = sqrtf(dx*dx + dy*dy);
+//                 if (norm != 0) {
+//                     *ball_vx += (dx / norm) * 8;
+//                     *ball_vy += (dy / norm) * 8;
+//                 }
+//             }
+//         }
     
 
-        // Actualizar posición de la pelota
-        *ball_x += *ball_vx;
-        *ball_y += *ball_vy;
-        *ball_vx *= ball_friction;
-        *ball_vy *= ball_friction;
+//         // Actualizar posición de la pelota
+//         *ball_x += *ball_vx;
+//         *ball_y += *ball_vy;
+//         *ball_vx *= ball_friction;
+//         *ball_vy *= ball_friction;
 
-        // Rebote con paredes
-        if (*ball_x - ball_radius < 0 || *ball_x + ball_radius > width) {
-            *ball_vx = -*ball_vx;
-            if (*ball_x - ball_radius < 0) *ball_x = ball_radius;
-            if (*ball_x + ball_radius > width) *ball_x = width - ball_radius;
-        }
-        if (*ball_y - ball_radius < 0 || *ball_y + ball_radius > height) {
-            *ball_vy = -*ball_vy;
-            if (*ball_y - ball_radius < 0) *ball_y = ball_radius;
-            if (*ball_y + ball_radius > height) *ball_y = height - ball_radius;
-        }
+//         // Rebote con paredes
+//         if (*ball_x - ball_radius < 0 || *ball_x + ball_radius > width) {
+//             *ball_vx = -*ball_vx;
+//             if (*ball_x - ball_radius < 0) *ball_x = ball_radius;
+//             if (*ball_x + ball_radius > width) *ball_x = width - ball_radius;
+//         }
+//         if (*ball_y - ball_radius < 0 || *ball_y + ball_radius > height) {
+//             *ball_vy = -*ball_vy;
+//             if (*ball_y - ball_radius < 0) *ball_y = ball_radius;
+//             if (*ball_y + ball_radius > height) *ball_y = height - ball_radius;
+//         }
 
-        // Verificar si la pelota entra en el hoyo
-        float hx = *ball_x - hole_x;
-        float hy = *ball_y - hole_y;
-        if (sqrtf(hx*hx + hy*hy) < hole_radius) {
-            // Determinar qué jugador está más cerca del hoyo (opcional)
-            int closest = 0;
-            float min_dist = (float)sqrtf((players[0].x - *ball_x)*(players[0].x - *ball_x) + (players[0].y - *ball_y)*(players[0].y - *ball_y));
-            for (int i = 1; i < player_count; i++) {
-                float d = (float)sqrtf((players[i].x - *ball_x)*(players[i].x - *ball_x) + (players[i].y - *ball_y)*(players[i].y - *ball_y));
-                if (d < min_dist) {
-                    min_dist = d;
-                    closest = i;
-                }
-            }
-            winner = closest;
-            break;
-        }
+//         // Verificar si la pelota entra en el hoyo
+//         float hx = *ball_x - hole_x;
+//         float hy = *ball_y - hole_y;
+//         if (sqrtf(hx*hx + hy*hy) < hole_radius) {
+//             // Determinar qué jugador está más cerca del hoyo (opcional)
+//             int closest = 0;
+//             float min_dist = (float)sqrtf((players[0].x - *ball_x)*(players[0].x - *ball_x) + (players[0].y - *ball_y)*(players[0].y - *ball_y));
+//             for (int i = 1; i < player_count; i++) {
+//                 float d = (float)sqrtf((players[i].x - *ball_x)*(players[i].x - *ball_x) + (players[i].y - *ball_y)*(players[i].y - *ball_y));
+//                 if (d < min_dist) {
+//                     min_dist = d;
+//                     closest = i;
+//                 }
+//             }
+//             winner = closest;
+//             break;
+//         }
 
-<<<<<<< Updated upstream
-        // sys_nano_sleep(0.1);
-=======
-        sys_nano_sleep(10);
->>>>>>> Stashed changes
-    }
+// <<<<<<< Updated upstream
+//         // sys_nano_sleep(0.1);
+// =======
+//         sys_nano_sleep(10);
+// >>>>>>> Stashed changes
+//     }
     return winner;
 }
 

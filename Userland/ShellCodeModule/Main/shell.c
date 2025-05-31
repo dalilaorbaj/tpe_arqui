@@ -16,6 +16,8 @@ void printRegsSnapshot(const RegsSnapshot *regs);
 int64_t writeStr(int fd, const char *s);
 static void clearCommand();
 static void exitCommand();
+static void zoomInCommand();
+static void zoomOutCommand();
 static void utcToMinusUtc3(time_struct *time);
 static void clearKeyboardBuffer();
 
@@ -30,12 +32,14 @@ static Option options[] = {
     {"invopcode", invOpcodeCommand},
     {"regs", regsCommand},
     {"beep", beepCommand}, 
-    {"pongis", pongisCommand}
+    {"pongis", pongisCommand},
+    {"zoomIn", zoomInCommand},
+    {"zoomOut", zoomOutCommand}
 };
 
 // Punto de entrada del módulo
 int main() {
-    puts("Se cargó la shell correctamente!");
+    puts("Se cargo la shell correctamente!");
     shellLoop();
     return 0;
 }
@@ -69,6 +73,12 @@ static void helpCommand() {
     puts("- Display this help message");
     writeStrColor("  clear ", (Color){129, 243, 255});
     puts("- Clear the screen");
+
+    writeStrColor("  zoomIn ", (Color){129, 243, 255});
+    puts("- Zoom in the screen");
+    writeStrColor("  zoomOut ", (Color){129, 243, 255});
+    puts("- Zoom out the screen");
+
     writeStrColor("  echo [text] ", (Color){129, 243, 255});
     puts("- Display the provided text");
     writeStrColor("  time ", (Color){129, 243, 255});
@@ -244,7 +254,13 @@ static void exitCommand() {
     return ;
 }
 
+static void zoomInCommand() {
+    zoomIn();
+}
 
+static void zoomOutCommand() {
+    zoomOut();
+}
 
 
 

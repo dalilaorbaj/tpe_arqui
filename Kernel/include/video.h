@@ -3,7 +3,9 @@
 
 #include <stdint.h>
 
-#define DEFAULT_FONT_SIZE 1
+static const uint64_t MIN_FONT_SIZE = 1;
+static const uint64_t MAX_FONT_SIZE = 5;
+static const uint64_t FONT_SIZE_STEP = 1;
 #define COLOR_OFF 0
 #define COLOR_ON 255
 
@@ -20,16 +22,17 @@ typedef struct{
     uint64_t y;
 }Point;
 
-typedef struct{
-    uint8_t c;
-    uint8_t fd;
-}Character;
 
 typedef struct{
     uint8_t red;
     uint8_t green;
     uint8_t blue;
 } Color;
+
+typedef struct{
+    uint8_t c;
+    Color color;   
+} Character;
 
 typedef struct {
     uint32_t width;

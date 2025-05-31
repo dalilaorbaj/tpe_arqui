@@ -53,6 +53,10 @@ int64_t syscallDispatcher(uint64_t syscall_num, uint64_t arg1, uint64_t arg2, ui
             return sys_beep(arg1, arg2);
         case 12:
             return sys_write_color(arg1, (char *)arg2, arg3, arg4); 
+        case 13:
+            return sys_zoom_in();
+        case 14:
+            return sys_zoom_out();
         case 20:
             return sys_get_key();
         default:
@@ -211,5 +215,15 @@ int64_t sys_draw_rectangle(uint64_t x, uint64_t y, uint64_t width, uint64_t heig
 
 int64_t sys_nano_sleep(uint64_t nanos) { 
     sleepTicks(nanos);
+    return 0;
+}
+
+int64_t sys_zoom_in(void) {
+    increaseFontSize();
+    return 0;
+}
+
+int64_t sys_zoom_out(void) {
+    decreaseFontSize();
     return 0;
 }

@@ -15,14 +15,14 @@ static VBEInfoPtr VBE_info = (VBEInfoPtr) 0x0000000000005C00;
 #define FIRST_ASCII 32
 #define LAST_ASCII 126
 
-#define MAX_CHARS (CHAR_ROWS_FONT_MIN * CHAR_COLS_FONT_MIN)
+#define MAX_CHARS 8000 
 
 //#define Y_OFFSET (FONT_HEIGHT * font_size)
 #define X_OFFSET (FONT_WIDTH * font_size)
 
 //Estructura para mantener la posición actual del cursor
 static Point current_point = {0,0};
-static Character buffer[CHAR_ROWS_FONT_MIN * CHAR_COLS_FONT_MIN];
+static Character buffer[MAX_CHARS];
 
 extern unsigned char font_bitmap[4096];
 static uint64_t char_index = 0;
@@ -30,7 +30,16 @@ static uint64_t char_index = 0;
 static Color bg_color = {COLOR_OFF, COLOR_OFF, COLOR_OFF};
 static Color font_color = {COLOR_ON, COLOR_ON, COLOR_ON};
 static Color error_color = {COLOR_ON, COLOR_OFF, COLOR_OFF};
-static uint64_t font_size = DEFAULT_FONT_SIZE;
+static uint64_t font_size = MIN_FONT_SIZE;
+
+static Character raw_text[MAX_CHARS];
+static uint64_t raw_text_length = 0;
+
+static uint64_t get_max_chars() {
+    uint64_t chars_per_line = WIDTH / (FONT_WIDTH * font_size);
+    uint64_t lines_per_screen = HEIGHT / (FONT_HEIGHT * font_size);
+    return chars_per_line * lines_per_screen;
+}
 
 static void tab();
 static void draw_letter(Character letter);
@@ -38,8 +47,8 @@ static void nl();
 static void bs();
 static void printAgain();
 //static void print();
+static void append_with_fd(char c, Color color);
 static void append(char c);
-
 
 
 void empty_screen(Color new_bg_color){
@@ -74,14 +83,14 @@ uint64_t write(const char * buf, int64_t size, Color color) {
     uint64_t i = 0;
     while (i < (uint64_t)size && buf[i]) {
         switch (buf[i]) {
-            case '\n': nl();  break;
+            case '\n': append_with_fd('\n', color); nl();  break;
             case '\b': bs();  break;
             case '\t': tab(); break;
             default:
                 if (buf[i] >= FIRST_ASCII && buf[i] <= LAST_ASCII) {
-                    set_font_color(color); // Cambiamos el color de la fuente
-                    append(buf[i]);
-                    draw_letter((Character){buf[i], STDOUT});
+                    set_font_color(color);
+                    append_with_fd(buf[i], color);
+                    draw_letter((Character){buf[i], color});
                 }
                 break;
         }
@@ -90,14 +99,6 @@ uint64_t write(const char * buf, int64_t size, Color color) {
     return i;
 }
 
-static void append(char c){
-    if(char_index >= MAX_CHARS){
-        printAgain();
-    }
-    buffer[char_index].c = c;
-    buffer[char_index].fd = STDOUT;
-    char_index++;
-}
 
 static void nl(void) {
     // avanzar al inicio de la siguiente línea
@@ -123,13 +124,13 @@ static void bs(void) {
                    FONT_WIDTH * font_size, FONT_HEIGHT * font_size, bg_color);
     if (char_index) {
         buffer[--char_index].c = 0;
-        buffer[char_index].fd = STDOUT;
+        buffer[char_index].color = font_color;
     }
 }
 
 static void tab(void) {
     for (int i = 0; i < 4; i++) {
-        Character c = { ' ', STDOUT };
+        Character c = { ' ', font_color };
         buffer[char_index++] = c;
         draw_letter(c);
     }
@@ -162,15 +163,7 @@ int64_t draw_pixel(uint64_t x, uint64_t y, Color color){
 }
 
 static void draw_letter(Character letter) {
-    if (current_point.x + FONT_WIDTH * font_size > WIDTH) {
-        current_point.x = 0;
-        current_point.y += FONT_HEIGHT * font_size;
-    }
-    if (current_point.y + FONT_HEIGHT * font_size > HEIGHT) {
-        printAgain();
-    }
-    Color col = (letter.fd == STDOUT ? font_color : error_color);
-    draw_font(current_point.x, current_point.y, letter.c, col, font_size);
+    draw_font(current_point.x, current_point.y, letter.c, letter.color, font_size);
     current_point.x += FONT_WIDTH * font_size;
 }
 
@@ -190,4 +183,65 @@ static void printAgain(void) {
 
 void set_font_color(Color color){
     font_color=color;
+}
+
+static void append_with_fd(char c, Color color) {
+    if (char_index >= MAX_CHARS) {
+        printAgain();
+    }
+    buffer[char_index].c = c;
+    buffer[char_index].color = color;
+    char_index++;
+
+    if (raw_text_length < MAX_CHARS - 1) {
+        raw_text[raw_text_length++] = (Character){c, color};
+    }
+}
+
+static void append(char c) {
+    append_with_fd(c, font_color); // Usar color por defecto
+}
+
+
+static void rewriteFromRawText() {
+    Character temp_text[MAX_CHARS];
+    uint64_t temp_length = raw_text_length;
+
+    for (uint64_t i = 0; i < temp_length; i++) {
+        temp_text[i] = raw_text[i];
+    }
+
+    // Limpiar solo el buffer y la posición
+    char_index = 0;
+    current_point.x = 0;
+    current_point.y = 0;
+
+    for (uint64_t i = 0; i < temp_length; i++) {
+    if (temp_text[i].c == '\n') {
+        current_point.x = 0;
+        current_point.y += FONT_HEIGHT * font_size;
+    } else {
+        buffer[char_index].c = temp_text[i].c;
+        buffer[char_index].color = temp_text[i].color;
+        char_index++;
+        draw_letter(temp_text[i]); 
+    }
+}
+}
+
+// ✅ Simplificar funciones de zoom
+void increaseFontSize(void) {
+    if (font_size < MAX_FONT_SIZE) {
+        font_size += FONT_SIZE_STEP;
+        empty_screen(bg_color);
+        rewriteFromRawText();  
+    }
+}
+
+void decreaseFontSize(void) {
+    if (font_size > MIN_FONT_SIZE) {
+        font_size -= FONT_SIZE_STEP;
+        empty_screen(bg_color);
+        rewriteFromRawText();
+    }
 }

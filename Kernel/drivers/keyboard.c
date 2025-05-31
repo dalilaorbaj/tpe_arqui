@@ -9,10 +9,10 @@
 #define KEY_BITS_MASK   0x7F // mascara para obtener el valor de la tecla sin el bit de presionada
 #define LSHIFT          0x2A
 #define RSHIFT          0x36
-#define CPS_LOCK          0x3A
-#define RIGHT_CONTROL          0xE01D
-#define LEFT_CONTROL          0x1D
-#define DELTA 'a' - 'A'
+#define CPS_LOCK        0x3A
+#define RIGHT_CONTROL   0xE01D
+#define LEFT_CONTROL    0x1D
+#define DELTA ('a' - 'A')
 
 /* El tratamiento del buffer de teclado es circular */
 static uint8_t buffer[BUFFER_SIZE];
@@ -21,7 +21,7 @@ static uint8_t buffer_dim = 0; //cantidad de elementos en el buffer
 static uint8_t buffer_last = 0; //ultimo elemento agregado al buffer
 static uint8_t buffer_first = 0; //primer elemento del buffer
 static uint8_t registersFlag = 0; //bandera para indicar si se debe guardar los registros
-static uint8_t blockMayus = 0;
+static uint8_t capsLock = 0;
 static uint8_t cntrlPressed = 0;
 
 extern int8_t keyMappingMatrix[2][128];
@@ -60,24 +60,24 @@ static uint8_t toLower(uint8_t key) {
     return 'A' <= key && key <= 'Z' ? key + DELTA : key;
 }
 
-static int isAlphaKey(uint8_t keyValue){
-    return 'A' <= toUpper(keyValue) && toUpper(keyValue) <= 'Z';
+static int isAlphaKey(uint8_t key){
+    return 'A' <= toUpper(key) && toUpper(key) <= 'Z';
 }
 
-int isArrowKey(uint8_t key) {
-    return (keyValue(key) == 72 || keyValue(key) == 75 || 
-            keyValue(key) == 77 || keyValue(key) == 80);
-}
+// int isArrowKey(uint8_t key) {
+//     return (keyValue(key) == 72 || keyValue(key) == 75 || 
+//             keyValue(key) == 77 || keyValue(key) == 80);
+// }
 
-int getArrowDirection(uint8_t scanCode) {
-    switch(scanCode) {
-        case 72: return KEY_UP;
-        case 75: return KEY_LEFT;
-        case 77: return KEY_RIGHT;
-        case 80: return KEY_DOWN;
-        default: return 0;
-    }
-}
+// int getArrowDirection(uint8_t scanCode) {
+//     switch(scanCode) {
+//         case 72: return KEY_UP;
+//         case 75: return KEY_LEFT;
+//         case 77: return KEY_RIGHT;
+//         case 80: return KEY_DOWN;
+//         default: return 0;
+//     }
+// }
 
 static uint8_t handlekey(uint8_t key){
     if(cntrlPressed && isPressed(key) && SAVE_REGS_KEY == keyMappingMatrix[map][keyValue(key)]) {
@@ -94,17 +94,14 @@ static uint8_t handlekey(uint8_t key){
         return 0;
     }
     if(isCapsLock(key) && isPressed(key)) {
-        blockMayus = !blockMayus;
+        capsLock = !capsLock;
         return 0;
     }
 
-    if(isArrowKey(key)) {
-        return getArrowDirection(keyValue(key));
-    }
-
     if(!isPressed(key) || keyMappingMatrix[map][key] == 0) return 0;    
+
     key = keyMappingMatrix[map][key];
-    if(isAlphaKey(key) && blockMayus) {
+    if(isAlphaKey(key) && capsLock) {
         key = (map == LOWER)? toUpper(key):toLower(key);
     }
     return key;

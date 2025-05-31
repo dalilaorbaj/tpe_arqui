@@ -28,7 +28,7 @@ typedef struct {
     float x, y;
     float radius;
     uint64_t color;
-    uint16_t up, down, left, right; // teclas de control
+    char up, down, left, right; // teclas de control
 } Player;
 
 #endif

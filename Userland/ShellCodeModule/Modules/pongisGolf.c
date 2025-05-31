@@ -264,19 +264,8 @@ static int basicPlay(Player *players, int player_count, float *ball_x, float *ba
                 players[i].x -= 50;
             else if (key == players[i].right)
                 players[i].x += 50;
-            // else if (key == players[i].hit) {
-            //     // Si el jugador está cerca de la pelota, golpearla
-            //     float dx = (*ball_x) - players[i].x;
-            //     float dy = (*ball_y) - players[i].y;
-            //     float dist = (float)sqrtf(dx*dx + dy*dy);
-            //     if (dist < players[i].radius + ball_radius + 5) {
-            //         float norm = (float)sqrtf(dx*dx + dy*dy);
-            //         if (norm != 0) {
-            //             *ball_vx += (dx / norm) * 8;
-            //             *ball_vy += (dy / norm) * 8;
-            //         }
-            //     }
 
+                
             float dx = (*ball_x) - players[i].x;
             float dy = (*ball_y) - players[i].y;
             float dist = sqrtf(dx*dx + dy*dy);
@@ -326,7 +315,7 @@ static int basicPlay(Player *players, int player_count, float *ball_x, float *ba
             break;
         }
 
-        sys_nano_sleep(0.5);
+        // sys_nano_sleep(0.1);
     }
     return winner;
 }

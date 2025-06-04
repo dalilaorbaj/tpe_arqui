@@ -11,8 +11,9 @@
 #define STDERR 2
 #define STDOUT_FORMAT ((Color){255, 255, 255}) // White color for standard output
 
-extern void get_snapshot();
-extern uint64_t registersArray[18];
+int64_t registersArray[CANT_REGS]; 
+int64_t registersArrayAux[CANT_REGS];
+void get_snapshot();
 
 
 // | Argumento número      | Registro usado |
@@ -144,9 +145,6 @@ int64_t sys_get_registers(RegsSnapshot *regs) {
         return -1; 
     }
 
-    
-    get_snapshot();
-    
     regs->rflags = registersArray[0];
     regs->rax    = registersArray[1];
     regs->rbx    = registersArray[2];
@@ -165,6 +163,8 @@ int64_t sys_get_registers(RegsSnapshot *regs) {
     regs->r14    = registersArray[15];
     regs->r15    = registersArray[16];
     regs->rip    = registersArray[17];
+    regs->cs     = registersArray[18];
+    regs->ss     = registersArray[19];
     return 0;
 }
 
@@ -230,4 +230,10 @@ int64_t sys_zoom_in(void) {
 int64_t sys_zoom_out(void) {
     decreaseFontSize();
     return 0;
+}
+
+void getSnapshot(){
+    for(int i=0 ; i < CANT_REGS ; i++){
+        registersArray[i] = registersArrayAux[i];
+    }
 }

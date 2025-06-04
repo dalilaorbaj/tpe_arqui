@@ -19,7 +19,7 @@ GLOBAL _exception0Handler
 GLOBAL _exception_invalidOpcodeHandler
 GLOBAL _exception8Handler
 
-
+EXTERN registersArrayAux
 EXTERN irqDispatcher		;para interrupciones de hardware
 EXTERN syscallDispatcher	;para interrupciones de software
 EXTERN exceptionDispatcher
@@ -143,6 +143,55 @@ _irq00Handler:
 
 ;Keyboard
 _irq01Handler:
+
+	push rax ; backupeo rax
+	; IMPORTANTE: hacer un push mueve el stack, por lo que RIP, RSP, RFLAGS etc tambien se mueven
+
+	; antes en el stack se tenia:
+	; EIP de donde provenis
+	; CS de donde provenis
+	; RFLAGS
+	; RSP de donde provenis
+	; SS de donde provenis
+
+	mov [registersArrayAux + 8], rax
+	; guardamos rax antes de modificarlo
+	
+	mov rax, [rsp + 8*3] ; rax = rflags
+	mov [registersArrayAux], rax	  ; rflags guardado en el array de registros
+    
+	
+	; la shell llamada a irq01, irq01 llama a keyboardHandler
+	; o sea, antes en el stack tengo el stack de la shel
+
+    mov [registersArrayAux + 16], rbx      ; rbx
+    mov [registersArrayAux + 24], rcx      ; rcx
+    mov [registersArrayAux + 32], rdx      ; rdx
+    mov [registersArrayAux + 40], rsi      ; rsi
+    mov [registersArrayAux + 48], rdi      ; rdi
+    mov [registersArrayAux + 56], rbp      ; rbp
+
+	mov rax, [rsp + 8*4]				; rax = rsp del llamador
+	mov [registersArrayAux + 64], rax      ; rsp del llamador
+
+    mov [registersArrayAux + 72], r8       ; r8
+    mov [registersArrayAux + 80], r9       ; r9
+    mov [registersArrayAux + 88], r10      ; r10
+    mov [registersArrayAux + 96], r11      ; r11
+    mov [registersArrayAux + 104], r12     ; r12
+    mov [registersArrayAux + 112], r13     ; r13
+    mov [registersArrayAux + 120], r14     ; r14
+    mov [registersArrayAux + 128], r15     ; r15
+	
+    mov rax, [rsp + 8]                      ; RIP guardado por la CPU
+    mov [registersArrayAux + 136], rax     ; rip
+	mov rax, [rsp + 8*2]
+	mov [registersArrayAux + 144], rax     ; cs guardado por la CPU
+	mov rax, [rsp + 8*5]
+	mov [registersArrayAux + 152], rax     ; ss guardado por la CPU
+
+	pop rax ; recupero rax
+
 	irqHandlerMaster 1
 
 ;Cascade pic never called

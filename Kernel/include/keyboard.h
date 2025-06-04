@@ -35,4 +35,6 @@ void keyboardHandler();
 
 uint8_t getChar();
 
+extern void getSnapshot();
+
 #endif

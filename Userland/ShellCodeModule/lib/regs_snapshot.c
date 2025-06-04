@@ -17,6 +17,7 @@ static void uint64ToHexString(uint64_t value, char* buffer) {
     buffer[18] = '\0';
 }
 
+
 // Imprime todos los registros del snapshot recibido
 void printRegsSnapshot(const RegsSnapshot *regs) {
     char hexBuffer[19]; // "0x" + 16 hex digits + null terminator
@@ -92,6 +93,14 @@ void printRegsSnapshot(const RegsSnapshot *regs) {
     writeStr(STDOUT, hexBuffer);
     writeStr(STDOUT, "  RFLAGS: ");
     uint64ToHexString(regs->rflags, hexBuffer);
+    writeStr(STDOUT, hexBuffer);
+    writeStr(STDOUT, "\n");
+
+    writeStr(STDOUT, "CS: ");
+    uint64ToHexString(regs->cs, hexBuffer);
+    writeStr(STDOUT, hexBuffer);
+    writeStr(STDOUT, "   SS: ");
+    uint64ToHexString(regs->ss, hexBuffer);
     writeStr(STDOUT, hexBuffer);
     writeStr(STDOUT, "\n");
 }

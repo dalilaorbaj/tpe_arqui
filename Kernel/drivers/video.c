@@ -229,7 +229,6 @@ static void rewriteFromRawText() {
 }
 }
 
-// ✅ Simplificar funciones de zoom
 void increaseFontSize(void) {
     if (font_size < MAX_FONT_SIZE) {
         font_size += FONT_SIZE_STEP;

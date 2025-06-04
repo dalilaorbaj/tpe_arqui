@@ -3,13 +3,13 @@
 
 #define BUFFER_SIZE 1024
 #define UNPRESSED_BIT   0x80 //indica si la tecla esta presionada o no
-#define SAVE_REGS_KEY 's'   //tecla para guardar los registros
 #define UPPER 1
 #define LOWER 0
 #define KEY_BITS_MASK   0x7F // mascara para obtener el valor de la tecla sin el bit de presionada
 #define LSHIFT          0x2A
 #define RSHIFT          0x36
 #define CPS_LOCK        0x3A
+#define SNAPSHOT_KEY    0x43 // tecla para tomar un snapshot de los registros
 #define RIGHT_CONTROL   0xE01D
 #define LEFT_CONTROL    0x1D
 #define DELTA ('a' - 'A')
@@ -82,10 +82,6 @@ static int isAlphaKey(uint8_t key){
 // }
 
 static uint8_t handlekey(uint8_t key){
-    if(cntrlPressed && isPressed(key) && SAVE_REGS_KEY == keyMappingMatrix[map][keyValue(key)]) {
-        registersFlag = 1;
-        return 0;
-    }
     registersFlag = 0;
     if(isControlKey(key)) {
         cntrlPressed = (isPressed(key));
@@ -99,6 +95,10 @@ static uint8_t handlekey(uint8_t key){
         capsLock = !capsLock;
         return 0;
     }
+
+    if (key == SNAPSHOT_KEY && isPressed(key)) {
+        getSnapshot();
+    } 
 
     if(!isPressed(key) || keyMappingMatrix[map][key] == 0) return 0;    
 

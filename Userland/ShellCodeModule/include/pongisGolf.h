@@ -40,6 +40,8 @@
 #define SCANCODE_K 37
 #define SCANCODE_J 36
 #define SCANCODE_L 38
+#define EXIT_KEY '0' // Tecla para salir del juego
+
 
 void startPongisGolf();
 void update_ball_position();

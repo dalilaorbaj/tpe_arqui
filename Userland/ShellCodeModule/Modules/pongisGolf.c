@@ -207,6 +207,14 @@ static void multiPlayer(uint32_t width, uint32_t height) {
             
             while ((nbytes = sys_read(0, &buffer, 1)) > 0 && moves_processed < MAX_MOVES_PER_FRAME) {
                 char tecla = (char)buffer;
+                if(tecla == EXIT_KEY) {
+                    // Si se presiona la tecla de salida, salir del juego
+                    clearScreen();
+                    printString("Exiting Pongis Golf...", width/2, height/2, 2, width, height, ALIGN_CENTER);
+                    sys_nano_sleep(40); // 1 segundo
+                    clearScreen();
+                    return;
+                }
                 
                 // Jugador 1 (WASD)
                 if (tecla == players[0].up) {        // 'w'

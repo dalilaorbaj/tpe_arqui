@@ -28,3 +28,4 @@ int64_t sys_get_registers(RegsSnapshot *regs);
 int64_t sys_beep(uint64_t freq, uint64_t time);
 int64_t sys_zoom_in(void);
 int64_t sys_zoom_out(void);
+int64_t sys_is_key_pressed(uint8_t scancode);

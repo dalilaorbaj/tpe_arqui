@@ -14,6 +14,8 @@ global sys_get_key
 global sys_write_color
 global sys_zoom_in
 global sys_zoom_out
+global sys_is_key_pressed
+
 
 section .text
 
@@ -45,3 +47,4 @@ sys_beep:             base_syscall 11
 sys_get_key:          base_syscall 20
 sys_zoom_in:          base_syscall 13
 sys_zoom_out:         base_syscall 14
+sys_is_key_pressed:   base_syscall 21 ; 

@@ -10,8 +10,17 @@
 
 #define BUFF_SIZE 8096
 
-char getChar();
+#define SCANCODE_W 17
+#define SCANCODE_S 31  
+#define SCANCODE_A 30
+#define SCANCODE_D 32
+#define SCANCODE_I 23
+#define SCANCODE_K 37
+#define SCANCODE_J 36
+#define SCANCODE_L 38
 
+char getChar();
+int isKeyPressed(uint8_t scancode);
 int putChar(char c);
 
 int64_t clearScreen(void);

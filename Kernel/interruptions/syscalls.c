@@ -59,12 +59,16 @@ int64_t syscallDispatcher(uint64_t syscall_num, uint64_t arg1, uint64_t arg2, ui
             return sys_zoom_out();
         case 20:
             return sys_get_key();
+        case 21:
+            return sys_is_key_pressed(arg1);
         default:
             return -1;
     }
 }
 
-
+int64_t sys_is_key_pressed(uint8_t scancode) {
+    return is_key_currently_pressed(scancode);
+}
 
 //	unsigned int fd	char __user *buf	size_t count (de la syscall table de linux)
 int64_t sys_read(uint64_t fd, uint16_t * buf, uint64_t count){

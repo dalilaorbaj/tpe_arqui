@@ -26,3 +26,4 @@ int64_t sys_draw_letter(uint64_t x, uint64_t y, uint64_t letter, uint64_t color,
 int64_t sys_get_screen_info(Screen * screen);
 int64_t sys_get_registers(RegsSnapshot *regs);
 int64_t sys_beep(uint64_t freq, uint64_t time);
+int64_t sys_is_key_pressed(uint8_t scancode);

@@ -14,6 +14,8 @@
 #define LEFT_CONTROL          0x1D
 #define DELTA 'a' - 'A'
 
+static uint8_t key_states[256] = {0}; // Array para rastrear estado de teclas
+
 /* El tratamiento del buffer de teclado es circular */
 static uint8_t buffer[BUFFER_SIZE];
 static uint8_t map = LOWER; //mapa de teclas actual
@@ -125,12 +127,18 @@ int emptyBuffer(){
 
 
 void keyboardHandler() {
+
+    uint8_t raw_key = sys_getKey();
+    uint8_t scancode = keyValue(raw_key);
+    
+    // Actualizar estado de la tecla
+    key_states[scancode] = isPressed(raw_key);
+
     uint8_t key = handlekey(sys_getKey());
     
     if (key == 0) {
         return; 
     }
-
     //Agregamos la tecla al buffer
     buffer[buffer_last++] = key;
     buffer_last = buffer_last % BUFFER_SIZE;
@@ -138,6 +146,9 @@ void keyboardHandler() {
     return;
 }
 
+int is_key_currently_pressed(uint8_t scancode) {
+    return key_states[scancode];
+}
 static uint16_t next(){
     if (emptyBuffer()){
         return 0;

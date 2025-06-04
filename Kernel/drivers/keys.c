@@ -28,3 +28,7 @@ void initKeyMappingMatrix() {
     keyMappingMatrix[0][77] = KEY_RIGHT;
     keyMappingMatrix[0][80] = KEY_DOWN;
 }
+
+
+
+

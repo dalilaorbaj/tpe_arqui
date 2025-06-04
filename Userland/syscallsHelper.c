@@ -2,6 +2,17 @@
 #include <stdarg.h>
 #include "library.h"
 
+#define SCANCODE_W 17
+#define SCANCODE_S 31  
+#define SCANCODE_A 30
+#define SCANCODE_D 32
+#define SCANCODE_I 23
+#define SCANCODE_K 37
+#define SCANCODE_J 36
+#define SCANCODE_L 38
+
+extern int64_t sys_is_key_pressed(uint8_t scancode);
+
 extern void hlt(void);
 
 // Implementación de getKey (stub, deberías hacer syscall real si tu kernel la soporta)
@@ -21,6 +32,7 @@ int64_t writeStrColor(const char *s, Color color) {
     while (s[len]) len++;
     return sys_write_color(STDOUT, s, len, color);
 }
-
-
+int isKeyPressed(uint8_t scancode) {
+    return (int)sys_is_key_pressed(scancode);
+}
 

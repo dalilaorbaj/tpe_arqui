@@ -1,14 +1,13 @@
 #include <stddef.h>
-#include <syscallsHelper.h>
 #include <stdarg.h>
 #include <functions.h>
+#include <stdint.h>
+#include <syscallsHelper.h>
 
 #define STDIN   0
 #define STDOUT  1
 #define STDERR  2
-
 #define ERROR -1
-
 #define BUFF_SIZE 8096
 
 #define SCANCODE_W 17
@@ -21,13 +20,15 @@
 #define SCANCODE_L 38
 #define SCANCODE_ESCAPE 1 // Tecla para salir del juego
 
+int64_t clearScreen(void);
+
 char getChar();
+
 uint64_t isKeyPressed(uint8_t scancode);
+
 int putChar(char c);
 
 int64_t clearScreen(void);
-
-int64_t setFontSize(uint64_t size);
 
 size_t strlen(const char *s);
 

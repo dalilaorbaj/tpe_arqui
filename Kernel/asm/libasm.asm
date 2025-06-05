@@ -2,6 +2,7 @@ GLOBAL cpuVendor
 GLOBAL rtc
 GLOBAL hlt
 
+EXTERN registersArrayAux
 
 section .text
 	
@@ -45,3 +46,6 @@ hlt:
 	sti
 	hlt
 	ret
+
+
+

@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <math.h>
 #include <library.h>
+#include <stdarg.h>
 #ifndef PONGISGOLS_H
 #define PONGISGOLS_H
 

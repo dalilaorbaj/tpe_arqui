@@ -393,7 +393,7 @@ int64_t draw_pixel(uint64_t x, uint64_t y, Color color){
     return OK;
 }
 
-void set_font_color(Color color){
+void _color(Color color){
     font_color = color;
 }
 

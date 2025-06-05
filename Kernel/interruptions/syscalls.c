@@ -31,7 +31,7 @@ int64_t syscallDispatcher(uint64_t syscall_num, uint64_t arg1, uint64_t arg2, ui
         case 0:
             return sys_get_time((time_struct *)arg1);
         case 1:
-            return sys_set_font_size(arg1);
+            return sys_is_key_pressed(arg1);
         case 2:
             return sys_nano_sleep(arg1);
         case 3:
@@ -60,8 +60,6 @@ int64_t syscallDispatcher(uint64_t syscall_num, uint64_t arg1, uint64_t arg2, ui
             return sys_zoom_out();
         case 20:
             return sys_get_key();
-        case 21:
-            return sys_is_key_pressed(arg1);
         default:
             return -1;
     }
@@ -167,8 +165,7 @@ int64_t sys_get_registers(RegsSnapshot *regs) {
     return 0;
 }
 
-// PENDIENTE
-int64_t sys_set_font_size(uint64_t size) { return 0; }
+
 
 
 int64_t sys_draw_pixel(uint64_t x, uint64_t y, uint64_t color) { 

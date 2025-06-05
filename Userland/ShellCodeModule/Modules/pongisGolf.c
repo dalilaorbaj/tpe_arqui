@@ -1,4 +1,3 @@
-
 #include <pongisGolf.h>
 
 // Configuraciones de los 5 niveles
@@ -23,6 +22,7 @@ static void singlePlayer(uint32_t width, uint32_t height);
 static void multiPlayer(uint32_t width, uint32_t height);
 static void printString(const char *str, uint64_t x, uint64_t y, uint64_t size, uint32_t width, uint32_t height, int alignment);
 static void processPlayerMovements(Player *players, uint32_t width, uint32_t height);
+static void printStringf(uint64_t x, uint64_t y, uint64_t size, uint32_t width, uint32_t height, int alignment, const char *format, ...);
 static void flushKeyboardBuffer();
 static void setExit();
 static void draw_player_with_direction(Player *player);
@@ -36,6 +36,7 @@ uint64_t verticalSpacing;
 uint64_t currentY;
 uint64_t screenWidth;
 uint64_t screenHeight;
+uint64_t numberOfPlayers;
 
 static void printString(const char *str, uint64_t x, uint64_t y, uint64_t size, uint32_t width, uint32_t height, int alignment) {
     if (str == NULL || y >= height) {
@@ -154,7 +155,8 @@ static void showLevelInfo(int level, uint32_t width, uint32_t height) {
 static void multiPlayer(uint32_t width, uint32_t height) {
     int current_level = 0;
     int player1_wins = 0;
-    int player2_wins = 0; 
+    int player2_wins = 0;
+    numberOfPlayers = 2; 
     
     while (current_level < MAX_LEVELS) {
         // Mostrar información del nivel
@@ -365,65 +367,7 @@ static void multiPlayer(uint32_t width, uint32_t height) {
         }
 
         
-        // Mostrar score usando printString en lugar de sprintf
-        //(!)esto no es de buen estilo, mas adelante arreglarlo
-        if (player1_wins == 0 && player2_wins == 0) {
-            printString("Score - Player 1: 0  Player 2: 0", width/2, height/2 + 20, 2, width, height, ALIGN_CENTER);
-        } else if (player1_wins == 1 && player2_wins == 0) {
-            printString("Score - Player 1: 1  Player 2: 0", width/2, height/2 + 20, 2, width, height, ALIGN_CENTER);
-        } else if (player1_wins == 0 && player2_wins == 1) {
-            printString("Score - Player 1: 0  Player 2: 1", width/2, height/2 + 20, 2, width, height, ALIGN_CENTER);
-        } else if (player1_wins == 1 && player2_wins == 1) {
-            printString("Score - Player 1: 1  Player 2: 1", width/2, height/2 + 20, 2, width, height, ALIGN_CENTER);
-        } else if (player1_wins == 2 && player2_wins == 0) {
-            printString("Score - Player 1: 2  Player 2: 0", width/2, height/2 + 20, 2, width, height, ALIGN_CENTER);
-        } else if (player1_wins == 0 && player2_wins == 2) {
-            printString("Score - Player 1: 0  Player 2: 2", width/2, height/2 + 20, 2, width, height, ALIGN_CENTER);
-        } else if (player1_wins == 2 && player2_wins == 1) {
-            printString("Score - Player 1: 2  Player 2: 1", width/2, height/2 + 20, 2, width, height, ALIGN_CENTER);
-        } else if (player1_wins == 1 && player2_wins == 2) {
-            printString("Score - Player 1: 1  Player 2: 2", width/2, height/2 + 20, 2, width, height, ALIGN_CENTER);
-        } else if (player1_wins == 2 && player2_wins == 2) {
-            printString("Score - Player 1: 2  Player 2: 2", width/2, height/2 + 20, 2, width, height, ALIGN_CENTER);
-        } else if (player1_wins == 3 && player2_wins == 0) {
-            printString("Score - Player 1: 3  Player 2: 0", width/2, height/2 + 20, 2, width, height, ALIGN_CENTER);
-        } else if (player1_wins == 0 && player2_wins == 3) {
-            printString("Score - Player 1: 0  Player 2: 3", width/2, height/2 + 20, 2, width, height, ALIGN_CENTER);
-        } else if (player1_wins == 3 && player2_wins == 1) {
-            printString("Score - Player 1: 3  Player 2: 1", width/2, height/2 + 20, 2, width, height, ALIGN_CENTER);
-        } else if (player1_wins == 1 && player2_wins == 3) {
-            printString("Score - Player 1: 1  Player 2: 3", width/2, height/2 + 20, 2, width, height, ALIGN_CENTER);
-        } else if (player1_wins == 3 && player2_wins == 2) {
-            printString("Score - Player 1: 3  Player 2: 2", width/2, height/2 + 20, 2, width, height, ALIGN_CENTER);
-        } else if (player1_wins == 2 && player2_wins == 3) {
-            printString("Score - Player 1: 2  Player 2: 3", width/2, height/2 + 20, 2, width, height, ALIGN_CENTER);
-        } else if (player1_wins == 3 && player2_wins == 3) {
-            printString("Score - Player 1: 3  Player 2: 3", width/2, height/2 + 20, 2, width, height, ALIGN_CENTER);
-        } else if (player1_wins == 4 && player2_wins == 0) {
-            printString("Score - Player 1: 4  Player 2: 0", width/2, height/2 + 20, 2, width, height, ALIGN_CENTER);
-        } else if (player1_wins == 0 && player2_wins == 4) {
-            printString("Score - Player 1: 0  Player 2: 4", width/2, height/2 + 20, 2, width, height, ALIGN_CENTER);
-        } else if (player1_wins == 4 && player2_wins == 1) {
-            printString("Score - Player 1: 4  Player 2: 1", width/2, height/2 + 20, 2, width, height, ALIGN_CENTER);
-        } else if (player1_wins == 1 && player2_wins == 4) {
-            printString("Score - Player 1: 1  Player 2: 4", width/2, height/2 + 20, 2, width, height, ALIGN_CENTER);
-        } else if (player1_wins == 4 && player2_wins == 2) {
-            printString("Score - Player 1: 4  Player 2: 2", width/2, height/2 + 20, 2, width, height, ALIGN_CENTER);
-        } else if (player1_wins == 2 && player2_wins == 4) {
-            printString("Score - Player 1: 2  Player 2: 4", width/2, height/2 + 20, 2, width, height, ALIGN_CENTER);
-        } else if (player1_wins == 4 && player2_wins == 3) {
-            printString("Score - Player 1: 4  Player 2: 3", width/2, height/2 + 20, 2, width, height, ALIGN_CENTER);
-        } else if (player1_wins == 3 && player2_wins == 4) {
-            printString("Score - Player 1: 3  Player 2: 4", width/2, height/2 + 20, 2, width, height, ALIGN_CENTER);
-        } else if (player1_wins == 4 && player2_wins == 4) {
-            printString("Score - Player 1: 4  Player 2: 4", width/2, height/2 + 20, 2, width, height, ALIGN_CENTER);
-        } else if (player1_wins == 5 && player2_wins == 0) {
-            printString("Score - Player 1: 5  Player 2: 0", width/2, height/2 + 20, 2, width, height, ALIGN_CENTER);
-        } else if (player1_wins == 0 && player2_wins == 5) {
-            printString("Score - Player 1: 0  Player 2: 5", width/2, height/2 + 20, 2, width, height, ALIGN_CENTER);
-        } else {
-            printString("Score updated", width/2, height/2 + 20, 2, width, height, ALIGN_CENTER);
-        }
+        printStringf(width/2, height/2 + 20, 2, width, height, ALIGN_CENTER, "Score - Player 1: %d  Player 2: %d", player1_wins, player2_wins);
         sys_nano_sleep(40); // 1 segundo
 
         // Avanzar al siguiente nivel
@@ -439,7 +383,7 @@ static void multiPlayer(uint32_t width, uint32_t height) {
             } else if (current_level == 4) {
                 printString("Advancing to Level 5...", width/2, height/2 + 60, 2, width, height, ALIGN_CENTER);
             }
-            printString("Press any key to continue", width/2, height/2 + 100, 1, width, height, ALIGN_CENTER);
+            printString("Press 'esc' to return to main", width/2, height/2 + 100, 1, width, height, ALIGN_CENTER);
         } else {
             printString("ALL LEVELS COMPLETED!", width/2, height/2 + 60, 3, width, height, ALIGN_CENTER);
             
@@ -452,7 +396,7 @@ static void multiPlayer(uint32_t width, uint32_t height) {
                 printString("IT'S A TIE! Both players are champions!", width/2, height/2 + 100, 2, width, height, ALIGN_CENTER);
             }
             
-            printString("Press any key to return to main menu...", width/2, height/2 + 140, 1, width, height, ALIGN_CENTER);
+            printString("Press 'esc' to return to main menu...", width/2, height/2 + 140, 1, width, height, ALIGN_CENTER);
         }
         sys_nano_sleep(40); // 1 segundo
         getChar();
@@ -481,7 +425,7 @@ static void setExit(){
 }
 
 static void processPlayerMovements(Player *players, uint32_t width, uint32_t height) {
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < numberOfPlayers; i++) {
         Player *player = &players[i];
         
         // Procesar rotación
@@ -547,8 +491,8 @@ static void draw_player_with_direction(Player *player) {
     float end_x = player->x + my_cos(player->angle) * line_length;
     float end_y = player->y + my_sin(player->angle) * line_length;
     
-    // Dibujar línea direccional (necesitarás una función draw_line)
-    // O usar puntos pequeños para simular una línea
+    // Dibujar línea direccional
+    // Usando puntos pequeños para simular una línea
     for (int i = 0; i < (int)line_length; i += 2) {
         float point_x = player->x + my_cos(player->angle) * i;
         float point_y = player->y + my_sin(player->angle) * i;
@@ -579,4 +523,101 @@ static float my_cos(float x) {
 // Añadir al principio de pongisGolf.c, junto con my_sin y my_cos
 static float my_fabs(float x) {
     return (x < 0.0f) ? -x : x;
+}
+
+
+// Función auxiliar para convertir enteros a string
+static int int_to_string(int value, char *buffer) {
+    if (value == 0) {
+        buffer[0] = '0';
+        buffer[1] = '\0';
+        return 1;
+    }
+    
+    int is_negative = 0;
+    int length = 0;
+    char temp[12]; // Suficiente para un int
+    
+    if (value < 0) {
+        is_negative = 1;
+        value = -value;
+    }
+    
+    // Convertir dígitos (en orden inverso)
+    while (value > 0) {
+        temp[length++] = '0' + (value % 10);
+        value /= 10;
+    }
+    
+    int total_length = length + is_negative;
+    
+    // Copiar al buffer en el orden correcto
+    if (is_negative) {
+        buffer[0] = '-';
+    }
+    
+    for (int i = 0; i < length; i++) {
+        buffer[is_negative + i] = temp[length - 1 - i];
+    }
+    
+    buffer[total_length] = '\0';
+    return total_length;
+}
+
+// Función auxiliar para formatear strings
+static void simple_sprintf(char *buffer, const char *format, va_list args) {
+    char *buf_ptr = buffer;
+    const char *fmt_ptr = format;
+    
+    while (*fmt_ptr != '\0') {
+        if (*fmt_ptr == '%') {
+            fmt_ptr++; // Saltar el '%'
+            
+            switch (*fmt_ptr) {
+                case 'd': {
+                    int value = va_arg(args, int);
+                    buf_ptr += int_to_string(value, buf_ptr);
+                    break;
+                }
+                case 's': {
+                    char *str = va_arg(args, char*);
+                    while (*str != '\0') {
+                        *buf_ptr++ = *str++;
+                    }
+                    break;
+                }
+                case 'c': {
+                    char c = (char)va_arg(args, int);
+                    *buf_ptr++ = c;
+                    break;
+                }
+                case '%': {
+                    *buf_ptr++ = '%';
+                    break;
+                }
+                default:
+                *buf_ptr++ = '%';
+                *buf_ptr++ = *fmt_ptr;
+                break;
+            }
+        } else {
+            *buf_ptr++ = *fmt_ptr;
+        }
+        fmt_ptr++;
+    }
+    *buf_ptr = '\0'; // Terminar el string
+}
+
+void printStringf(uint64_t x, uint64_t y, uint64_t size, uint32_t width, uint32_t height, int alignment, const char *format, ...) {
+    char buffer[256]; // Buffer para el string formateado
+    va_list args;
+    
+    // Inicializar la lista de argumentos variables
+    va_start(args, format);
+    
+    simple_sprintf(buffer, format, args);
+    
+    va_end(args);
+    
+    printString(buffer, x, y, size, width, height, alignment);
 }

@@ -1,8 +1,4 @@
-#include <stdint.h>
-#include <stdarg.h>
-#include <stddef.h>
 #include <library.h>
-//#include "syscallsHelper.h"
 
 //dsp revisar si estan definidas en otros archivos
 #ifndef ERROR
@@ -11,6 +7,43 @@
 #ifndef EOF
 #define EOF     -1
 #endif
+
+extern int64_t sys_is_key_pressed(uint8_t scancode);
+
+extern void hlt(void);
+
+// Implementación de getKey (stub, deberías hacer syscall real si tu kernel la soporta)
+uint8_t getKey() {
+    return sys_get_key();
+}
+
+// Implementación de writeStr usando sys_write
+int64_t writeStr(int fd, const char *s) {
+    uint64_t len = 0;
+    while (s[len]) len++;
+    return sys_write(fd, s, len);
+}
+
+int64_t writeStrColor(const char *s, Color color) {
+    uint64_t len = 0;
+    while (s[len]) len++;
+    return sys_write_color(STDOUT, s, len, color);
+}
+uint64_t isKeyPressed(uint8_t scancode) {
+    return sys_is_key_pressed(scancode);
+}
+
+void zoomIn() {
+    return sys_zoom_in();
+}
+
+void zoomOut() {
+    return sys_zoom_out();
+}
+
+int64_t clearScreen(void) {
+    return sys_clear_screen();
+}
 
 char getChar(){
     uint16_t c;
@@ -46,15 +79,9 @@ char *gets(char* buffer, uint16_t maxLen) {
     return buffer;
 }
 
-
-
 int putChar(char c){
     char uc = c;
     return sys_write(STDOUT, &uc, 1) == 1 ? (int)c : ERROR;
-}
-
-int64_t clearScreen(void) {
-    return sys_clear_screen();
 }
 
 int64_t beep(uint64_t frequency, uint64_t time) {
@@ -71,9 +98,6 @@ int64_t get_screen_info(Screen *info) {
     return sys_get_screen_info(info);
 }
 
-int64_t setFontSize(uint64_t size) {
-    return sys_set_font_size(size);
-}
 
 size_t strlen(const char *s) {
     const char *p = s;
@@ -198,3 +222,35 @@ int64_t draw_ball(uint64_t x, uint64_t y, uint64_t radius, uint64_t color) {
     return count;
 }
 
+void draw_golf_ball(uint64_t center_x, uint64_t center_y, uint64_t radius) {
+    const uint64_t BALL_COLOR_WHITE = 0xFFFFFF;
+    const uint64_t DIMPLE_COLOR = 0xC0C0C0;
+
+    draw_ball(center_x, center_y, radius, BALL_COLOR_WHITE);
+
+    uint64_t dimple_radius = radius / 6;
+    if (dimple_radius < 1) dimple_radius = 1; 
+
+    uint64_t dimple_spacing = (radius * 2) / 4;
+    if (dimple_spacing < dimple_radius * 2 + 2) {
+        dimple_spacing = dimple_radius * 2 + 2;
+    }
+
+    for (int64_t dy = -(int64_t)radius + (int64_t)dimple_spacing/2;
+         dy <= (int64_t)radius - (int64_t)dimple_spacing/2;
+         dy += (int64_t)dimple_spacing)
+    {
+        for (int64_t dx = -(int64_t)radius + (int64_t)dimple_spacing/2;
+             dx <= (int64_t)radius - (int64_t)dimple_spacing/2;
+             dx += (int64_t)dimple_spacing)
+        {
+            int64_t dist2 = dx*dx + dy*dy;
+            int64_t limit = (int64_t)(radius - dimple_radius);
+            if (dist2 <= limit * limit) {
+                uint64_t cx = (uint64_t)((int64_t)center_x + dx);
+                uint64_t cy = (uint64_t)((int64_t)center_y + dy);
+                draw_ball(cx, cy, dimple_radius, DIMPLE_COLOR);
+            }
+        }
+    }
+}

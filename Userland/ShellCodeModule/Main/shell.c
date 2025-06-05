@@ -81,7 +81,7 @@ static void helpCommand() {
     writeStrColor("  time ", (Color){129, 243, 255});
     puts("- Show current date and time");
     writeStrColor("  regs ", (Color){129, 243, 255});
-    puts("- Show CPU registers");
+    puts("- Show CPU registers. Remember to press f9 before!!");
     writeStrColor("  divzero ", (Color){129, 243, 255});
     puts("- Test division by zero exception");
     writeStrColor("  invopcode ", (Color){129, 243, 255});

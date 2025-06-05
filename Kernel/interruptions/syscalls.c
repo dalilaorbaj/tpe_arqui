@@ -129,13 +129,13 @@ int64_t sys_clear_screen(void){
 // }
 
 int64_t sys_beep(uint64_t freq, uint64_t time) {
-    sys_write(STDOUT, "[sys_beep] called\n", 17);
+    //sys_write(STDOUT, "[sys_beep] called\n", 17);
     if (time == 0 || freq < 20 || freq > 20000) {
         sys_write(STDOUT, "[sys_beep] invalid args\n", 24);
         return -1;
     }
     beep(freq, time);
-    sys_write(STDOUT, "[sys_beep] finished beep\n", 24);
+    //sys_write(STDOUT, "[sys_beep] finished beep\n", 24);
     return 0;
 }
 

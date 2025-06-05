@@ -1,9 +1,5 @@
 
 #include <pongisGolf.h>
-#include <stdbool.h>
-
-#define KEY_BUFFER_SIZE 128
-static int keyStates[KEY_BUFFER_SIZE] = {0}; // Estado de todas las teclas
 
 // Configuraciones de los 5 niveles
 static LevelConfig levels[MAX_LEVELS] = {
@@ -26,15 +22,16 @@ static LevelConfig levels[MAX_LEVELS] = {
 static void singlePlayer(uint32_t width, uint32_t height);
 static void multiPlayer(uint32_t width, uint32_t height);
 static void printString(const char *str, uint64_t x, uint64_t y, uint64_t size, uint32_t width, uint32_t height, int alignment);
-static void flushKeyboardBuffer(); 
-static void updateKeyStates();
-static void clearKeyStates();
 static void processPlayerMovements(Player *players, uint32_t width, uint32_t height);
+static void flushKeyboardBuffer();
+static void setExit();
 
 Screen screen;
 uint64_t baseY;
 uint64_t verticalSpacing;
 uint64_t currentY;
+uint64_t screenWidth;
+uint64_t screenHeight;
 
 static void printString(const char *str, uint64_t x, uint64_t y, uint64_t size, uint32_t width, uint32_t height, int alignment) {
     if (str == NULL || y >= height) {
@@ -76,6 +73,8 @@ void startPongisGolf(){
     baseY = screen.height / 3;
     verticalSpacing = FONT_HEIGHT * 3;
     currentY = baseY;
+    screenWidth = screen.width;
+    screenHeight = screen.height;
 
     draw_rectangle(0, 0, screen.width, screen.height, 0x9EFFDC);
 
@@ -105,7 +104,7 @@ void startPongisGolf(){
             multiPlayer(screen.width, screen.height);
             return;
         } else if (choice == '3') {
-            puts("Exiting Pongis Golf...");
+            setExit();
             return;
         } else {
             printString("Invalid choice. Please select 1, 2, or 3.", screen.width / 2, screen.height - 30, 2, screen.width, screen.height, ALIGN_CENTER);
@@ -208,80 +207,14 @@ static void multiPlayer(uint32_t width, uint32_t height) {
             }
             prev_ball_x = ball_x;
             prev_ball_y = ball_y;
-
-            // Leer y procesar TODAS las teclas disponibles en el buffer
-            int moves_processed = 0;
-            const int MAX_MOVES_PER_FRAME = 1; // Limitar movimientos por frame
-
-            updateKeyStates(); // Actualizar estados de teclas
             
-           
-                // uint8_t tecla = getChar();
-                if(keyStates[EXIT_KEY]) {
-                    // Si se presiona la tecla de salida, salir del juego
-                    clearScreen();
-                    printString("Exiting Pongis Golf...", width/2, height/2, 2, width, height, ALIGN_CENTER);
-                    sys_nano_sleep(40); // 1 segundo
-                    clearScreen();
-                    return;
-                }
+            // uint8_t tecla = getChar();
+            if(isKeyPressed(SCANCODE_ESCAPE)) { // 'ESC'
+                setExit();
+                return;
+            }
 
-                processPlayerMovements(players, width, height);
-
-                
-                // Jugador 1 (WASD)
-                // if (tecla == players[0].up) {        // 'w'
-                //     if (players[0].y - PLAYER_SPEED > players[0].radius) {
-                //         players[0].y -= PLAYER_SPEED;
-                //         moves_processed++;
-                //     }
-                // }
-                // else if (tecla == players[0].down) { // 's'
-                //     if (players[0].y + PLAYER_SPEED < height - players[0].radius) {
-                //         players[0].y += PLAYER_SPEED;
-                //         moves_processed++;
-                //     }
-                // }
-                // else if (tecla == players[0].left) { // 'a'
-                //     if (players[0].x - PLAYER_SPEED > players[0].radius) {
-                //         players[0].x -= PLAYER_SPEED;
-                //         moves_processed++;
-                //     }
-                // }
-                // else if (tecla == players[0].right) { // 'd'
-                //     if (players[0].x + PLAYER_SPEED < width - players[0].radius) {
-                //         players[0].x += PLAYER_SPEED;
-                //         moves_processed++;
-                //     }
-                // }
-                
-                // // Jugador 2 (IJKL)
-                // if (tecla == players[1].up) {    // 'i'
-                //     if (players[1].y - PLAYER_SPEED > players[1].radius) {
-                //         players[1].y -= PLAYER_SPEED;
-                //         moves_processed++;
-                //     }
-                // }
-                // else if (tecla == players[1].down) {  // 'k'
-                //     if (players[1].y + PLAYER_SPEED < height - players[1].radius) {
-                //         players[1].y += PLAYER_SPEED;
-                //         moves_processed++;
-                //     }
-                // }
-                // else if (tecla == players[1].left) {  // 'j'
-                //     if (players[1].x - PLAYER_SPEED > players[1].radius) {
-                //         players[1].x -= PLAYER_SPEED;
-                //         moves_processed++;
-                //     }
-                // }
-                // else if (tecla == players[1].right) { // 'l'
-                //     if (players[1].x + PLAYER_SPEED < width - players[1].radius) {
-                //         players[1].x += PLAYER_SPEED;
-                //         moves_processed++;
-                //     }
-                // }
-
-            
+            processPlayerMovements(players, width, height);
 
             // Detectar colisión jugador–pelota con física mejorada
             for (int i = 0; i < 2; i++) {
@@ -348,6 +281,7 @@ static void multiPlayer(uint32_t width, uint32_t height) {
             float dist2h = dxh*dxh + dyh*dyh;
             if (dist2h <= hole_radius*hole_radius) {
                 winner = (last_hit >= 0) ? last_hit : 0;
+                play_victory_sound();
                 break;
             }
             
@@ -398,9 +332,6 @@ static void multiPlayer(uint32_t width, uint32_t height) {
             for (int i = 0; i < 2; i++) {
                 draw_ball((uint64_t)players[i].x, (uint64_t)players[i].y, (uint64_t)players[i].radius, players[i].color);
             }
-
-            clearKeyStates(); // Limpiar estados de teclas después de procesar
-
 
             // Pequeña pausa para controlar la velocidad del juego
             sys_nano_sleep(1);
@@ -526,76 +457,54 @@ static void flushKeyboardBuffer() {
     }
 }
 
-// Función para actualizar estados de teclas
-static void updateKeyStates() {
-    uint8_t buffer;
-    uint64_t nbytes;
-    
-    // Leer todas las teclas disponibles en el buffer
-    while ((nbytes = sys_read(0, &buffer, 1)) > 0) {
-        uint8_t tecla = buffer;
-        
-        // Verificar tecla de salida
-        if (tecla == EXIT_KEY) {
-            // Manejar salida aquí si es necesario
-            keyStates[EXIT_KEY] = 1;
-            return;
-        }
-        
-        // Marcar la tecla como presionada
-        keyStates[(unsigned char)tecla] = 1;
-    }
-}
-
-// Función para limpiar estados de teclas
-static void clearKeyStates() {
-    for (int i = 0; i < KEY_BUFFER_SIZE; i++) {
-        keyStates[i] = 0;
-    }
+static void setExit(){
+    clearScreen();
+    printString("Exiting Pongis Golf...", screenWidth/2, screenHeight/2, 2, screenWidth, screenHeight, ALIGN_CENTER);
+    sys_nano_sleep(40); // 1 segundo
+    clearScreen();
+    flushKeyboardBuffer();
 }
 
 static void processPlayerMovements(Player *players, uint32_t width, uint32_t height) {
-    
-
     // Jugador 1 (WASD) - Todos los if son independientes
-    if (keyStates[players[0].up]) {        // 'w'
+    if (isKeyPressed(SCANCODE_W)) {        // 'w'
         if (players[0].y - PLAYER_SPEED > players[0].radius) {
             players[0].y -= PLAYER_SPEED;
         }
     }
-    else if (keyStates[players[0].down]) {  // 's'
+    else if (isKeyPressed(SCANCODE_S)) {  // 's'
         if (players[0].y + PLAYER_SPEED < height - players[0].radius) {
             players[0].y += PLAYER_SPEED;
         }
     }
-    else if (keyStates[players[0].left]) {  // 'a'
+    else if (isKeyPressed(SCANCODE_A)) {  // 'a'
         if (players[0].x - PLAYER_SPEED > players[0].radius) {
             players[0].x -= PLAYER_SPEED;
         }
     }
-    else if (keyStates[players[0].right]) { // 'd'
+    else if (isKeyPressed(SCANCODE_D)) { // 'd'
         if (players[0].x + PLAYER_SPEED < width - players[0].radius) {
             players[0].x += PLAYER_SPEED;
         }
     }
 
     // Jugador 2 (IJKL) - Todos los if son independientes
-    if (keyStates[players[1].up]) {    // 'i'
+    if (isKeyPressed(SCANCODE_I)) {    // 'i'
         if (players[1].y - PLAYER_SPEED > players[1].radius) {
             players[1].y -= PLAYER_SPEED;
         }
     }
-    else if (keyStates[players[1].down]) {  // 'k'
+    else if (isKeyPressed(SCANCODE_K)) {  // 'k'
         if (players[1].y + PLAYER_SPEED < height - players[1].radius) {
             players[1].y += PLAYER_SPEED;
         }
     }
-    else if (keyStates[players[1].left]) {  // 'j'
+    else if (isKeyPressed(SCANCODE_J)) {  // 'j'
         if (players[1].x - PLAYER_SPEED > players[1].radius) {
             players[1].x -= PLAYER_SPEED;
         }
     }
-    else if (keyStates[players[1].right]) { // 'l'
+    else if (isKeyPressed(SCANCODE_L)) { // 'l'
         if (players[1].x + PLAYER_SPEED < width - players[1].radius) {
             players[1].x += PLAYER_SPEED;
         }

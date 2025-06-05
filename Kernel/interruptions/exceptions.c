@@ -6,7 +6,7 @@
 #define STDERR 1
 
 #define CANT_REGS 18
-extern uint64_t exception_regs[CANT_REGS];
+uint64_t exception_regs[CANT_REGS];
 
 #define ZERO_EXCEPTION_ID 0
 #define OPCODE_EXCEPTION_ID 6

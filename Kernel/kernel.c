@@ -16,6 +16,7 @@ extern uint8_t endOfKernel;
 
 static const uint64_t PageSize = 0x1000;
 
+
 /* Dirección para la shell */
 static void * const shellCodeModuleAddress = (void*)0x400000;
 static void * const shellDataModuleAddress = (void*)0x500000;
@@ -36,8 +37,8 @@ void * getStackBase()
 {
 	return (void*)(
 		(uint64_t)&endOfKernel
-		+ PageSize * 8				//The size of the stack itself, 32KiB
-		- sizeof(uint64_t)			//Begin at the top of the stack
+		+ PageSize * 8
+		- sizeof(uint64_t)
 	);
 }
 
@@ -111,50 +112,25 @@ void * initializeKernelBinary()
 //     write(buffer, i);
 // }
 
+
+void * getStackBase()
+{
+	return (void*)(
+		(uint64_t)&endOfKernel
+		+ PageSize * 8				//The size of the stack itself, 32KiB
+		- sizeof(uint64_t)			//Begin at the top of the stack
+	);
+}
+
 int main(){	
 	
 	load_idt();
 	initKeyMappingMatrix();
-	/*
-	//para probar snapshot en Kernel
-	RegsSnapshot regsSnapshot;
-	sys_get_registers(&regsSnapshot);
-	write("SNAPSHOT:\n", 15);
 
-    print_reg("rax", regsSnapshot.rax);
-    print_reg("rbx", regsSnapshot.rbx);
-    print_reg("rcx", regsSnapshot.rcx);
-    print_reg("rdx", regsSnapshot.rdx);
-    print_reg("rsi", regsSnapshot.rsi);
-    print_reg("rdi", regsSnapshot.rdi);
-    print_reg("rbp", regsSnapshot.rbp);
-    print_reg("rsp", regsSnapshot.rsp);
-    print_reg("r8",  regsSnapshot.r8);
-    print_reg("r9",  regsSnapshot.r9);
-    print_reg("r10", regsSnapshot.r10);
-    print_reg("r11", regsSnapshot.r11);
-    print_reg("r12", regsSnapshot.r12);
-    print_reg("r13", regsSnapshot.r13);
-    print_reg("r14", regsSnapshot.r14);
-    print_reg("r15", regsSnapshot.r15);
-    print_reg("rflags", regsSnapshot.rflags);
-	*/
 
 	write("[Cargando la shell]\n", 20);
-/*
-	ncPrint("[Cargando la shell]");
-	ncNewline();
 
-	ncClear();
-
-	//Llamada a la shell
-	((EntryPoint)shellCodeModuleAddress)();
-		
-	ncPrint("[Shell terminada]");
-	ncNewline();
-
-	ncPrint("[Finished]");
-*/
+	enterShell();
 	((EntryPoint)shellCodeModuleAddress)();
 	write("[Shell terminada]\n", 18);
 	

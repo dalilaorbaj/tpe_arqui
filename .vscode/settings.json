@@ -6,6 +6,7 @@
         "irqdispatcher.h": "c",
         "regs_snapshot.h": "c",
         "stdint.h": "c",
-        "stdarg.h": "c"
+        "stdarg.h": "c",
+        "idtloader.h": "c"
     }
 }

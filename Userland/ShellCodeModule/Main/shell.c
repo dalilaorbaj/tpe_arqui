@@ -29,6 +29,8 @@ static Option options[] = {
     {"regs", regsCommand},
     {"beep", beepCommand}, 
     {"pongis", pongisCommand}, 
+    {"zoomIn", zoomInCommand},
+    {"zoomOut", zoomOutCommand},
     {"MK", play_mortal_kombat_theme},
     {"GOT", play_got_theme},
     {"cockroach", play_cockroach_song}
@@ -36,7 +38,7 @@ static Option options[] = {
 
 // Punto de entrada del módulo
 int main() {
-    puts("Se cargo la shell correctamente!");
+    clearScreen();
     shellLoop();
     return 0;
 }
@@ -70,12 +72,10 @@ static void helpCommand() {
     puts("- Display this help message");
     writeStrColor("  clear ", (Color){129, 243, 255});
     puts("- Clear the screen");
-
     writeStrColor("  zoomIn ", (Color){129, 243, 255});
     puts("- Zoom in the screen");
     writeStrColor("  zoomOut ", (Color){129, 243, 255});
     puts("- Zoom out the screen");
-
     writeStrColor("  echo [text] ", (Color){129, 243, 255});
     puts("- Display the provided text");
     writeStrColor("  time ", (Color){129, 243, 255});
@@ -98,7 +98,6 @@ static void helpCommand() {
     puts("- Plays the Game Of Thrones Theme");
     writeStrColor("  cockroach ", (Color){129, 243, 255});
     puts("- Plays the Cockroach Song");
-
 }
 
 static void clearCommand() {

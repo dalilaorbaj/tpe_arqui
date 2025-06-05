@@ -43,3 +43,4 @@ void zoomIn() {
 void zoomOut() {
     return sys_zoom_out();
 }
+

@@ -115,8 +115,7 @@ unsigned char sys_get_key(void) {
 }
 
 int64_t sys_clear_screen(void){
-    Color bgColor = {0, 0, 0}; 
-    empty_screen(bgColor);
+    clear_video_buffers();
     return 0;
 }
 

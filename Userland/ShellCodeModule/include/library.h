@@ -21,7 +21,6 @@
 #define SCANCODE_L 38
 #define SCANCODE_ESCAPE 1 // Tecla para salir del juego
 
-
 char getChar();
 uint64_t isKeyPressed(uint8_t scancode);
 int putChar(char c);

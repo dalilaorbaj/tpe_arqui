@@ -17,9 +17,6 @@ static VBEInfoPtr VBE_info = (VBEInfoPtr) 0x0000000000005C00;
 
 #define MAX_CHARS 8000 
 
-//#define Y_OFFSET (FONT_HEIGHT * font_size)
-#define X_OFFSET (FONT_WIDTH * font_size)
-
 //Estructura para mantener la posición actual del cursor
 static Point current_point = {0,0};
 static Character buffer[MAX_CHARS];
@@ -35,21 +32,19 @@ static uint64_t font_size = MIN_FONT_SIZE;
 static Character raw_text[MAX_CHARS];
 static uint64_t raw_text_length = 0;
 
+// Variable para controlar cuándo hacer redraw completo
+static uint8_t needs_full_redraw = 0;
+
+// Prototipos de funciones
+static void rewriteFromRawText();
+static void append_with_fd(char c, Color color);
+static void smartScroll();
+
 static uint64_t get_max_chars() {
     uint64_t chars_per_line = WIDTH / (FONT_WIDTH * font_size);
     uint64_t lines_per_screen = HEIGHT / (FONT_HEIGHT * font_size);
     return chars_per_line * lines_per_screen;
 }
-
-static void tab();
-static void draw_letter(Character letter);
-static void nl();
-static void bs();
-static void printAgain();
-//static void print();
-static void append_with_fd(char c, Color color);
-static void append(char c);
-
 
 void empty_screen(Color new_bg_color){
     draw_rectangle(0, 0, WIDTH, HEIGHT, new_bg_color);
@@ -78,73 +73,309 @@ int64_t get_screen_info(Screen * screen){
     return OK;
 }
 
- 
+// Función para sincronizar el estado del video
+void sync_video_state(void) {
+    // Asegurar que current_point esté alineado con el contenido actual
+    if (raw_text_length == 0) {
+        current_point.x = 0;
+        current_point.y = 0;
+        return;
+    }
+    
+    // Recalcular current_point basado en raw_text
+    uint64_t chars_per_line = WIDTH / (FONT_WIDTH * font_size);
+    uint64_t x = 0, y = 0;
+    uint64_t current_line_chars = 0;
+    
+    for (uint64_t i = 0; i < raw_text_length; i++) {
+        if (raw_text[i].c == '\n') {
+            x = 0;
+            y += FONT_HEIGHT * font_size;
+            current_line_chars = 0;
+        } else {
+            if (current_line_chars >= chars_per_line) {
+                x = 0;
+                y += FONT_HEIGHT * font_size;
+                current_line_chars = 0;
+            }
+            x += FONT_WIDTH * font_size;
+            current_line_chars++;
+        }
+    }
+    
+    current_point.x = x;
+    current_point.y = y;
+}
+
+// Función para limpiar completamente todos los buffers
+void clear_video_buffers(void) {
+    // Limpiar todos los buffers
+    raw_text_length = 0;
+    char_index = 0;
+    
+    // Resetear posición del cursor
+    current_point.x = 0;
+    current_point.y = 0;
+    
+    // Limpiar pantalla
+    empty_screen(bg_color);
+    
+    // Limpiar buffer visual
+    for (uint64_t i = 0; i < MAX_CHARS; i++) {
+        buffer[i].c = 0;
+        buffer[i].color = (Color){0, 0, 0};
+    }
+    
+    // Limpiar raw_text
+    for (uint64_t i = 0; i < MAX_CHARS; i++) {
+        raw_text[i].c = 0;
+        raw_text[i].color = (Color){0, 0, 0};
+    }
+    
+    // Resetear flag de primera escritura para forzar sincronización
+    needs_full_redraw = 0;
+}
+
 uint64_t write(const char * buf, int64_t size, Color color) {
+    static uint8_t first_write = 1;
+    
+    // En la primera escritura, sincronizar el estado
+    if (first_write) {
+        sync_video_state();
+        first_write = 0;
+    }
+    
     uint64_t i = 0;
+    uint8_t needs_redraw = 0;
+    
     while (i < (uint64_t)size && buf[i]) {
         switch (buf[i]) {
-            case '\n': append_with_fd('\n', color); nl();  break;
-            case '\b': bs();  break;
-            case '\t': tab(); break;
+            case '\n': 
+                append_with_fd('\n', color);
+                // Para \n, solo mover cursor sin redraw completo
+                current_point.x = 0;
+                current_point.y += FONT_HEIGHT * font_size;
+                
+                // Solo redraw si se sale de pantalla
+                if (current_point.y + FONT_HEIGHT * font_size > HEIGHT) {
+                    needs_redraw = 1;
+                }
+                break;
+            case '\b': 
+                // Manejo de backspace: borrar el área del último carácter
+                if (raw_text_length > 0) {
+                    // Calcular posición del carácter a borrar
+                    uint64_t back_x = current_point.x - FONT_WIDTH * font_size;
+                    if (current_point.x == 0 && current_point.y > 0) {
+                        // Si estamos al inicio de línea, ir al final de la anterior
+                        current_point.y -= FONT_HEIGHT * font_size;
+                        uint64_t chars_per_line = WIDTH / (FONT_WIDTH * font_size);
+                        current_point.x = (chars_per_line - 1) * FONT_WIDTH * font_size;
+                        back_x = current_point.x;
+                    } else {
+                        current_point.x = back_x;
+                    }
+                    
+                    // Borrar solo el área del carácter
+                    draw_rectangle(back_x, current_point.y, 
+                                 FONT_WIDTH * font_size, FONT_HEIGHT * font_size, bg_color);
+                    
+                    raw_text_length--;
+                }
+                break;
+            case '\t': 
+                // 4 espacios para tab
+                for(int j = 0; j < 4; j++) {
+                    append_with_fd(' ', color);
+                    
+                    // Dibujar cada espacio directamente
+                    draw_font(current_point.x, current_point.y, ' ', color, font_size);
+                    current_point.x += FONT_WIDTH * font_size;
+                    
+                    // Verificar wrap
+                    if (current_point.x + FONT_WIDTH * font_size > WIDTH) {
+                        current_point.x = 0;
+                        current_point.y += FONT_HEIGHT * font_size;
+                        if (current_point.y + FONT_HEIGHT * font_size > HEIGHT) {
+                            needs_redraw = 1;
+                            break;
+                        }
+                    }
+                }
+                break;
             default:
                 if (buf[i] >= FIRST_ASCII && buf[i] <= LAST_ASCII) {
-                    set_font_color(color);
                     append_with_fd(buf[i], color);
-                    draw_letter((Character){buf[i], color});
+                    
+                    // DIBUJO DIRECTO sin redraw completo
+                    Character last_char = raw_text[raw_text_length - 1];
+                    draw_font(current_point.x, current_point.y, last_char.c, last_char.color, font_size);
+                    current_point.x += FONT_WIDTH * font_size;
+                    
+                    // Verificar si necesitamos wrap de línea
+                    if (current_point.x + FONT_WIDTH * font_size > WIDTH) {
+                        current_point.x = 0;
+                        current_point.y += FONT_HEIGHT * font_size;
+                        
+                        // Solo si se sale de pantalla hacer redraw completo
+                        if (current_point.y + FONT_HEIGHT * font_size > HEIGHT) {
+                            needs_redraw = 1;
+                        }
+                    }
                 }
                 break;
         }
         i++;
     }
+    
+    // Solo hacer redraw completo cuando sea absolutamente necesario
+    if (needs_redraw || needs_full_redraw) {
+        rewriteFromRawText();
+        needs_full_redraw = 0;
+    }
+    
     return i;
 }
 
-
-static void nl(void) {
-    // avanzar al inicio de la siguiente línea
+// Función para scroll inteligente sin borrar toda la pantalla
+static void smartScroll() {
     uint64_t chars_per_line = WIDTH / (FONT_WIDTH * font_size);
-    uint64_t pos = current_point.x / (FONT_WIDTH * font_size);
-    for (uint64_t i = pos; i < chars_per_line; i++)
-        buffer[char_index++] = (Character){' ', STDOUT};
-    current_point.x = 0;
-    current_point.y += FONT_HEIGHT * font_size;
-    if (current_point.y + FONT_HEIGHT * font_size > HEIGHT)
-        printAgain();
+    uint64_t lines_per_screen = HEIGHT / (FONT_HEIGHT * font_size);
+    uint64_t scroll_lines = lines_per_screen / 2; // Scroll media pantalla
+    
+    // Copiar visualmente las líneas de abajo hacia arriba (simulando scroll)
+    uint64_t scroll_pixels = scroll_lines * FONT_HEIGHT * font_size;
+    
+    // Usar memmove para copiar los píxeles hacia arriba
+    uint8_t * vram = (uint8_t *)(uint64_t)VBE_info->framebuffer;
+    uint64_t bytes_per_line = WIDTH * (BPP / 8);
+    
+    for (uint64_t y = 0; y < HEIGHT - scroll_pixels; y++) {
+        uint64_t src_offset = (y + scroll_pixels) * PITCH;
+        uint64_t dst_offset = y * PITCH;
+        for (uint64_t x = 0; x < bytes_per_line; x++) {
+            vram[dst_offset + x] = vram[src_offset + x];
+        }
+    }
+    
+    // Limpiar solo la parte inferior
+    draw_rectangle(0, HEIGHT - scroll_pixels, WIDTH, scroll_pixels, bg_color);
+    
+    // Ajustar current_point
+    current_point.y -= scroll_pixels;
+    if (current_point.y < 0) current_point.y = 0;
 }
 
-static void bs(void) {
-    if (current_point.x == 0 && current_point.y == 0) return;
-    if (current_point.x == 0) {
-        current_point.y -= FONT_HEIGHT * font_size;
-        current_point.x = WIDTH - FONT_WIDTH * font_size;
+static void rewriteFromRawText() {
+    // Verificar si podemos hacer scroll inteligente en lugar de clear completo
+    if (!needs_full_redraw && current_point.y + FONT_HEIGHT * font_size > HEIGHT) {
+        smartScroll();
+        return;
     }
-    current_point.x -= FONT_WIDTH * font_size;
-    // borrar área del carácter
-    draw_rectangle(current_point.x, current_point.y,
-                   FONT_WIDTH * font_size, FONT_HEIGHT * font_size, bg_color);
-    if (char_index) {
-        buffer[--char_index].c = 0;
-        buffer[char_index].color = font_color;
+    
+    // Calcular cuántos caracteres caben por línea con el font_size actual
+    uint64_t chars_per_line = WIDTH / (FONT_WIDTH * font_size);
+    uint64_t lines_per_screen = HEIGHT / (FONT_HEIGHT * font_size);
+    
+    // Calcular start basado en LÍNEAS, no caracteres
+    uint64_t start = 0;
+    uint64_t line_count = 0;
+    uint64_t char_in_current_line = 0;
+    
+    // Recorrer desde el final del buffer hacia atrás
+    for (int64_t i = raw_text_length - 1; i >= 0; i--) {
+        if (raw_text[i].c == '\n') {
+            line_count++;
+            char_in_current_line = 0;
+            if (line_count >= lines_per_screen) {
+                start = i + 1;
+                break;
+            }
+        } else {
+            char_in_current_line++;
+            if (char_in_current_line > chars_per_line) {
+                line_count++;
+                char_in_current_line = 1;
+                if (line_count >= lines_per_screen) {
+                    start = i;
+                    break;
+                }
+            }
+        }
+    }
+    
+    // Solo limpiar la pantalla cuando sea absolutamente necesario
+    if (needs_full_redraw) {
+        empty_screen(bg_color);
+    }
+    
+    // Resetear posición
+    uint64_t x = 0, y = 0;
+    uint64_t current_line_chars = 0;
+    
+    // Recorrer raw_text desde start y redibujar
+    for (uint64_t i = start; i < raw_text_length; i++) {
+        if (raw_text[i].c == '\n') {
+            x = 0;
+            y += FONT_HEIGHT * font_size;
+            current_line_chars = 0;
+            
+            if (y + FONT_HEIGHT * font_size > HEIGHT) {
+                break;
+            }
+        } else {
+            if (current_line_chars >= chars_per_line) {
+                x = 0;
+                y += FONT_HEIGHT * font_size;
+                current_line_chars = 0;
+                
+                if (y + FONT_HEIGHT * font_size > HEIGHT) {
+                    break;
+                }
+            }
+            
+            draw_font(x, y, raw_text[i].c, raw_text[i].color, font_size);
+            
+            x += FONT_WIDTH * font_size;
+            current_line_chars++;
+        }
+    }
+    
+    // Actualizar current_point para próximas escrituras
+    current_point.x = x;
+    current_point.y = y;
+    
+    // Sincronizar buffer visual
+    char_index = 0;
+    uint64_t buf_x = 0, buf_y = 0, buf_line_chars = 0;
+    for (uint64_t i = start; i < raw_text_length && char_index < MAX_CHARS; i++) {
+        if (raw_text[i].c == '\n') {
+            buf_x = 0;
+            buf_y += FONT_HEIGHT * font_size;
+            buf_line_chars = 0;
+        } else {
+            if (buf_line_chars >= chars_per_line) {
+                buf_x = 0;
+                buf_y += FONT_HEIGHT * font_size;
+                buf_line_chars = 0;
+            }
+            if (char_index < MAX_CHARS) {
+                buffer[char_index++] = raw_text[i];
+            }
+            buf_line_chars++;
+        }
+        if (buf_y + FONT_HEIGHT * font_size > HEIGHT) break;
     }
 }
-
-static void tab(void) {
-    for (int i = 0; i < 4; i++) {
-        Character c = { ' ', font_color };
-        buffer[char_index++] = c;
-        draw_letter(c);
-    }
-}
-
 
 int64_t draw_font(uint64_t x, uint64_t y, uint8_t ch, Color color, uint64_t size) {
-    if (ch < FIRST_ASCII || ch > LAST_ASCII) return ERROR; // chequeamos que sea un caracter imprimible
+    if (ch < FIRST_ASCII || ch > LAST_ASCII) return ERROR;
 
-    unsigned char *glyph = fontPixelMap(ch); // buscamos al caracter en el bitmap
-    for (uint64_t row = 0; row < FONT_HEIGHT; row++) { // itera sobre las "filas" de pixeles que ocupa el caracter
+    unsigned char *glyph = fontPixelMap(ch);
+    for (uint64_t row = 0; row < FONT_HEIGHT; row++) {
         unsigned char bits = glyph[row];
-        for (uint64_t col = 0; col < FONT_WIDTH; col++) { // itera sobre las "columnas" de pixeles que ocupa el caracter
-            if ((bits >> (7 - col)) & 1) { // agarramos el bit correspondiente a la columna
+        for (uint64_t col = 0; col < FONT_WIDTH; col++) {
+            if ((bits >> (7 - col)) & 1) {
                 draw_rectangle(x + col * size, y + row * size, size, size, color);
             }
         }
@@ -162,85 +393,36 @@ int64_t draw_pixel(uint64_t x, uint64_t y, Color color){
     return OK;
 }
 
-static void draw_letter(Character letter) {
-    draw_font(current_point.x, current_point.y, letter.c, letter.color, font_size);
-    current_point.x += FONT_WIDTH * font_size;
-}
-
-static void printAgain(void) {
-    //muevo buffer hacia arriba media pantalla
-    uint64_t chars_per_line = WIDTH / (FONT_WIDTH * font_size);
-    uint64_t lines_to_scroll = HEIGHT / (2 * FONT_HEIGHT * font_size);
-    uint64_t start = lines_to_scroll * chars_per_line;
-    empty_screen(bg_color);
-    uint64_t j = 0;
-    for (uint64_t i = start; i < char_index; i++, j++) {
-        draw_letter(buffer[i]);
-        buffer[j] = buffer[i];
-    }
-    char_index = j;
-}
-
 void set_font_color(Color color){
-    font_color=color;
+    font_color = color;
 }
 
 static void append_with_fd(char c, Color color) {
-    if (char_index >= MAX_CHARS) {
-        printAgain();
+    // Si el buffer está lleno, eliminar los primeros caracteres (scroll)
+    if (raw_text_length >= MAX_CHARS - 1) {
+        uint64_t shift = MAX_CHARS / 4; // Eliminar 1/4 del buffer
+        for (uint64_t i = shift; i < raw_text_length; i++) {
+            raw_text[i - shift] = raw_text[i];
+        }
+        raw_text_length -= shift;
+        needs_full_redraw = 1; // Marcar que se necesita redraw completo después del scroll
     }
-    buffer[char_index].c = c;
-    buffer[char_index].color = color;
-    char_index++;
-
-    if (raw_text_length < MAX_CHARS - 1) {
-        raw_text[raw_text_length++] = (Character){c, color};
-    }
-}
-
-static void append(char c) {
-    append_with_fd(c, font_color); // Usar color por defecto
-}
-
-
-static void rewriteFromRawText() {
-    Character temp_text[MAX_CHARS];
-    uint64_t temp_length = raw_text_length;
-
-    for (uint64_t i = 0; i < temp_length; i++) {
-        temp_text[i] = raw_text[i];
-    }
-
-    // Limpiar solo el buffer y la posición
-    char_index = 0;
-    current_point.x = 0;
-    current_point.y = 0;
-
-    for (uint64_t i = 0; i < temp_length; i++) {
-    if (temp_text[i].c == '\n') {
-        current_point.x = 0;
-        current_point.y += FONT_HEIGHT * font_size;
-    } else {
-        buffer[char_index].c = temp_text[i].c;
-        buffer[char_index].color = temp_text[i].color;
-        char_index++;
-        draw_letter(temp_text[i]); 
-    }
-}
+    
+    raw_text[raw_text_length++] = (Character){c, color};
 }
 
 void increaseFontSize(void) {
     if (font_size < MAX_FONT_SIZE) {
         font_size += FONT_SIZE_STEP;
-        empty_screen(bg_color);
-        rewriteFromRawText();  
+        needs_full_redraw = 1;
+        rewriteFromRawText();
     }
 }
 
 void decreaseFontSize(void) {
     if (font_size > MIN_FONT_SIZE) {
         font_size -= FONT_SIZE_STEP;
-        empty_screen(bg_color);
+        needs_full_redraw = 1;
         rewriteFromRawText();
     }
 }

@@ -43,6 +43,7 @@ typedef struct {
 
 typedef struct vbe_mode_info_structure * VBEInfoPtr;
 
+void clear_video_buffers(void);
 int64_t draw_rectangle(uint64_t x, uint64_t y, uint64_t width, uint64_t height, Color color);
 int64_t get_screen_info(Screen * screen); 
 //uint64_t write(const char * buf, int64_t size, Color color);

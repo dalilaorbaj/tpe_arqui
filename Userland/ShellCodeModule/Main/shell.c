@@ -1,16 +1,12 @@
 #include <stdint.h>
-//#include "regs_snapshot.h"
 #include <shell.h>
 
 static void shellLoop();
 static void regsCommand();
-extern void invOpcode();
 static void helpCommand();
 static void echoCommand();
 static void timeCommand();
-static void divZeroCommand();
 static void beepCommand();
-static void invOpcodeCommand();
 static void pongisCommand();
 void printRegsSnapshot(const RegsSnapshot *regs);
 int64_t writeStr(int fd, const char *s);
@@ -28,18 +24,21 @@ static Option options[] = {
     {"echo", echoCommand},
     {"exit", exitCommand},
     {"time", timeCommand},
-    {"divzero", divZeroCommand},
-    {"invopcode", invOpcodeCommand},
+    {"divzero", divZero},
+    {"invopcode", invOpcode},
     {"regs", regsCommand},
     {"beep", beepCommand}, 
-    {"pongis", pongisCommand},
+    {"pongis", pongisCommand}, 
     {"zoomIn", zoomInCommand},
-    {"zoomOut", zoomOutCommand}
+    {"zoomOut", zoomOutCommand},
+    {"MK", play_mortal_kombat_theme},
+    {"GOT", play_got_theme},
+    {"cockroach", play_cockroach_song}
 };
 
 // Punto de entrada del módulo
 int main() {
-    puts("Se cargo la shell correctamente!");
+    clearScreen();
     shellLoop();
     return 0;
 }
@@ -73,12 +72,10 @@ static void helpCommand() {
     puts("- Display this help message");
     writeStrColor("  clear ", (Color){129, 243, 255});
     puts("- Clear the screen");
-
     writeStrColor("  zoomIn ", (Color){129, 243, 255});
     puts("- Zoom in the screen");
     writeStrColor("  zoomOut ", (Color){129, 243, 255});
     puts("- Zoom out the screen");
-
     writeStrColor("  echo [text] ", (Color){129, 243, 255});
     puts("- Display the provided text");
     writeStrColor("  time ", (Color){129, 243, 255});
@@ -95,7 +92,12 @@ static void helpCommand() {
     puts("- Make a sound");
     writeStrColor("  pongis ", (Color){129, 243, 255});
     puts("- Play Pongis Golf");
-
+    writeStrColor("  MK ", (Color){129, 243, 255});
+    puts("- Plays the Mortal Kombat Theme");
+    writeStrColor("  GOT ", (Color){129, 243, 255});
+    puts("- Plays the Game Of Thrones Theme");
+    writeStrColor("  cockroach ", (Color){129, 243, 255});
+    puts("- Plays the Cockroach Song");
 }
 
 static void clearCommand() {
@@ -183,16 +185,6 @@ static void regsCommand() {
     } else {
         printRegsSnapshot(&regs);
     }
-}
-
-
-static void divZeroCommand() {
-    volatile int a = 1, b = 0;
-    a = a / b;
-}
-
-static void invOpcodeCommand() {
-    invOpcode();
 }
 
 static void timeCommand(){

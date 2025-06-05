@@ -32,8 +32,8 @@ int64_t writeStrColor(const char *s, Color color) {
     while (s[len]) len++;
     return sys_write_color(STDOUT, s, len, color);
 }
-int isKeyPressed(uint8_t scancode) {
-    return (int)sys_is_key_pressed(scancode);
+uint64_t isKeyPressed(uint8_t scancode) {
+    return sys_is_key_pressed(scancode);
 }
 
 void zoomIn() {
@@ -43,3 +43,4 @@ void zoomIn() {
 void zoomOut() {
     return sys_zoom_out();
 }
+

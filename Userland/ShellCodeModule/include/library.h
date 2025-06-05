@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include <syscallsHelper.h>
 #include <stdarg.h>
+#include <functions.h>
 
 #define STDIN   0
 #define STDOUT  1
@@ -18,9 +19,10 @@
 #define SCANCODE_K 37
 #define SCANCODE_J 36
 #define SCANCODE_L 38
+#define SCANCODE_ESCAPE 1 // Tecla para salir del juego
 
 char getChar();
-int isKeyPressed(uint8_t scancode);
+uint64_t isKeyPressed(uint8_t scancode);
 int putChar(char c);
 
 int64_t clearScreen(void);
@@ -34,8 +36,6 @@ char *numToStr(uint64_t num, uint8_t base);
 int64_t puts(const char *s);
 
 int strcmp(const char *a, const char *b);
-
-void hlt(void);
 
 int64_t writeStr(int fd, const char *s);
 

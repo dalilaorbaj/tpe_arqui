@@ -8,6 +8,7 @@
 #define FONT_HEIGHT 16
 #include <math.h>
 #include <string.h>
+#include <songs.h>
 
 #define OK 1
 
@@ -40,12 +41,14 @@
 #define SCANCODE_K 37
 #define SCANCODE_J 36
 #define SCANCODE_L 38
+#define SCANCODE_ESCAPE 1 // Tecla para salir del juego
+
 #define EXIT_KEY '0' // Tecla para salir del juego
 
 
 void startPongisGolf();
 void update_ball_position();
-int isKeyPressed(uint8_t scancode);
+uint64_t isKeyPressed(uint8_t scancode);
 
 // Configuración de niveles
 typedef struct {

@@ -14,7 +14,7 @@
 #define LEFT_CONTROL    0x1D
 #define DELTA ('a' - 'A')
 
-static uint8_t key_states[256] = {0}; // Array para rastrear estado de teclas
+static uint64_t key_states[256] = {0}; // Array para rastrear estado de teclas
 
 /* El tratamiento del buffer de teclado es circular */
 static uint8_t buffer[BUFFER_SIZE];
@@ -125,7 +125,7 @@ void keyboardHandler() {
     return;
 }
 
-int is_key_currently_pressed(uint8_t scancode) {
+uint64_t is_key_currently_pressed(uint8_t scancode) {
     return key_states[scancode];
 }
 static uint8_t next(){

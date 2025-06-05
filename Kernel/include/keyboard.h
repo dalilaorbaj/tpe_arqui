@@ -17,7 +17,7 @@
 #define KEY_DOWN  0x5000  // 131 decimal
 
 
-int is_key_currently_pressed(uint8_t scancode);
+uint64_t is_key_currently_pressed(uint8_t scancode);
 #define SCANCODE_W 17
 #define SCANCODE_S 31  
 #define SCANCODE_A 30

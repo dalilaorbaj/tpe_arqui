@@ -21,10 +21,10 @@
 
 #define PLAYER1_COLOR 0xFF9EA1 // violeta
 #define PLAYER2_COLOR 0x00B4D2 // celeste
-#define PLAYER_RADIUS 10
+#define PLAYER_RADIUS 20
 #define BALL_COLOR 0xFFFFFF // Blanco
 #define HOLE_COLOR 0x000000 // negro
-#define BALL_RADIUS 8
+#define BALL_RADIUS 10
 #define HOLE_RADIUS 12
 
 #define PLAYER_SPEED    8.0f
@@ -43,8 +43,12 @@
 #define SCANCODE_L 38
 #define SCANCODE_ESCAPE 1 // Tecla para salir del juego
 
-#define EXIT_KEY '0' // Tecla para salir del juego
-
+// Velocidades de rotación y movimiento
+#define ROTATION_SPEED     0.1f    // Radianes por frame
+#define PLAYER_MAX_SPEED   8.0f
+#define PLAYER_ACCELERATION 0.5f
+#define PLAYER_DECELERATION 0.9f
+#define M_PI 3.14159265358979323846264338327950288
 
 void startPongisGolf();
 void update_ball_position();
@@ -75,8 +79,17 @@ typedef struct {
 typedef struct {
     float x, y;
     float radius;
-    uint64_t color;
-    uint8_t up, down, left, right; // teclas de control
+    uint32_t color;
+    
+    // Nuevos campos para rotación y movimiento direccional
+    float angle;        // Ángulo de orientación en radianes (0 = derecha, PI/2 = arriba)
+    float speed;        // Velocidad actual del jugador
+    
+    // Controles redefinidos
+    uint8_t forward;    // Tecla para moverse adelante
+    uint8_t backward;   // Tecla para moverse atrás
+    uint8_t rotate_left;  // Tecla para rotar izquierda
+    uint8_t rotate_right; // Tecla para rotar derecha
 } Player;
 
 #endif

@@ -25,6 +25,10 @@ static void printString(const char *str, uint64_t x, uint64_t y, uint64_t size, 
 static void processPlayerMovements(Player *players, uint32_t width, uint32_t height);
 static void flushKeyboardBuffer();
 static void setExit();
+static void draw_player_with_direction(Player *player);
+static float my_sin(float x);
+static float my_cos(float x);
+static float my_fabs(float x);
 
 Screen screen;
 uint64_t baseY;
@@ -155,10 +159,20 @@ static void multiPlayer(uint32_t width, uint32_t height) {
     while (current_level < MAX_LEVELS) {
         // Mostrar información del nivel
         showLevelInfo(current_level, width, height);
-        
+
         Player players[2] = {
-            {width / 4, height/2, PLAYER_RADIUS, PLAYER1_COLOR, 'w', 's', 'a', 'd'},
-            {width * 3 / 4, height/2, PLAYER_RADIUS, PLAYER2_COLOR, 'i', 'k', 'j', 'l'}           
+            {
+                width / 4, height/2, PLAYER_RADIUS, PLAYER1_COLOR,
+                0.0f,    // ángulo inicial (apuntando a la derecha)
+                0.0f,    // velocidad inicial
+                SCANCODE_W, SCANCODE_S, SCANCODE_A, SCANCODE_D
+            },
+            {
+                width * 3 / 4, height/2, PLAYER_RADIUS, PLAYER2_COLOR,
+                M_PI,    // ángulo inicial (apuntando a la izquierda)
+                0.0f,    // velocidad inicial
+                SCANCODE_I, SCANCODE_K, SCANCODE_J, SCANCODE_L
+            }
         };
         
         // Configurar posiciones según el nivel actual
@@ -330,7 +344,8 @@ static void multiPlayer(uint32_t width, uint32_t height) {
             // Dibujar nuevas posiciones
             draw_ball((uint64_t)ball_x, (uint64_t)ball_y, (uint64_t)BALL_RADIUS, BALL_COLOR);
             for (int i = 0; i < 2; i++) {
-                draw_ball((uint64_t)players[i].x, (uint64_t)players[i].y, (uint64_t)players[i].radius, players[i].color);
+                // draw_ball((uint64_t)players[i].x, (uint64_t)players[i].y, (uint64_t)players[i].radius, players[i].color);
+                draw_player_with_direction(&players[i]);
             }
 
             // Pequeña pausa para controlar la velocidad del juego
@@ -466,47 +481,102 @@ static void setExit(){
 }
 
 static void processPlayerMovements(Player *players, uint32_t width, uint32_t height) {
-    // Jugador 1 (WASD) - Todos los if son independientes
-    if (isKeyPressed(SCANCODE_W)) {        // 'w'
-        if (players[0].y - PLAYER_SPEED > players[0].radius) {
-            players[0].y -= PLAYER_SPEED;
+    for (int i = 0; i < 2; i++) {
+        Player *player = &players[i];
+        
+        // Procesar rotación
+        if (isKeyPressed(player->rotate_left)) {
+            player->angle -= ROTATION_SPEED;
+        }
+        if (isKeyPressed(player->rotate_right)) {
+            player->angle += ROTATION_SPEED;
+        }
+        
+        // Normalizar el ángulo (mantenerlo entre 0 y 2*PI)
+        while (player->angle < 0) player->angle += 2 * M_PI;
+        while (player->angle >= 2 * M_PI) player->angle -= 2 * M_PI;
+        
+        // Procesar aceleración/desaceleración
+        if (isKeyPressed(player->forward)) {
+            player->speed += PLAYER_ACCELERATION;
+            if (player->speed > PLAYER_MAX_SPEED) {
+                player->speed = PLAYER_MAX_SPEED;
+            }
+        } else if (isKeyPressed(player->backward)) {
+            player->speed -= PLAYER_ACCELERATION;
+            if (player->speed < -PLAYER_MAX_SPEED / 2) {
+                player->speed = -PLAYER_MAX_SPEED / 2; // Retroceso más lento
+            }
+        } else {
+            // Desaceleración gradual cuando no se presiona nada
+            player->speed *= PLAYER_DECELERATION;
+            if (my_fabs(player->speed) < 0.1f) {
+                player->speed = 0.0f;
+            }
+        }
+        
+        // Calcular nueva posición basada en ángulo y velocidad
+        float dx = my_cos(player->angle) * player->speed;
+        float dy = my_sin(player->angle) * player->speed;
+        
+        float new_x = player->x + dx;
+        float new_y = player->y + dy;
+        
+        // Verificar límites
+        if (new_x >= player->radius && new_x <= width - player->radius) {
+            player->x = new_x;
+        } else {
+            player->speed *= -0.3f; // Rebote suave contra paredes
+        }
+        
+        if (new_y >= player->radius && new_y <= height - player->radius) {
+            player->y = new_y;
+        } else {
+            player->speed *= -0.3f; // Rebote suave contra paredes
         }
     }
-    else if (isKeyPressed(SCANCODE_S)) {  // 's'
-        if (players[0].y + PLAYER_SPEED < height - players[0].radius) {
-            players[0].y += PLAYER_SPEED;
-        }
-    }
-    else if (isKeyPressed(SCANCODE_A)) {  // 'a'
-        if (players[0].x - PLAYER_SPEED > players[0].radius) {
-            players[0].x -= PLAYER_SPEED;
-        }
-    }
-    else if (isKeyPressed(SCANCODE_D)) { // 'd'
-        if (players[0].x + PLAYER_SPEED < width - players[0].radius) {
-            players[0].x += PLAYER_SPEED;
-        }
-    }
+}
 
-    // Jugador 2 (IJKL) - Todos los if son independientes
-    if (isKeyPressed(SCANCODE_I)) {    // 'i'
-        if (players[1].y - PLAYER_SPEED > players[1].radius) {
-            players[1].y -= PLAYER_SPEED;
-        }
+// Nueva función para dibujar jugadores con dirección visual
+static void draw_player_with_direction(Player *player) {
+    // Dibujar el círculo del jugador
+    draw_ball((uint64_t)player->x, (uint64_t)player->y, (uint64_t)player->radius, player->color);
+    
+    // Dibujar una línea para mostrar la dirección
+    float line_length = player->radius * 0.8f;
+    float end_x = player->x + my_cos(player->angle) * line_length;
+    float end_y = player->y + my_sin(player->angle) * line_length;
+    
+    // Dibujar línea direccional (necesitarás una función draw_line)
+    // O usar puntos pequeños para simular una línea
+    for (int i = 0; i < (int)line_length; i += 2) {
+        float point_x = player->x + my_cos(player->angle) * i;
+        float point_y = player->y + my_sin(player->angle) * i;
+        draw_ball((uint64_t)point_x, (uint64_t)point_y, 1, 0x000000); // Línea negra
     }
-    else if (isKeyPressed(SCANCODE_K)) {  // 'k'
-        if (players[1].y + PLAYER_SPEED < height - players[1].radius) {
-            players[1].y += PLAYER_SPEED;
-        }
-    }
-    else if (isKeyPressed(SCANCODE_J)) {  // 'j'
-        if (players[1].x - PLAYER_SPEED > players[1].radius) {
-            players[1].x -= PLAYER_SPEED;
-        }
-    }
-    else if (isKeyPressed(SCANCODE_L)) { // 'l'
-        if (players[1].x + PLAYER_SPEED < width - players[1].radius) {
-            players[1].x += PLAYER_SPEED;
-        }
-    }
+}
+
+// Aproximación simple de seno usando serie de Taylor
+static float my_sin(float x) {
+    // Normalizar x al rango [-PI, PI]
+    while (x > M_PI) x -= 2 * M_PI;
+    while (x < -M_PI) x += 2 * M_PI;
+    
+    // Serie de Taylor: sin(x) ≈ x - x³/6 + x⁵/120 - x⁷/5040
+    float x2 = x * x;
+    float x3 = x2 * x;
+    float x5 = x3 * x2;
+    float x7 = x5 * x2;
+    
+    return x - (x3 / 6.0f) + (x5 / 120.0f) - (x7 / 5040.0f);
+}
+
+// Coseno usando la identidad: cos(x) = sin(x + PI/2)
+static float my_cos(float x) {
+    return my_sin(x + M_PI / 2.0f);
+}
+
+// Añadir al principio de pongisGolf.c, junto con my_sin y my_cos
+static float my_fabs(float x) {
+    return (x < 0.0f) ? -x : x;
 }

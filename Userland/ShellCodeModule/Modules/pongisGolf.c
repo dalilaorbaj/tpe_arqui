@@ -1,5 +1,9 @@
 
 #include <pongisGolf.h>
+#include <stdbool.h>
+
+#define KEY_BUFFER_SIZE 128
+static int keyStates[KEY_BUFFER_SIZE] = {0}; // Estado de todas las teclas
 
 // Configuraciones de los 5 niveles
 static LevelConfig levels[MAX_LEVELS] = {
@@ -22,6 +26,10 @@ static LevelConfig levels[MAX_LEVELS] = {
 static void singlePlayer(uint32_t width, uint32_t height);
 static void multiPlayer(uint32_t width, uint32_t height);
 static void printString(const char *str, uint64_t x, uint64_t y, uint64_t size, uint32_t width, uint32_t height, int alignment);
+static void flushKeyboardBuffer(); 
+static void updateKeyStates();
+static void clearKeyStates();
+static void processPlayerMovements(Player *players, uint32_t width, uint32_t height);
 
 Screen screen;
 uint64_t baseY;
@@ -204,10 +212,12 @@ static void multiPlayer(uint32_t width, uint32_t height) {
             // Leer y procesar TODAS las teclas disponibles en el buffer
             int moves_processed = 0;
             const int MAX_MOVES_PER_FRAME = 1; // Limitar movimientos por frame
+
+            updateKeyStates(); // Actualizar estados de teclas
             
-            while ((nbytes = sys_read(0, &buffer, 1)) > 0 && moves_processed < MAX_MOVES_PER_FRAME) {
-                char tecla = (char)buffer;
-                if(tecla == EXIT_KEY) {
+           
+                // uint8_t tecla = getChar();
+                if(keyStates[EXIT_KEY]) {
                     // Si se presiona la tecla de salida, salir del juego
                     clearScreen();
                     printString("Exiting Pongis Golf...", width/2, height/2, 2, width, height, ALIGN_CENTER);
@@ -215,59 +225,63 @@ static void multiPlayer(uint32_t width, uint32_t height) {
                     clearScreen();
                     return;
                 }
+
+                processPlayerMovements(players, width, height);
+
                 
                 // Jugador 1 (WASD)
-                if (tecla == players[0].up) {        // 'w'
-                    if (players[0].y - PLAYER_SPEED > players[0].radius) {
-                        players[0].y -= PLAYER_SPEED;
-                        moves_processed++;
-                    }
-                }
-                else if (tecla == players[0].down) { // 's'
-                    if (players[0].y + PLAYER_SPEED < height - players[0].radius) {
-                        players[0].y += PLAYER_SPEED;
-                        moves_processed++;
-                    }
-                }
-                else if (tecla == players[0].left) { // 'a'
-                    if (players[0].x - PLAYER_SPEED > players[0].radius) {
-                        players[0].x -= PLAYER_SPEED;
-                        moves_processed++;
-                    }
-                }
-                else if (tecla == players[0].right) { // 'd'
-                    if (players[0].x + PLAYER_SPEED < width - players[0].radius) {
-                        players[0].x += PLAYER_SPEED;
-                        moves_processed++;
-                    }
-                }
+                // if (tecla == players[0].up) {        // 'w'
+                //     if (players[0].y - PLAYER_SPEED > players[0].radius) {
+                //         players[0].y -= PLAYER_SPEED;
+                //         moves_processed++;
+                //     }
+                // }
+                // else if (tecla == players[0].down) { // 's'
+                //     if (players[0].y + PLAYER_SPEED < height - players[0].radius) {
+                //         players[0].y += PLAYER_SPEED;
+                //         moves_processed++;
+                //     }
+                // }
+                // else if (tecla == players[0].left) { // 'a'
+                //     if (players[0].x - PLAYER_SPEED > players[0].radius) {
+                //         players[0].x -= PLAYER_SPEED;
+                //         moves_processed++;
+                //     }
+                // }
+                // else if (tecla == players[0].right) { // 'd'
+                //     if (players[0].x + PLAYER_SPEED < width - players[0].radius) {
+                //         players[0].x += PLAYER_SPEED;
+                //         moves_processed++;
+                //     }
+                // }
                 
-                // Jugador 2 (IJKL)
-                else if (tecla == players[1].up) {    // 'i'
-                    if (players[1].y - PLAYER_SPEED > players[1].radius) {
-                        players[1].y -= PLAYER_SPEED;
-                        moves_processed++;
-                    }
-                }
-                else if (tecla == players[1].down) {  // 'k'
-                    if (players[1].y + PLAYER_SPEED < height - players[1].radius) {
-                        players[1].y += PLAYER_SPEED;
-                        moves_processed++;
-                    }
-                }
-                else if (tecla == players[1].left) {  // 'j'
-                    if (players[1].x - PLAYER_SPEED > players[1].radius) {
-                        players[1].x -= PLAYER_SPEED;
-                        moves_processed++;
-                    }
-                }
-                else if (tecla == players[1].right) { // 'l'
-                    if (players[1].x + PLAYER_SPEED < width - players[1].radius) {
-                        players[1].x += PLAYER_SPEED;
-                        moves_processed++;
-                    }
-                }
-            }
+                // // Jugador 2 (IJKL)
+                // if (tecla == players[1].up) {    // 'i'
+                //     if (players[1].y - PLAYER_SPEED > players[1].radius) {
+                //         players[1].y -= PLAYER_SPEED;
+                //         moves_processed++;
+                //     }
+                // }
+                // else if (tecla == players[1].down) {  // 'k'
+                //     if (players[1].y + PLAYER_SPEED < height - players[1].radius) {
+                //         players[1].y += PLAYER_SPEED;
+                //         moves_processed++;
+                //     }
+                // }
+                // else if (tecla == players[1].left) {  // 'j'
+                //     if (players[1].x - PLAYER_SPEED > players[1].radius) {
+                //         players[1].x -= PLAYER_SPEED;
+                //         moves_processed++;
+                //     }
+                // }
+                // else if (tecla == players[1].right) { // 'l'
+                //     if (players[1].x + PLAYER_SPEED < width - players[1].radius) {
+                //         players[1].x += PLAYER_SPEED;
+                //         moves_processed++;
+                //     }
+                // }
+
+            
 
             // Detectar colisión jugador–pelota con física mejorada
             for (int i = 0; i < 2; i++) {
@@ -385,6 +399,9 @@ static void multiPlayer(uint32_t width, uint32_t height) {
                 draw_ball((uint64_t)players[i].x, (uint64_t)players[i].y, (uint64_t)players[i].radius, players[i].color);
             }
 
+            clearKeyStates(); // Limpiar estados de teclas después de procesar
+
+
             // Pequeña pausa para controlar la velocidad del juego
             sys_nano_sleep(1);
         }
@@ -494,5 +511,93 @@ static void multiPlayer(uint32_t width, uint32_t height) {
         sys_nano_sleep(40); // 1 segundo
         getChar();
         clearScreen();
+    }
+}
+
+// Función para limpiar el buffer del teclado
+static void flushKeyboardBuffer() {
+    uint8_t buffer;
+    uint64_t nbytes;
+    
+    // Lee y descarta todas las teclas acumuladas en el buffer
+    while ((nbytes = sys_read(0, &buffer, 1)) > 0) {
+        // Simplemente descartamos el valor leído
+        // El bucle continúa hasta que no haya más datos en el buffer
+    }
+}
+
+// Función para actualizar estados de teclas
+static void updateKeyStates() {
+    uint8_t buffer;
+    uint64_t nbytes;
+    
+    // Leer todas las teclas disponibles en el buffer
+    while ((nbytes = sys_read(0, &buffer, 1)) > 0) {
+        uint8_t tecla = buffer;
+        
+        // Verificar tecla de salida
+        if (tecla == EXIT_KEY) {
+            // Manejar salida aquí si es necesario
+            keyStates[EXIT_KEY] = 1;
+            return;
+        }
+        
+        // Marcar la tecla como presionada
+        keyStates[(unsigned char)tecla] = 1;
+    }
+}
+
+// Función para limpiar estados de teclas
+static void clearKeyStates() {
+    for (int i = 0; i < KEY_BUFFER_SIZE; i++) {
+        keyStates[i] = 0;
+    }
+}
+
+static void processPlayerMovements(Player *players, uint32_t width, uint32_t height) {
+    
+
+    // Jugador 1 (WASD) - Todos los if son independientes
+    if (keyStates[players[0].up]) {        // 'w'
+        if (players[0].y - PLAYER_SPEED > players[0].radius) {
+            players[0].y -= PLAYER_SPEED;
+        }
+    }
+    else if (keyStates[players[0].down]) {  // 's'
+        if (players[0].y + PLAYER_SPEED < height - players[0].radius) {
+            players[0].y += PLAYER_SPEED;
+        }
+    }
+    else if (keyStates[players[0].left]) {  // 'a'
+        if (players[0].x - PLAYER_SPEED > players[0].radius) {
+            players[0].x -= PLAYER_SPEED;
+        }
+    }
+    else if (keyStates[players[0].right]) { // 'd'
+        if (players[0].x + PLAYER_SPEED < width - players[0].radius) {
+            players[0].x += PLAYER_SPEED;
+        }
+    }
+
+    // Jugador 2 (IJKL) - Todos los if son independientes
+    if (keyStates[players[1].up]) {    // 'i'
+        if (players[1].y - PLAYER_SPEED > players[1].radius) {
+            players[1].y -= PLAYER_SPEED;
+        }
+    }
+    else if (keyStates[players[1].down]) {  // 'k'
+        if (players[1].y + PLAYER_SPEED < height - players[1].radius) {
+            players[1].y += PLAYER_SPEED;
+        }
+    }
+    else if (keyStates[players[1].left]) {  // 'j'
+        if (players[1].x - PLAYER_SPEED > players[1].radius) {
+            players[1].x -= PLAYER_SPEED;
+        }
+    }
+    else if (keyStates[players[1].right]) { // 'l'
+        if (players[1].x + PLAYER_SPEED < width - players[1].radius) {
+            players[1].x += PLAYER_SPEED;
+        }
     }
 }

@@ -66,22 +66,11 @@ static int isAlphaKey(uint8_t key){
     return 'A' <= toUpper(key) && toUpper(key) <= 'Z';
 }
 
-// int isArrowKey(uint8_t key) {
-//     return (keyValue(key) == 72 || keyValue(key) == 75 || 
-//             keyValue(key) == 77 || keyValue(key) == 80);
-// }
-
-// int getArrowDirection(uint8_t scanCode) {
-//     switch(scanCode) {
-//         case 72: return KEY_UP;
-//         case 75: return KEY_LEFT;
-//         case 77: return KEY_RIGHT;
-//         case 80: return KEY_DOWN;
-//         default: return 0;
-//     }
-// }
-
 static uint8_t handlekey(uint8_t key){
+    uint8_t scancode = keyValue(key);
+    // Actualizar estado de la tecla
+    key_states[scancode] = isPressed(key);
+
     registersFlag = 0;
     if(isControlKey(key)) {
         cntrlPressed = (isPressed(key));
@@ -124,13 +113,6 @@ int emptyBuffer(){
 
 
 void keyboardHandler() {
-
-    uint8_t raw_key = sys_getKey();
-    uint8_t scancode = keyValue(raw_key);
-    
-    // Actualizar estado de la tecla
-    key_states[scancode] = isPressed(raw_key);
-
     uint8_t key = handlekey(sys_getKey());
     
     if (key == 0) {
@@ -146,12 +128,12 @@ void keyboardHandler() {
 int is_key_currently_pressed(uint8_t scancode) {
     return key_states[scancode];
 }
-static uint16_t next(){
+static uint8_t next(){
     if (emptyBuffer()){
         return 0;
     }
     buffer_dim--;
-    uint16_t toReturn = buffer[buffer_first++];
+    uint8_t toReturn = buffer[buffer_first++];
     buffer_first = buffer_first % BUFFER_SIZE;
     return toReturn;
 }

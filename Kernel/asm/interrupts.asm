@@ -226,7 +226,10 @@ _irq80Handler:
 
     call syscallDispatcher
 
-    popState
+    popStateMinusRax
+	
+	add rsp, 8 ; restaurar el stack al estado anterior al syscall
+
     iretq
 
 

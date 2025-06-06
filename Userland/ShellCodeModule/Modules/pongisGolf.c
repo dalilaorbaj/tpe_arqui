@@ -2,7 +2,7 @@
 
 // Configuraciones de los 5 niveles
 static LevelConfig levels[MAX_LEVELS] = {
-    // Nivel 1: Como está ahora - pelota centro, hoyo arriba centro
+    // Nivel 1: Pelota centro, hoyo arriba centro
     {0.5f, 0.5f, 0.5f, 0.25f, 40},
     
     // Nivel 2: Pelota alineada con hoyo pero más lejos
@@ -18,6 +18,7 @@ static LevelConfig levels[MAX_LEVELS] = {
     {0.1f, 0.1f, 0.9f, 0.9f, 12}
 };
 
+static void mainMenu();
 static void singlePlayer(uint32_t width, uint32_t height);
 static void multiPlayer(uint32_t width, uint32_t height);
 static void printString(const char *str, uint64_t x, uint64_t y, uint64_t size, uint32_t width, uint32_t height, int alignment);
@@ -25,7 +26,9 @@ static void processPlayerMovements(Player *players, uint32_t width, uint32_t hei
 static void printStringf(uint64_t x, uint64_t y, uint64_t size, uint32_t width, uint32_t height, int alignment, const char *format, ...);
 static void flushKeyboardBuffer();
 static void setExit();
-static void draw_player_with_direction(Player *player);
+static void printCurrentLevelInfo();
+static void printSinglePlayerInfo(int attempts, int max_attempts, int hits);
+static void draw_player(Player *player);
 static float my_sin(float x);
 static float my_cos(float x);
 static float my_fabs(float x);
@@ -37,6 +40,9 @@ uint64_t currentY;
 uint64_t screenWidth;
 uint64_t screenHeight;
 uint64_t numberOfPlayers;
+LevelConfig config;
+int current_level, player1_wins, player2_wins;
+
 
 static void printString(const char *str, uint64_t x, uint64_t y, uint64_t size, uint32_t width, uint32_t height, int alignment) {
     if (str == NULL || y >= height) {
@@ -81,20 +87,22 @@ void startPongisGolf(){
     screenWidth = screen.width;
     screenHeight = screen.height;
 
-    draw_rectangle(0, 0, screen.width, screen.height, 0x9EFFDC);
+    mainMenu();
+    return;
+}
 
-    printString("Choose how many players: ", screen.width/2, currentY, 3, screen.width, screen.height, ALIGN_CENTER);
-    moveCurrentY(verticalSpacing);
+static void mainMenu(){
+    flushKeyboardBuffer();
+    draw_rectangle(0, 0, screenWidth, screenHeight, 0x9EFFDC);
+    printString("Pongis Golf", screenWidth / 2, screenHeight / 2 - 200, 5, screenWidth, screenHeight, ALIGN_CENTER);
 
-    printString("1. Single Player", screen.width / 2, currentY, 2, screen.width, screen.height, ALIGN_CENTER);
-    moveCurrentY(verticalSpacing - 10);
+    printString("Choose how many players: ", screenWidth/2, screenHeight/2 - 60, 3, screenWidth, screenHeight, ALIGN_CENTER);
 
-    printString("2. Multiplayer", screen.width / 2, currentY, 2, screen.width, screen.height, ALIGN_CENTER);
-    moveCurrentY(verticalSpacing - 10);
-    printString("3. Exit", screen.width / 2, currentY, 2, screen.width, screen.height, ALIGN_CENTER);
-    moveCurrentY(verticalSpacing - 10);
+    printString("1. Single Player", screenWidth / 2, screenHeight/2, 2, screenWidth, screenHeight, ALIGN_CENTER);
 
-    printString("Press '1' for Single Player or '2' for Multiplayer", screen.width / 2, currentY + 20, 1, screen.width, screen.height, ALIGN_CENTER);
+    printString("2. Multiplayer", screenWidth / 2, screenHeight/2 + 40, 2, screenWidth, screenHeight, ALIGN_CENTER);
+
+    printString("3. Exit", screenWidth / 2, screenHeight/2 + 80, 2, screenWidth, screenHeight, ALIGN_CENTER);
 
     char choice;
     do {
@@ -102,25 +110,21 @@ void startPongisGolf(){
     
         if (choice == '1') {
             clearScreen();
-            singlePlayer(screen.width, screen.height);
+            singlePlayer(screenWidth, screenHeight);
             return;
         } else if (choice == '2') {
             clearScreen();
-            multiPlayer(screen.width, screen.height);
+            multiPlayer(screenWidth, screenHeight);
             return;
         } else if (choice == '3') {
             setExit();
             return;
         } else {
-            printString("Invalid choice. Please select 1, 2, or 3.", screen.width / 2, screen.height - 30, 2, screen.width, screen.height, ALIGN_CENTER);
+            printString("Invalid choice. Please select 1, 2, or 3.", screenWidth / 2, screenHeight - 30, 2, screenWidth, screenHeight, ALIGN_CENTER);
         }
     } while (1);
-    return;
 }
 
-static void singlePlayer(uint32_t width, uint32_t height){
-    return;
-}
 
 static void showLevelInfo(int level, uint32_t width, uint32_t height) {
     clearScreen();
@@ -152,11 +156,271 @@ static void showLevelInfo(int level, uint32_t width, uint32_t height) {
     sys_nano_sleep(50); // 2 segundos
 }
 
+static void singlePlayer(uint32_t width, uint32_t height) {
+    numberOfPlayers = 1;
+    current_level = 0; // Reiniciar nivel
+    player1_wins = 0;
+    
+    while (current_level < MAX_LEVELS) {
+        // Mostrar información del nivel
+        showLevelInfo(current_level, width, height);
+
+        // Solo un jugador en el centro
+        Player players[1] = {
+            {width / 2, height/2 + 80, PLAYER_RADIUS, PLAYER1_COLOR,
+            0.0f,    // ángulo inicial (apuntando a la derecha)
+            0.0f,    // velocidad inicial
+            SCANCODE_W, SCANCODE_S, SCANCODE_A, SCANCODE_D}
+        };
+        
+        // Configurar posiciones según el nivel actual
+        config = levels[current_level];
+        float ball_x = width * config.ball_x_ratio;
+        float ball_y = height * config.ball_y_ratio;
+        float ball_vx = 0, ball_vy = 0;
+        float hole_x = width * config.hole_x_ratio;
+        float hole_y = height * config.hole_y_ratio;
+        int hole_radius = config.hole_radius;
+
+        int attempts = 0;
+        int max_attempts = 10; // Máximo 10 intentos por nivel
+        
+        // Variables para guardar posiciones previas
+        float prev_player_x = players[0].x;
+        float prev_player_y = players[0].y;
+        float prev_ball_x = ball_x;
+        float prev_ball_y = ball_y;
+        
+        clearScreen();
+        
+        // Mostrar controles para single player
+        printString("Player controls: w=forward, s=back, a=rotate left, d=rotate right", width/2, height/2 - 40, 2, width, height, ALIGN_CENTER);
+        printStringf(width/2, height/2 + 40, 2, width, height, ALIGN_CENTER, "Attempts remaining: %d", max_attempts);
+        
+        printString("Starting in 1 second...", width/2, height/2 + 100, 2, width, height, ALIGN_CENTER);
+        sys_nano_sleep(40); // 1 segundo
+        
+        // Dibujo inicial completo
+        draw_rectangle(0, 0, width, height, 0x9EFFDC);
+        draw_ball((uint64_t)hole_x, (uint64_t)hole_y, (uint64_t)hole_radius, HOLE_COLOR);
+        draw_ball((uint64_t)ball_x, (uint64_t)ball_y, (uint64_t)BALL_RADIUS, BALL_COLOR);
+        draw_player(&players);
+
+        // Game loop para este nivel
+        int level_completed = 0;
+        while (!level_completed && attempts < max_attempts) {
+            int attempt_success = 0;
+            int ballHits = 0;
+            
+            while (!attempt_success && !level_completed) {
+                // Guardar posiciones previas
+                prev_player_x = players[0].x;
+                prev_player_y = players[0].y;
+                prev_ball_x = ball_x;
+                prev_ball_y = ball_y;
+                
+                // Retornar al menú principal si se presiona 'ESC'
+                if(isKeyPressed(SCANCODE_ESCAPE)) {
+                    mainMenu();
+                    return;
+                }
+
+                // Procesar movimientos del jugador
+                processPlayerMovements(&players, width, height);
+
+                // Detectar colisión jugador–pelota
+                float dx = ball_x - players[0].x;
+                float dy = ball_y - players[0].y;
+                float dist2 = dx*dx + dy*dy;
+                float minDist = players[0].radius + BALL_RADIUS;
+                if (dist2 <= minDist*minDist) {
+                    ballHits++;
+
+                    // Calcular velocidad del jugador
+                    float player_vx = players[0].x - prev_player_x;
+                    float player_vy = players[0].y - prev_player_y;
+                    
+                    // Si el jugador se está moviendo, usar su dirección de movimiento
+                    if (player_vx != 0.0f || player_vy != 0.0f) {
+                        float speed = sqrtf(player_vx*player_vx + player_vy*player_vy);
+                        if (speed > 0.0f) {
+                            ball_vx = (player_vx / speed) * BALL_HIT_SPEED;
+                            ball_vy = (player_vy / speed) * BALL_HIT_SPEED;
+                        }
+                    } else {
+                        // Si el jugador está quieto, usar la dirección desde el centro del jugador hacia la pelota
+                        float norm = sqrtf(dx*dx + dy*dy);
+                        if (norm == 0.0f) norm = 1.0f;
+                        ball_vx = (dx / norm) * BALL_HIT_SPEED;
+                        ball_vy = (dy / norm) * BALL_HIT_SPEED;
+                    }
+                    
+                    // Separar la pelota del jugador
+                    float separation_factor = (minDist + 2.0f) / sqrtf(dist2);
+                    ball_x = players[0].x + dx * separation_factor;
+                    ball_y = players[0].y + dy * separation_factor;
+                }
+
+                // Actualizar posición y velocidad de la pelota
+                ball_x += ball_vx;
+                ball_y += ball_vy;
+                ball_vx *= BALL_FRICTION;
+                ball_vy *= BALL_FRICTION;
+
+                // Rebotes contra bordes
+                if (ball_x < BALL_RADIUS) {
+                    ball_x = BALL_RADIUS;
+                    ball_vx = -ball_vx * 0.5f;
+                }
+                if (ball_x > width - BALL_RADIUS) {
+                    ball_x = width - BALL_RADIUS;
+                    ball_vx = -ball_vx * 0.5f;
+                }
+                if (ball_y < BALL_RADIUS) {
+                    ball_y = BALL_RADIUS;
+                    ball_vy = -ball_vy * 0.5f;
+                }
+                if (ball_y > height - BALL_RADIUS) {
+                    ball_y = height - BALL_RADIUS;
+                    ball_vy = -ball_vy * 0.5f;
+                }
+
+                // Verificar si la pelota entra en el hoyo
+                float dxh = ball_x - hole_x;
+                float dyh = ball_y - hole_y;
+                float dist2h = dxh*dxh + dyh*dyh;
+                if (dist2h <= hole_radius*hole_radius) {
+                    level_completed = 1;
+                    player1_wins++;
+                    play_victory_sound();
+                    break;
+                }
+                
+                if(ballHits > 3) {
+                    // Si se golpeó la pelota 3 veces, se considera un intento no exitoso
+                    attempt_success = 1;
+                    attempts++;
+                }
+                
+                // Rendering selectivo (igual que multiplayer)
+                if ((uint64_t)prev_ball_x != (uint64_t)ball_x || (uint64_t)prev_ball_y != (uint64_t)ball_y) {
+                    draw_ball((uint64_t)prev_ball_x, (uint64_t)prev_ball_y, (uint64_t)BALL_RADIUS, 0x9EFFDC);
+                }
+                
+                if ((uint64_t)prev_player_x != (uint64_t)players[0].x || (uint64_t)prev_player_y != (uint64_t)players[0].y) {
+                    draw_ball((uint64_t)prev_player_x, (uint64_t)prev_player_y, (uint64_t)players[0].radius, 0x9EFFDC);
+                }
+                
+                // Redibujar hoyo si es necesario
+                int redraw_hole = 0;
+                float hole_dist_threshold = hole_radius + BALL_RADIUS + 5;
+                
+                if ((uint64_t)prev_ball_x != (uint64_t)ball_x || (uint64_t)prev_ball_y != (uint64_t)ball_y) {
+                    float dx_hole_ball = prev_ball_x - hole_x;
+                    float dy_hole_ball = prev_ball_y - hole_y;
+                    if (dx_hole_ball*dx_hole_ball + dy_hole_ball*dy_hole_ball < hole_dist_threshold*hole_dist_threshold) {
+                        redraw_hole = 1;
+                    }
+                }
+                
+                if ((uint64_t)prev_player_x != (uint64_t)players[0].x || (uint64_t)prev_player_y != (uint64_t)players[0].y) {
+                    float dx_hole_player = prev_player_x - hole_x;
+                    float dy_hole_player = prev_player_y - hole_y;
+                    float player_hole_threshold = hole_radius + players[0].radius + 5;
+                    if (dx_hole_player*dx_hole_player + dy_hole_player*dy_hole_player < player_hole_threshold*player_hole_threshold) {
+                        redraw_hole = 1;
+                    }
+                }
+                
+                if (redraw_hole) {
+                    draw_ball((uint64_t)hole_x, (uint64_t)hole_y, (uint64_t)hole_radius, HOLE_COLOR);
+                }
+                
+                // Dibujar nuevas posiciones
+                draw_ball((uint64_t)ball_x, (uint64_t)ball_y, (uint64_t)BALL_RADIUS, BALL_COLOR);
+                draw_player(&players);
+
+                // Mostrar información del nivel y intentos
+                printSinglePlayerInfo(attempts, max_attempts, ballHits);
+
+                sys_nano_sleep(1);
+            }
+            
+            // Si se agotó un intento, reiniciar posiciones
+            if (attempt_success && !level_completed) {
+                ball_x = width * config.ball_x_ratio;
+                ball_y = height * config.ball_y_ratio;
+                ball_vx = 0;
+                ball_vy = 0;
+                
+                // Mostrar mensaje de intento fallido
+                clearScreen();
+                draw_rectangle(0, 0, width, height, 0x9EFFDC);
+                printStringf(width/2, height/2, 3, width, height, ALIGN_CENTER, "Attempt %d failed!", attempts);
+                printStringf(width/2, height/2 + 40, 2, width, height, ALIGN_CENTER, "Attempts remaining: %d", max_attempts - attempts);
+                
+                if (attempts < max_attempts) {
+                    sys_nano_sleep(40); // Esperar 1 segundo antes de reiniciar
+                    
+                    // Redibujar el campo
+                    draw_rectangle(0, 0, width, height, 0x9EFFDC);
+                    draw_ball((uint64_t)hole_x, (uint64_t)hole_y, (uint64_t)hole_radius, HOLE_COLOR);
+                    draw_ball((uint64_t)ball_x, (uint64_t)ball_y, (uint64_t)BALL_RADIUS, BALL_COLOR);
+
+                    //reinicializar jugador
+                    players[0].x = width / 2;
+                    players[0].y = height / 2 + 80;
+                    players[0].angle = 0.0f;
+                    players[0].speed = 0.0f;
+                    draw_player(&players);
+                }
+            }
+        }
+
+        // Mostrar resultado del nivel
+        clearScreen();
+        draw_rectangle(0, 0, width, height, 0x9EFFDC);
+        
+        if (level_completed) {
+            printStringf(width/2, height/2 - 20, 3, width, height, ALIGN_CENTER, "Level %d completed!", current_level + 1);
+            printStringf(width/2, height/2 + 20, 2, width, height, ALIGN_CENTER, "Attempts used: %d/%d", attempts, max_attempts);
+        } else {
+            printStringf(width/2, height/2 - 20, 3, width, height, ALIGN_CENTER, "Level %d failed!", current_level + 1);
+            printString("All attempts used. Game Over!", width/2, height/2 + 20, 2, width, height, ALIGN_CENTER);
+            
+            // Game Over - volver al menú
+            printString("Press any key to return to main menu...", width/2, height/2 + 100, 2, width, height, ALIGN_CENTER);
+            getChar();
+            mainMenu();
+            return;
+        }
+
+        sys_nano_sleep(40); // 1 segundo
+
+        // Avanzar al siguiente nivel
+        current_level++;
+        
+        if (current_level < MAX_LEVELS) {
+            printStringf(width/2, height/2 + 60, 2, width, height, ALIGN_CENTER, "Advancing to Level %d...", current_level + 1);
+        } else {
+            printString("ALL LEVELS COMPLETED!", width/2, height/2 + 60, 3, width, height, ALIGN_CENTER);
+            printString("CONGRATULATIONS! You are a champion!", width/2, height/2 + 100, 2, width, height, ALIGN_CENTER);
+        }
+
+        sys_nano_sleep(40); // 1 segundo
+
+        clearScreen();
+    }
+    
+    // Volver al menú principal
+    mainMenu();
+}
+
 static void multiPlayer(uint32_t width, uint32_t height) {
-    int current_level = 0;
-    int player1_wins = 0;
-    int player2_wins = 0;
     numberOfPlayers = 2; 
+    current_level = 0;
+    player1_wins = 0;
+    player2_wins = 0;
     
     while (current_level < MAX_LEVELS) {
         // Mostrar información del nivel
@@ -178,7 +442,7 @@ static void multiPlayer(uint32_t width, uint32_t height) {
         };
         
         // Configurar posiciones según el nivel actual
-        LevelConfig config = levels[current_level];
+        config = levels[current_level];
         float ball_x = width * config.ball_x_ratio;
         float ball_y = height * config.ball_y_ratio;
         float ball_vx = 0, ball_vy = 0;
@@ -188,8 +452,6 @@ static void multiPlayer(uint32_t width, uint32_t height) {
 
         int last_hit = -1;
         int winner = -1;
-        uint8_t buffer;
-        uint64_t nbytes;
         
         // Variables para guardar posiciones previas de los jugadores y la pelota
         float prev_player_x[2] = {players[0].x, players[1].x};
@@ -224,9 +486,9 @@ static void multiPlayer(uint32_t width, uint32_t height) {
             prev_ball_x = ball_x;
             prev_ball_y = ball_y;
             
-            // uint8_t tecla = getChar();
+            // Retornar al menú principal si se presiona 'ESC'
             if(isKeyPressed(SCANCODE_ESCAPE)) { // 'ESC'
-                setExit();
+                mainMenu();
                 return;
             }
 
@@ -346,9 +608,10 @@ static void multiPlayer(uint32_t width, uint32_t height) {
             // Dibujar nuevas posiciones
             draw_ball((uint64_t)ball_x, (uint64_t)ball_y, (uint64_t)BALL_RADIUS, BALL_COLOR);
             for (int i = 0; i < 2; i++) {
-                // draw_ball((uint64_t)players[i].x, (uint64_t)players[i].y, (uint64_t)players[i].radius, players[i].color);
-                draw_player_with_direction(&players[i]);
+                draw_player(&players[i]);
             }
+
+            printCurrentLevelInfo();
 
             // Pequeña pausa para controlar la velocidad del juego
             sys_nano_sleep(1);
@@ -374,16 +637,9 @@ static void multiPlayer(uint32_t width, uint32_t height) {
         current_level++;
         
         if (current_level < MAX_LEVELS) {
-            if (current_level == 1) {
-                printString("Advancing to Level 2...", width/2, height/2 + 60, 2, width, height, ALIGN_CENTER);
-            } else if (current_level == 2) {
-                printString("Advancing to Level 3...", width/2, height/2 + 60, 2, width, height, ALIGN_CENTER);
-            } else if (current_level == 3) {
-                printString("Advancing to Level 4...", width/2, height/2 + 60, 2, width, height, ALIGN_CENTER);
-            } else if (current_level == 4) {
-                printString("Advancing to Level 5...", width/2, height/2 + 60, 2, width, height, ALIGN_CENTER);
-            }
-            printString("Press 'esc' to return to main", width/2, height/2 + 100, 1, width, height, ALIGN_CENTER);
+            printStringf("Advancing to Level %d...", width/2, height/2 + 60, 2, width, height, ALIGN_CENTER, current_level + 1);
+
+            printString("Press 'esc' to return to main menu", width/2, height/2 + 100, 1, width, height, ALIGN_CENTER);
         } else {
             printString("ALL LEVELS COMPLETED!", width/2, height/2 + 60, 3, width, height, ALIGN_CENTER);
             
@@ -404,7 +660,7 @@ static void multiPlayer(uint32_t width, uint32_t height) {
     }
 }
 
-// Función para limpiar el buffer del teclado
+/*=== Función para limpiar el buffer del teclado ===*/
 static void flushKeyboardBuffer() {
     uint8_t buffer;
     uint64_t nbytes;
@@ -481,8 +737,7 @@ static void processPlayerMovements(Player *players, uint32_t width, uint32_t hei
     }
 }
 
-// Nueva función para dibujar jugadores con dirección visual
-static void draw_player_with_direction(Player *player) {
+static void draw_player(Player *player) {
     // Dibujar el círculo del jugador
     draw_ball((uint64_t)player->x, (uint64_t)player->y, (uint64_t)player->radius, player->color);
     
@@ -499,6 +754,35 @@ static void draw_player_with_direction(Player *player) {
         draw_ball((uint64_t)point_x, (uint64_t)point_y, 1, 0x000000); // Línea negra
     }
 }
+
+/*======= Mostrar información del nivel =======*/
+// Multi-player
+static void printCurrentLevelInfo(){
+    printStringf(2, 2, 2, screenWidth, screenHeight, ALIGN_LEFT, "LEVEL %d", current_level + 1);
+
+    printStringf(2,26, 2, screenWidth, screenHeight, ALIGN_LEFT, "Hole size: %d", config.hole_radius);
+
+    printString("Press 'esc' to return to main menu", 2, 50, 1.5, screenWidth, screenHeight, ALIGN_LEFT);
+}
+
+// Single-player
+static void printSinglePlayerInfo(int attempts, int max_attempts, int hits) {
+    printStringf(2, 2, 2, screenWidth, screenHeight, ALIGN_LEFT, "LEVEL %d", current_level + 1);
+    printStringf(2, 26, 2, screenWidth, screenHeight, ALIGN_LEFT, "Hole size: %d", config.hole_radius);
+    
+    // Mostrar hits como asteriscos
+    char hit_str[20] = "";
+    for (int i = 0; i < hits; i++) {
+        hit_str[i] = '*';
+    }
+    hit_str[hits] = '\0'; // Terminar el string
+    printStringf(2, 50, 2, screenWidth, screenHeight, ALIGN_LEFT, "Hits: %s", hit_str);
+
+    printStringf(2, 74, 1, screenWidth, screenHeight, ALIGN_LEFT, "Attempts: %d/%d", attempts, max_attempts);
+    printString("Press 'esc' to return to main menu", 1, 90, 1, screenWidth, screenHeight, ALIGN_LEFT);
+}
+
+/*======= Funciones matemáticas necesarias =======*/
 
 // Aproximación simple de seno usando serie de Taylor
 static float my_sin(float x) {
@@ -525,6 +809,7 @@ static float my_fabs(float x) {
     return (x < 0.0f) ? -x : x;
 }
 
+/*===================================================*/
 
 // Función auxiliar para convertir enteros a string
 static int int_to_string(int value, char *buffer) {

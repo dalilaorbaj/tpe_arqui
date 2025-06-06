@@ -33,12 +33,12 @@ void clearBSS(void * bssAddress, uint64_t bssSize)
 	memset(bssAddress, 0, bssSize);
 }
 
-void * getStackBase()
+void * getStackBase(void)
 {
 	return (void*)(
 		(uint64_t)&endOfKernel
-		+ PageSize * 8
-		- sizeof(uint64_t)
+		+ PageSize * 8				//The size of the stack itself, 32KiB
+		- sizeof(uint64_t)			//Begin at the top of the stack
 	);
 }
 
@@ -113,24 +113,14 @@ void * initializeKernelBinary()
 // }
 
 
-void * getStackBase()
-{
-	return (void*)(
-		(uint64_t)&endOfKernel
-		+ PageSize * 8				//The size of the stack itself, 32KiB
-		- sizeof(uint64_t)			//Begin at the top of the stack
-	);
-}
-
 int main(){	
 	
 	load_idt();
 	initKeyMappingMatrix();
 
-
+//(!) esto creo que quedo obsoleto porque ahora write usa el argumento color
 	write("[Cargando la shell]\n", 20);
 
-	enterShell();
 	((EntryPoint)shellCodeModuleAddress)();
 	write("[Shell terminada]\n", 18);
 	

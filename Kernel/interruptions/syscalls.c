@@ -13,6 +13,8 @@
 
 int64_t registersArray[CANT_REGS]; 
 int64_t registersArrayAux[CANT_REGS];
+int64_t registersArrayException[CANT_REGS];
+
 void get_snapshot();
 
 
@@ -231,5 +233,7 @@ int64_t sys_zoom_out(void) {
 void getSnapshot(){
     for(int i=0 ; i < CANT_REGS ; i++){
         registersArray[i] = registersArrayAux[i];
+        //(!)creo que esto no esta bien
+        registersArrayException[i] = registersArrayException[i];
     }
 }

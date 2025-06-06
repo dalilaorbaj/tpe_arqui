@@ -24,6 +24,7 @@ EXTERN registersArrayException
 EXTERN irqDispatcher		;para interrupciones de hardware
 EXTERN syscallDispatcher	;para interrupciones de software
 EXTERN exceptionDispatcher
+extern getStackBase
 
 SECTION .text
 
@@ -95,68 +96,109 @@ SECTION .text
 %endmacro
 
 
-%macro exceptionHandler 1
-    cli
-	
-	push rax
-	mov [registersArrayException + 8], rax
-	; guardamos rax antes de modificarlo
-	
-	mov rax, [rsp + 8*3] ; rax = rflags
-	mov [registersArrayException], rax	  ; rflags guardado en el array de registros
-    
+;%macro exceptionHandler 1
+;    cli
+;	
+;	push rax
+;	mov [registersArrayException + 8], rax
+;	; guardamos rax antes de modificarlo
+;	
+;	mov rax, [rsp + 8*3] ; rax = rflags
+;	mov [registersArrayException], rax	  ; rflags guardado en el array de registros
+   
 	
 	; la shell llamada a irq01, irq01 llama a keyboardHandler
 	; o sea, antes en el stack tengo el stack de la shel
 
-    mov [registersArrayException + 16], rbx      ; rbx
-    mov [registersArrayException + 24], rcx      ; rcx
-    mov [registersArrayException + 32], rdx      ; rdx
-    mov [registersArrayException + 40], rsi      ; rsi
-    mov [registersArrayException + 48], rdi      ; rdi
-    mov [registersArrayException + 56], rbp      ; rbp
+;    mov [registersArrayException + 16], rbx      ; rbx
+;    mov [registersArrayException + 24], rcx      ; rcx
+;    mov [registersArrayException + 32], rdx      ; rdx
+;    mov [registersArrayException + 40], rsi      ; rsi
+;    mov [registersArrayException + 48], rdi      ; rdi
+;    mov [registersArrayException + 56], rbp      ; rbp
 
-	mov rax, [rsp + 8*4]				; rax = rsp del llamador
-	mov [registersArrayException + 64], rax      ; rsp del llamador
+;	mov rax, [rsp + 8*4]				; rax = rsp del llamador
+;	mov [registersArrayException + 64], rax      ; rsp del llamador
 
-    mov [registersArrayException + 72], r8       ; r8
-    mov [registersArrayException + 80], r9       ; r9
-    mov [registersArrayException + 88], r10      ; r10
-    mov [registersArrayException + 96], r11      ; r11
-    mov [registersArrayException + 104], r12     ; r12
-    mov [registersArrayException + 112], r13     ; r13
-    mov [registersArrayException + 120], r14     ; r14
-    mov [registersArrayException + 128], r15     ; r15
+;    mov [registersArrayException + 72], r8       ; r8
+;    mov [registersArrayException + 80], r9       ; r9
+;    mov [registersArrayException + 88], r10      ; r10
+;    mov [registersArrayException + 96], r11      ; r11
+;    mov [registersArrayException + 104], r12     ; r12
+;    mov [registersArrayException + 112], r13     ; r13
+;    mov [registersArrayException + 120], r14     ; r14
+;    mov [registersArrayException + 128], r15     ; r15
 	
-    mov rax, [rsp + 8]                      ; RIP guardado por la CPU
-    mov [registersArrayException + 136], rax     ; rip
-	mov rax, [rsp + 8*2]
-	mov [registersArrayException + 144], rax     ; cs guardado por la CPU
-	mov rax, [rsp + 8*5]
-	mov [registersArrayException + 152], rax     ; ss guardado por la CPU
+;    mov rax, [rsp + 8]                      ; RIP guardado por la CPU
+;    mov [registersArrayException + 136], rax     ; rip
+;	mov rax, [rsp + 8*2]
+;	mov [registersArrayException + 144], rax     ; cs guardado por la CPU
+;	mov rax, [rsp + 8*5]
+;	mov [registersArrayException + 152], rax     ; ss guardado por la CPU
 
-	pop rax ; recupero rax
+;	pop rax ; recupero rax
 
-	push rdi
-	push rsi
+;	push rdi
+;	push rsi
 
-	mov rdi, %1                             
-	mov rsi, regs
+;	mov rdi, %1                             
+;	mov rsi, registersArrayException
+
+;	call exceptionDispatcher
+;	pop rsi
+;	pop rdi
+
+;	popState
+ ;   call getStackBase
+;	mov [rsp+24], rax
+;    mov rax, userland
+;    mov [rsp], rax
+
+;    sti
+;    iretq
+;%endmacro
+
+%macro exceptionHandler 1
+    cli
+	pushState
+	mov [registersArrayException + 8*0 ], rax
+	mov [registersArrayException + 8*1 ], rbx
+	mov [registersArrayException + 8*2 ], rcx
+	mov [registersArrayException + 8*3 ], rdx
+	mov [registersArrayException + 8*4 ], rsi
+	mov [registersArrayException + 8*5 ], rdi
+	mov [registersArrayException + 8*6 ], rbp
+	; mov rax, rsp
+    ; add rax, 16 * 8                     ; RSP del contexto anterior
+    mov rax, [rsp + 18 * 8]
+	mov [registersArrayException + 8*7 ], rax	;
+	mov [registersArrayException + 8*8 ], r8
+	mov [registersArrayException + 8*9 ], r9
+	mov [registersArrayException + 8*10], r10
+	mov [registersArrayException + 8*11], r11
+	mov [registersArrayException + 8*12], r12
+	mov [registersArrayException + 8*13], r13
+	mov [registersArrayException + 8*14], r14
+	mov [registersArrayException + 8*15], r15
+	mov rax, [rsp+15*8]                     ;RIP del contexto anterior
+	mov [registersArrayException + 8*16], rax
+	mov rax, [rsp+17*8]                     ; RFLAGS
+	mov [registersArrayException + 8*17], rax
+
+	mov rdi, %1                             ; Parametros para exceptionDispatcher
+	mov rsi, registersArrayException
 
 	call exceptionDispatcher
-	pop rsi
-	pop rdi
 
 	popState
     call getStackBase
-	mov [rsp+24], rax
+	mov [rsp+24], rax ; El StackBase
     mov rax, userland
-    mov [rsp], rax
+    mov [rsp], rax ; PISO la dirección de retorno
 
     sti
     iretq
 %endmacro
-
 
 _hlt:
 	sti
@@ -310,4 +352,7 @@ _lidt:
 
 SECTION .bss
 	aux resq 1
+
+SECTION .rodata
+	userland equ 0x400000
 

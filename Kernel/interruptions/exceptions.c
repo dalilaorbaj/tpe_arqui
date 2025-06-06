@@ -79,6 +79,7 @@ void exceptionDispatcher(uint64_t exception) {
     waitToReturn();           // se bloqueará c/ hlt hasta recibir un byte
     _cli();
     picMasterMask(DEFAULT_MASTER_MASK);
+	flushKeyboardBuffer();
 
     // 5) “Opcional”: Si deseas limpiar la pantalla ANTES de volver, hazlo aquí:
     // empty_screen((Color){255,255,255});

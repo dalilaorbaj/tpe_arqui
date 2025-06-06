@@ -51,6 +51,17 @@ char getChar(){
     return (char) c;
 }
 
+void flushKeyboardBuffer() {
+    uint8_t buffer;
+    uint64_t nbytes;
+    
+    // Lee y descarta todas las teclas acumuladas en el buffer
+    while ((nbytes = sys_read(0, &buffer, 1)) > 0) {
+        // Simplemente descartamos el valor leído
+        // El bucle continúa hasta que no haya más datos en el buffer
+    }
+}
+
 char *gets(char* buffer, uint16_t maxLen) {
     int i = 0;
     char current;

@@ -19,6 +19,7 @@
 #define SCANCODE_J 36
 #define SCANCODE_L 38
 #define SCANCODE_ESCAPE 1 // Tecla para salir del juego
+#define SCANCODE_P 25
 
 int64_t clearScreen(void);
 
@@ -55,3 +56,5 @@ int64_t draw_rectangle(uint64_t x, uint64_t y, uint64_t width, uint64_t height, 
 int64_t draw_letter(uint64_t x, uint64_t y, uint64_t letter, uint64_t color, uint64_t size);
 
 int64_t draw_ball(uint64_t x, uint64_t y, uint64_t radius, uint64_t color);
+
+void flushKeyboardBuffer();

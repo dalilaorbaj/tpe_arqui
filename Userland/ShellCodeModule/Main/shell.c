@@ -81,23 +81,25 @@ static void helpCommand() {
     writeStrColor("  time ", (Color){129, 243, 255});
     puts("- Show current date and time");
     writeStrColor("  regs ", (Color){129, 243, 255});
-    puts("- Show CPU registers. Remember to press f9 before!!");
+    puts("- Show CPU registers. Remember to press F9 before!!");
     writeStrColor("  divzero ", (Color){129, 243, 255});
     puts("- Test division by zero exception");
     writeStrColor("  invopcode ", (Color){129, 243, 255});
     puts("- Test invalid opcode exception");
     writeStrColor("  exit ", (Color){129, 243, 255});
     puts("- Exit the shell"); //chequear si se puede salir de la shell
-    writeStrColor("  beep ", (Color){129, 243, 255});
-    puts("- Make a sound");
     writeStrColor("  pongis ", (Color){129, 243, 255});
     puts("- Play Pongis Golf");
+    writeStrColor("  beep ", (Color){129, 243, 255});
+    puts("- Make a sound");
     writeStrColor("  MK ", (Color){129, 243, 255});
     puts("- Plays the Mortal Kombat Theme");
     writeStrColor("  GOT ", (Color){129, 243, 255});
     puts("- Plays the Game Of Thrones Theme");
     writeStrColor("  cockroach ", (Color){129, 243, 255});
     puts("- Plays the Cockroach Song");
+    puts(" (press ESC to stop the song)");
+    puts(" (press P to pause/unpause the song)");
 }
 
 static void clearCommand() {

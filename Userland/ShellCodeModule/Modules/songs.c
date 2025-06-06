@@ -408,9 +408,26 @@ void play_got_theme() {
 
 
 void play_song(const Song *song) {
-    for (int i = 0; i < song->note_count; i++) {
+    int paused = 0;
+    int prev_key_state = 0; 
+    
+    for (int i = 0; i < song->note_count && !isKeyPressed(SCANCODE_ESCAPE); i++) {
+        
+        int current_key_state = isKeyPressed(SCANCODE_P);
+        if (current_key_state && !prev_key_state) {
+            paused = !paused;
+        }
+        prev_key_state = current_key_state;
+        
+        // Si está pausado, no reproducir la nota y repetir el bucle
+        if (paused) {
+            i--;  // Repetir la misma nota cuando se despause
+            continue;
+        }
+        
         Note note = song->notes[i];
         int ticks = note.duration / MS_PER_TICK;
         beep(note.frequency, ticks);
     }
+    flushKeyboardBuffer(); // Limpiar el buffer del teclado al finalizar la canción
 }

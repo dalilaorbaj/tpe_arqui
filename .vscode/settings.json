@@ -8,6 +8,7 @@
         "stdint.h": "c",
         "stdarg.h": "c",
         "idtloader.h": "c",
-        "syscalls.h": "c"
+        "syscalls.h": "c",
+        "pongisgolf.h": "c"
     }
 }

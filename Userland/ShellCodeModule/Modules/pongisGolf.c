@@ -24,7 +24,6 @@ static void multiPlayer(uint32_t width, uint32_t height);
 static void printString(const char *str, uint64_t x, uint64_t y, uint64_t size, uint32_t width, uint32_t height, int alignment);
 static void processPlayerMovements(Player *players, uint32_t width, uint32_t height);
 static void printStringf(uint64_t x, uint64_t y, uint64_t size, uint32_t width, uint32_t height, int alignment, const char *format, ...);
-static void flushKeyboardBuffer();
 static void setExit();
 static void printCurrentLevelInfo();
 static void printSinglePlayerInfo(int attempts, int max_attempts, int hits);
@@ -660,17 +659,6 @@ static void multiPlayer(uint32_t width, uint32_t height) {
     }
 }
 
-/*=== Función para limpiar el buffer del teclado ===*/
-static void flushKeyboardBuffer() {
-    uint8_t buffer;
-    uint64_t nbytes;
-    
-    // Lee y descarta todas las teclas acumuladas en el buffer
-    while ((nbytes = sys_read(0, &buffer, 1)) > 0) {
-        // Simplemente descartamos el valor leído
-        // El bucle continúa hasta que no haya más datos en el buffer
-    }
-}
 
 static void setExit(){
     clearScreen();

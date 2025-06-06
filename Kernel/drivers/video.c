@@ -425,4 +425,10 @@ void decreaseFontSize(void) {
         needs_full_redraw = 1;
         rewriteFromRawText();
     }
+} 
+
+void resetScreen(Color newBgColor) {
+    font_size = MIN_FONT_SIZE;
+    clear_video_buffers();
+    empty_screen(bg_color);
 }

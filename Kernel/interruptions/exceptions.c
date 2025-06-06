@@ -56,6 +56,7 @@ static uint64_t strlen(const char *s) {
 void exceptionDispatcher(uint64_t exception) {
     uint8_t * message = "";
     uint8_t dim = 0;
+	
 
     if (exception == ZERO_EXCEPTION_ID) {
         message = "Zero div exception\n\n";
@@ -65,7 +66,7 @@ void exceptionDispatcher(uint64_t exception) {
         dim = strlen((char*)message);
     }
 
-    empty_screen((Color){139,0,36});
+	resetScreen((Color){139,0,36});
     printRegs(message, dim);
 
     const char *promo = "\nPress any key to return to shell\n";

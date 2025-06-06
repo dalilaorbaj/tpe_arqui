@@ -17,7 +17,6 @@ int64_t sys_write(uint64_t fd, const char * buf, uint64_t count);
 int64_t sys_write_color(uint64_t fd, const char * buf, uint64_t count, uint64_t color);
 int64_t sys_read(uint64_t fd, uint16_t * buf, uint64_t count);
 unsigned char sys_get_key(void);
-int64_t sys_set_font_size(uint64_t size);
 int64_t sys_nano_sleep(uint64_t nanos);
 int64_t sys_clear_screen(void);
 int64_t sys_draw_pixel(uint64_t x, uint64_t y, uint64_t color);

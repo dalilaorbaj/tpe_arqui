@@ -44,7 +44,6 @@ int64_t sys_get_registers(RegsSnapshot * regs);
 int64_t sys_beep(uint64_t freq, uint64_t time);  
 
 // Video/pantalla
-int64_t sys_set_font_size(uint64_t size);
 int64_t sys_clear_screen(void);
 int64_t sys_draw_pixel(uint64_t x, uint64_t y, uint64_t color, uint64_t size);  
 int64_t sys_draw_rectangle(uint64_t x, uint64_t y, uint64_t width, uint64_t height, uint64_t color); 

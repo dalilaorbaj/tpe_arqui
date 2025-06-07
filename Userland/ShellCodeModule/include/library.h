@@ -20,6 +20,7 @@
 #define SCANCODE_L 38
 #define SCANCODE_ESCAPE 1 // Tecla para salir del juego
 #define SCANCODE_P 25
+#define SCANCODE_ENTER 28 
 
 int64_t clearScreen(void);
 

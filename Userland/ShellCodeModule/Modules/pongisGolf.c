@@ -393,6 +393,21 @@ static void singlePlayer(uint32_t width, uint32_t height) {
             mainMenu();
             return;
         }
+        
+        printString("Press 'esc' to return to main menu", width/2, height/2 + 100, 1, width, height, ALIGN_CENTER);
+        printString("Press 'enter' to go to the next level", width/2, height/2 + 120, 1, width, height, ALIGN_CENTER);
+         while (1) {
+            if (isKeyPressed(SCANCODE_ESCAPE)) {
+                mainMenu();
+                flushKeyboardBuffer();
+                return;
+            }
+            else if( isKeyPressed(SCANCODE_ENTER)) {
+                // Si se presiona 'enter', avanzar al siguiente nivel
+                break;
+            }
+        }
+        clearScreen();
 
         sys_nano_sleep(40); // 1 segundo
 
@@ -639,22 +654,37 @@ static void multiPlayer(uint32_t width, uint32_t height) {
             printStringf("Advancing to Level %d...", width/2, height/2 + 60, 2, width, height, ALIGN_CENTER, current_level + 1);
 
             printString("Press 'esc' to return to main menu", width/2, height/2 + 100, 1, width, height, ALIGN_CENTER);
+            printString("Press 'enter' to go to the next level", width/2, height/2 + 120, 1, width, height, ALIGN_CENTER);
+
         } else {
             printString("ALL LEVELS COMPLETED!", width/2, height/2 + 60, 3, width, height, ALIGN_CENTER);
             
             // Determinar ganador final
             if (player1_wins > player2_wins) {
-                printString("PLAYER 1 IS THE CHAMPION!", width/2, height/2 + 100, 2, width, height, ALIGN_CENTER);
+                printString("PLAYER 1 IS THE CHAMPION!", width/2, height/2 + 105, 2, width, height, ALIGN_CENTER);
             } else if (player2_wins > player1_wins) {
-                printString("PLAYER 2 IS THE CHAMPION!", width/2, height/2 + 100, 2, width, height, ALIGN_CENTER);
+                printString("PLAYER 2 IS THE CHAMPION!", width/2, height/2 + 105, 2, width, height, ALIGN_CENTER);
             } else {
-                printString("IT'S A TIE! Both players are champions!", width/2, height/2 + 100, 2, width, height, ALIGN_CENTER);
+                printString("IT'S A TIE! Both players are champions!", width/2, height/2 + 105, 2, width, height, ALIGN_CENTER);
             }
             
             printString("Press 'esc' to return to main menu...", width/2, height/2 + 140, 1, width, height, ALIGN_CENTER);
+            printString("Press 'enter' to go to the next level", width/2, height/2 + 160, 1, width, height, ALIGN_CENTER);
+
         }
-        sys_nano_sleep(40); // 1 segundo
-        getChar();
+
+       
+        while (1) {
+            if (isKeyPressed(SCANCODE_ESCAPE)) {
+                mainMenu();
+                flushKeyboardBuffer();
+                return;
+            }
+            else if( isKeyPressed(SCANCODE_ENTER)) {
+                // Si se presiona 'enter', avanzar al siguiente nivel
+                break;
+            }
+        }
         clearScreen();
     }
 }
@@ -750,7 +780,7 @@ static void printCurrentLevelInfo(){
 
     printStringf(2,26, 2, screenWidth, screenHeight, ALIGN_LEFT, "Hole size: %d", config.hole_radius);
 
-    printString("Press 'esc' to return to main menu", 2, 50, 1.5, screenWidth, screenHeight, ALIGN_LEFT);
+    printString("Press 'esc' to return to main menu", 2, 55, 1.5, screenWidth, screenHeight, ALIGN_LEFT);
 }
 
 // Single-player

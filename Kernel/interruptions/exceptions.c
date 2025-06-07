@@ -79,12 +79,7 @@ void exceptionDispatcher(uint64_t exception) {
     _cli();
     picMasterMask(DEFAULT_MASTER_MASK);
 	flushKeyboardBuffer();
-
-    // 5) “Opcional”: Si deseas limpiar la pantalla ANTES de volver, hazlo aquí:
-    // empty_screen((Color){255,255,255});
-
-    // 6) Finalmente retornas con iretq o bien sigues tu flujo de error
-    // (aca podrías invocar un iretq o un long jump a tu manejador de recuperación).
+    empty_screen((Color){0,0,0});
 }
 
 static uint8_t * numToString(uint64_t num, uint64_t base) {

@@ -33,16 +33,7 @@
 #define BALL_FRICTION   0.98f
 
 #define MAX_LEVELS 5
-
-#define SCANCODE_W 17
-#define SCANCODE_S 31  
-#define SCANCODE_A 30
-#define SCANCODE_D 32
-#define SCANCODE_I 23
-#define SCANCODE_K 37
-#define SCANCODE_J 36
-#define SCANCODE_L 38
-#define SCANCODE_ESCAPE 1 // Tecla para salir del juego
+#define MAX_HITS 3
 
 // Velocidades de rotación y movimiento
 #define ROTATION_SPEED     0.1f    // Radianes por frame

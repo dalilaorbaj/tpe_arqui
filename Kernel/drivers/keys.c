@@ -22,12 +22,12 @@ int8_t keyMappingMatrix[2][128] = {
     }
 };
 
-void initKeyMappingMatrix() {
-    keyMappingMatrix[0][72] = KEY_UP;
-    keyMappingMatrix[0][75] = KEY_LEFT;
-    keyMappingMatrix[0][77] = KEY_RIGHT;
-    keyMappingMatrix[0][80] = KEY_DOWN;
-}
+// void initKeyMappingMatrix() {
+//     keyMappingMatrix[0][72] = KEY_UP;
+//     keyMappingMatrix[0][75] = KEY_LEFT;
+//     keyMappingMatrix[0][77] = KEY_RIGHT;
+//     keyMappingMatrix[0][80] = KEY_DOWN;
+// }
 
 
 

@@ -11,7 +11,6 @@ static void pongisCommand();
 void printRegsSnapshot(const RegsSnapshot *regs);
 int64_t writeStr(int fd, const char *s);
 static void clearCommand();
-static void exitCommand();
 static void zoomInCommand();
 static void zoomOutCommand();
 static void utcToMinusUtc3(time_struct *time);
@@ -22,7 +21,6 @@ static Option options[] = {
     {"help", helpCommand},
     {"clear", clearCommand},
     {"echo", echoCommand},
-    {"exit", exitCommand},
     {"time", timeCommand},
     {"divzero", divZero},
     {"invopcode", invOpcode},
@@ -86,8 +84,6 @@ static void helpCommand() {
     puts("- Test division by zero exception");
     writeStrColor("  invopcode ", (Color){129, 243, 255});
     puts("- Test invalid opcode exception");
-    writeStrColor("  exit ", (Color){129, 243, 255});
-    puts("- Exit the shell"); //chequear si se puede salir de la shell
     writeStrColor("  pongis ", (Color){129, 243, 255});
     puts("- Play Pongis Golf");
     writeStrColor("  beep ", (Color){129, 243, 255});
@@ -162,9 +158,7 @@ static void shellLoop() {
         found = 0;
         for(int i = 0; i < CANT_OPTIONS; i++) {
             if(strcmp(command, options[i].name) == 0) {
-                if(strcmp(command, "exit") == 0) {
-                    running = 0;
-                } else if(strcmp(command, "echo") == 0) {
+                if(strcmp(command, "echo") == 0) {
                     echoCommand(args);  // Pasar argumentos
                 } else {
                     options[i].function();
@@ -178,6 +172,7 @@ static void shellLoop() {
         }
         
     }
+    return;
 }
 
 static void regsCommand() {
@@ -241,11 +236,6 @@ static void utcToMinusUtc3(time_struct *time) {
         // Si la hora es mayor o igual a 3, simplemente restamos 3 horas
         time->hour -= 3;
     }
-}
-
-static void exitCommand() {
-    puts("Abandonando la shell...\n");
-    return ;
 }
 
 static void zoomInCommand() {

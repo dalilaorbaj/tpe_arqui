@@ -21,10 +21,15 @@
 #define SCANCODE_ESCAPE 1 // Tecla para salir del juego
 #define SCANCODE_P 25
 #define SCANCODE_ENTER 28 
+#define SCANCODE_1 2
+#define SCANCODE_2 3
+#define SCANCODE_3 4
 
 int64_t clearScreen(void);
 
 char getChar();
+
+uint8_t getKey();
 
 uint64_t isKeyPressed(uint8_t scancode);
 

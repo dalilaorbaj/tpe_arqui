@@ -90,39 +90,16 @@ void * initializeKernelBinary()
 }
 
 
-//dsp borrar era para probar que imprima los regs en el kernel
-// static void print_reg(const char *name, uint64_t value) {
-//     char buffer[40];
-//     int i = 0, j;
-//     while (name[i] != 0) {
-//         buffer[i] = name[i];
-//         i++;
-//     }
-//     buffer[i++] = ':';
-//     buffer[i++] = ' ';
-//     buffer[i++] = '0';
-//     buffer[i++] = 'x';
-
-//     for (j = 0; j < 16; j++) {
-//         int shift = (15 - j) * 4;
-//         uint8_t digit = (value >> shift) & 0xF;
-//         buffer[i++] = (digit < 10) ? ('0' + digit) : ('a' + digit - 10);
-//     }
-//     buffer[i++] = '\n';
-//     write(buffer, i);
-// }
-
-
 int main(){	
 	
 	load_idt();
-	initKeyMappingMatrix();
+// 	initKeyMappingMatrix();
 
-//(!) esto creo que quedo obsoleto porque ahora write usa el argumento color
-	write("[Cargando la shell]\n", 20);
+// //(!) esto creo que quedo obsoleto porque ahora write usa el argumento color
+// 	write("[Cargando la shell]\n", 20);
 
 	((EntryPoint)shellCodeModuleAddress)();
-	write("[Shell terminada]\n", 18);
+	write("[Shell terminada]\n", 18, (Color){255, 158, 161});
 	
 	return 0;
 }

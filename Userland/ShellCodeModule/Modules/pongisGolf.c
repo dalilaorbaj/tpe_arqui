@@ -27,6 +27,7 @@ static void printStringf(uint64_t x, uint64_t y, uint64_t size, uint32_t width, 
 static void setExit();
 static void printCurrentLevelInfo();
 static void printSinglePlayerInfo(int attempts, int max_attempts, int hits);
+static int is_stopped(float vx, float vy);
 static void draw_player(Player *player);
 static float my_sin(float x);
 static float my_cos(float x);
@@ -87,6 +88,7 @@ void startPongisGolf(){
     screenHeight = screen.height;
 
     mainMenu();
+    flushKeyboardBuffer();
     return;
 }
 
@@ -195,8 +197,8 @@ static void singlePlayer(uint32_t width, uint32_t height) {
         // Mostrar controles para single player
         printString("Player controls: w=forward, s=back, a=rotate left, d=rotate right", width/2, height/2 - 40, 2, width, height, ALIGN_CENTER);
         printStringf(width/2, height/2 + 40, 2, width, height, ALIGN_CENTER, "Attempts remaining: %d", max_attempts);
-        
         printString("Starting in 1 second...", width/2, height/2 + 100, 2, width, height, ALIGN_CENTER);
+
         sys_nano_sleep(40); // 1 segundo
         
         // Dibujo inicial completo
@@ -255,7 +257,7 @@ static void singlePlayer(uint32_t width, uint32_t height) {
                     }
                     
                     // Separar la pelota del jugador
-                    float separation_factor = (minDist + 2.0f) / sqrtf(dist2);
+                    float separation_factor = (minDist + 3.0f) / sqrtf(dist2);
                     ball_x = players[0].x + dx * separation_factor;
                     ball_y = players[0].y + dy * separation_factor;
                 }
@@ -295,8 +297,9 @@ static void singlePlayer(uint32_t width, uint32_t height) {
                     break;
                 }
                 
-                if(ballHits > 3) {
-                    // Si se golpeó la pelota 3 veces, se considera un intento no exitoso
+                //Chequear si se agotaron los intentos
+                if(ballHits == MAX_HITS && is_stopped(ball_vx, ball_vy) || ballHits > MAX_HITS) {
+                    // Si se golpeó la pelota 3 veces y no entró en el hoyo ó se la golpea más de 3 veces, se considera un intento no exitoso
                     attempt_success = 1;
                     attempts++;
                 }
@@ -314,6 +317,7 @@ static void singlePlayer(uint32_t width, uint32_t height) {
                 int redraw_hole = 0;
                 float hole_dist_threshold = hole_radius + BALL_RADIUS + 5;
                 
+                // Verificar si el hoyo se superpone con la posición anterior de la pelota
                 if ((uint64_t)prev_ball_x != (uint64_t)ball_x || (uint64_t)prev_ball_y != (uint64_t)ball_y) {
                     float dx_hole_ball = prev_ball_x - hole_x;
                     float dy_hole_ball = prev_ball_y - hole_y;
@@ -322,6 +326,7 @@ static void singlePlayer(uint32_t width, uint32_t height) {
                     }
                 }
                 
+                // Verificar si el hoyo se superpone con la posición anterior de el jugador
                 if ((uint64_t)prev_player_x != (uint64_t)players[0].x || (uint64_t)prev_player_y != (uint64_t)players[0].y) {
                     float dx_hole_player = prev_player_x - hole_x;
                     float dy_hole_player = prev_player_y - hole_y;
@@ -409,7 +414,7 @@ static void singlePlayer(uint32_t width, uint32_t height) {
         }
         clearScreen();
 
-        sys_nano_sleep(40); // 1 segundo
+        sys_nano_sleep(10); 
 
         // Avanzar al siguiente nivel
         current_level++;
@@ -475,11 +480,11 @@ static void multiPlayer(uint32_t width, uint32_t height) {
         
         clearScreen();
         
-        // Mostrar controles
+        // Mostrar controles para multiplayer
         printString("Player 1: w=up, s=down, a=left, d=right", width/2, height/2 - 40, 2, width, height, ALIGN_CENTER);
         printString("Player 2: i=up, k=down, j=left, l=right", width/2, height/2 + 40, 2, width, height, ALIGN_CENTER);
-        
         printString("Starting in 1 second...", width/2, height/2 + 100, 2, width, height, ALIGN_CENTER);
+
         sys_nano_sleep(40); // 1 segundo
         
         // Dibujo inicial completo
@@ -501,7 +506,7 @@ static void multiPlayer(uint32_t width, uint32_t height) {
             prev_ball_y = ball_y;
             
             // Retornar al menú principal si se presiona 'ESC'
-            if(isKeyPressed(SCANCODE_ESCAPE)) { // 'ESC'
+            if(isKeyPressed(SCANCODE_ESCAPE)) { 
                 mainMenu();
                 return;
             }
@@ -773,6 +778,13 @@ static void draw_player(Player *player) {
     }
 }
 
+
+/*======= Detector de movimiento =======*/
+static int is_stopped(float vx, float vy) {
+    const float STOP_THRESHOLD = 0.1f; // Velocidad mínima para considerar la pelota detenida
+    return (my_fabs(vx) < STOP_THRESHOLD && my_fabs(vy) < STOP_THRESHOLD);
+}
+
 /*======= Mostrar información del nivel =======*/
 // Multi-player
 static void printCurrentLevelInfo(){
@@ -790,7 +802,7 @@ static void printSinglePlayerInfo(int attempts, int max_attempts, int hits) {
     
     // Mostrar hits como asteriscos
     char hit_str[20] = "";
-    for (int i = 0; i < hits; i++) {
+    for (int i = 0; i < hits && hits <= MAX_HITS; i++) {
         hit_str[i] = '*';
     }
     hit_str[hits] = '\0'; // Terminar el string

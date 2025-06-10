@@ -5,13 +5,11 @@
 #include <stdlib.h>
 #include <argp.h>
 
-#include <modulePacker.h>
+#include "modulePacker.h"
 
 //Parser elements
-const char *argp_program_version =
-  "x64BareBones ModulePacker (C) v0.2";
-const char *argp_program_bug_address =
-  "arq-catedra@googlegroups.com";
+const char *argp_program_version = "x64BareBones ModulePacker (C) v0.2";
+const char *argp_program_bug_address = "arq-catedra@googlegroups.com";
 
 /* Program documentation. */
 static char doc[] =

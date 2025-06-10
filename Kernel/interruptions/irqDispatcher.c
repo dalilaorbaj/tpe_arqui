@@ -34,8 +34,3 @@ static void int_20() {
 static void int_21(){
 	keyboardHandler();
 }
-
-// //(?) che que onda esto?
-// static void int_06(){
-// 	//invalidOpcodeHandler();
-// }

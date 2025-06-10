@@ -1,4 +1,4 @@
-all: modulePacker
+kall: modulePacker
 
 modulePacker:
 	cd ModulePacker; make all

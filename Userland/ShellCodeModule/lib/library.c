@@ -28,19 +28,19 @@ uint64_t isKeyPressed(uint8_t scancode) {
 }
 
 void zoomIn() {
-    return sys_zoom_in();
+    sys_zoom_in();
 }
 
 void zoomOut() {
-    return sys_zoom_out();
+    sys_zoom_out();
 }
 
 void dyslexicMode() {
-    return sys_switch_text_mode(DYSLEXIC);
+    sys_switch_text_mode(DYSLEXIC);
 }
 
 void defaultMode() {
-    return sys_switch_text_mode(DEFAULT);
+    sys_switch_text_mode(DEFAULT);
 }
 
 int64_t clearScreen(void) {
@@ -54,7 +54,7 @@ char getChar(){
 }
 
 void flushKeyboardBuffer() {
-    uint8_t buffer;
+    uint16_t buffer;
     uint64_t nbytes;
     
     while ((nbytes = sys_read(0, &buffer, 1)) > 0) {

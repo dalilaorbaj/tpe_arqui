@@ -189,7 +189,7 @@ static void singlePlayer(uint32_t width, uint32_t height) {
         draw_rectangle(0, 0, width, height, COLOR_CYAN);
         draw_ball((uint64_t)hole_x, (uint64_t)hole_y, (uint64_t)hole_radius, COLOR_BLACK);
         draw_ball((uint64_t)ball_x, (uint64_t)ball_y, (uint64_t)BALL_RADIUS, COLOR_WHITE);
-        draw_player(&players);
+        draw_player(&players[0]);
 
         // Game loop para este nivel
         int level_completed = 0;
@@ -208,7 +208,7 @@ static void singlePlayer(uint32_t width, uint32_t height) {
                     return;
                 }
 
-                processPlayerMovements(&players, width, height);
+                processPlayerMovements(&players[0], width, height);
 
                 // Detectar colisión jugador–pelota
                 float dx = ball_x - players[0].x;
@@ -276,7 +276,7 @@ static void singlePlayer(uint32_t width, uint32_t height) {
                 }
                 
                 //Chequeaamo si se le terminaron los intentos
-                if(ballHits == MAX_HITS && is_stopped(ball_vx, ball_vy) || ballHits > MAX_HITS) {
+                if((ballHits == MAX_HITS && is_stopped(ball_vx, ball_vy)) || ballHits > MAX_HITS) {
                     attempt_success = 1;
                     attempts++;
                 }
@@ -318,7 +318,7 @@ static void singlePlayer(uint32_t width, uint32_t height) {
                 
                 // nuevas posiciones
                 draw_ball((uint64_t)ball_x, (uint64_t)ball_y, (uint64_t)BALL_RADIUS, COLOR_WHITE);
-                draw_player(&players);
+                draw_player(&players[0]);
 
                 printSinglePlayerInfo(attempts, max_attempts, ballHits);
 
@@ -351,7 +351,7 @@ static void singlePlayer(uint32_t width, uint32_t height) {
                     players[0].y = height / 2 + 80;
                     players[0].angle = 0.0f;
                     players[0].speed = 0.0f;
-                    draw_player(&players);
+                    draw_player(&players[0]);
                 }
             }
         }
@@ -627,7 +627,7 @@ static void multiPlayer(uint32_t width, uint32_t height) {
         current_level++;
         
         if (current_level < MAX_LEVELS) {
-            printStringf("Advancing to Level %d...", width/2, height/2 + 60, 2, width, height, ALIGN_CENTER, current_level + 1);
+            printStringf(width/2, height/2 + 60, 2, width, height, ALIGN_CENTER, "Advancing to Level %d...", current_level + 1);
 
             printString("Press 'esc' to return to main menu", width/2, height/2 + 100, 1, width, height, ALIGN_CENTER);
             printString("Press 'enter' to go to the next level", width/2, height/2 + 120, 1, width, height, ALIGN_CENTER);
@@ -645,7 +645,7 @@ static void multiPlayer(uint32_t width, uint32_t height) {
             }
             
             printString("Press 'esc' to return to main menu...", width/2, height/2 + 140, 1, width, height, ALIGN_CENTER);
-            printString("Press 'enter' to go to the next level", width/2, height/2 + 160, 1, width, height, ALIGN_CENTER);
+
 
         }
 
@@ -656,7 +656,7 @@ static void multiPlayer(uint32_t width, uint32_t height) {
                 flushKeyboardBuffer();
                 return;
             }
-            else if( isKeyPressed(SCANCODE_ENTER)) {
+            else if(isKeyPressed(SCANCODE_ENTER) && current_level < MAX_LEVELS) {
                 break;
             }
         }

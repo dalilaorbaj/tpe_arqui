@@ -22,7 +22,7 @@ static void flushKeyboardBuffer();
 
 
 static void flushKeyboardBuffer() {
-    uint8_t buffer;
+    uint16_t buffer;
     uint64_t nbytes;
     
     while ((nbytes = sys_read(0, &buffer, 1)) > 0) {

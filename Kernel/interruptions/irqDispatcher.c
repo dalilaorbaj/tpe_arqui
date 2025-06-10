@@ -11,14 +11,14 @@ La función int_20() llama a timerHandler(), que normalmente maneja la interrupc
 static void int_20();
 static void int_21();
 static void int_06();
-static void int_25();
+//static void int_25();
 void _exception_invalidOpcodeHandler(void);
-void usbHandler(void);
+//void usbHandler(void);
 // Array of function pointers for IRQ handlers
 static void (*irqHandlers[])(void) = {
 	int_20,    // IRQ 0 - Timer
 	int_21,      // IRQ 1 - Keyboard
-	int_25,      // IRQ 2
+	//int_25,      // IRQ 2
 	int_06,      // IRQ 3
 	NULL,      // IRQ 4
 	NULL,      // IRQ 5
@@ -27,7 +27,7 @@ static void (*irqHandlers[])(void) = {
 	// Add more NULL entries if you need to handle more IRQs
 };
 
-void usbHandler(void) {}
+//void usbHandler(void) {}
 
 void irqDispatcher(uint64_t irq) {
 	if (irq < IDT_DIM && irqHandlers[irq] != NULL) {
@@ -43,6 +43,7 @@ static void int_21(){
 	keyboardHandler();
 }
 
+//(?) che que onda esto?
 static void int_06(){
 	//invalidOpcodeHandler();
 }
@@ -62,9 +63,9 @@ static void int_06(){
 // }
 
 //esto creo que si lo necesitamos por el tema del pendrive
-static void int_25() {
-    usbHandler();
-}
+// static void int_25() {
+//     usbHandler();
+// }
 
 // agregar el handler en interrupts.asm
 // agregarlo mediante el idt loader

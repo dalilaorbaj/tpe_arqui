@@ -391,6 +391,8 @@ Song got_theme = {
 };
 
 void play_mortal_kombat_theme() {
+    puts(" (press ESC to stop the song)");
+    puts(" (press P to pause/unpause the song)");
     play_song(&mortal_kombat_theme);
 }
 
@@ -399,10 +401,14 @@ void play_victory_sound() {
 }
 
 void play_cockroach_song() {
+    puts(" (press ESC to stop the song)");
+    puts(" (press P to pause/unpause the song)");
     play_song(&cockroach_song);
 }
 
 void play_got_theme() {
+    puts(" (press ESC to stop the song)");
+    puts(" (press P to pause/unpause the song)");
     play_song(&got_theme);
 }
 
@@ -410,8 +416,6 @@ void play_got_theme() {
 void play_song(const Song *song) {
     int paused = 0;
     int prev_key_state = 0; 
-    puts(" (press ESC to stop the song)");
-    puts(" (press P to pause/unpause the song)");
     for (int i = 0; i < song->note_count && !isKeyPressed(SCANCODE_ESCAPE); i++) {
         
         int current_key_state = isKeyPressed(SCANCODE_P);

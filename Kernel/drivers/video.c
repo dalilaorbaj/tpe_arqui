@@ -9,9 +9,9 @@ static VBEInfoPtr VBE_info = (VBEInfoPtr) 0x0000000000005C00;
 #define PITCH VBE_info->pitch
 
 static Point current_point = {0,0};
-static const uint64_t MIN_FONT_SIZE = 1;
-static const uint64_t MAX_FONT_SIZE = 5;
-static const uint64_t FONT_SIZE_STEP = 1;
+#define MIN_FONT_SIZE 1
+#define MAX_FONT_SIZE 5
+#define FONT_SIZE_STEP 1
 
 // --- Bitmaps de las 2 fonts ---
 extern unsigned char default_font_bitmap[4096];

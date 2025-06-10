@@ -8,7 +8,6 @@ static uint8_t map = LOWER;
 static uint8_t buffer_dim = 0; 
 static uint8_t buffer_last = 0; 
 static uint8_t buffer_first = 0; 
-static uint8_t registersFlag = 0; 
 static uint8_t capsLock = 0;
 static uint8_t cntrlPressed = 0;
 
@@ -55,7 +54,6 @@ static uint8_t handlekey(uint8_t key){
     uint8_t scancode = keyValue(key);
     key_states[scancode] = isPressed(key);
 
-    registersFlag = 0;
     if(isControlKey(key)) {
         cntrlPressed = (isPressed(key));
         return 0;

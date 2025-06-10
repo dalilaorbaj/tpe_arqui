@@ -7,72 +7,23 @@ gcc -ansi -std=c99 -Wall -pedantic -o bmfs.bin bmfs.c
 make[2]: Leaving directory '/root/Bootloader/BMFS'
 cd Pure64; make all
 make[2]: Entering directory '/root/Bootloader/Pure64'
-nasm src/bootsectors/bmfs_mbr.asm -o bmfs_mbr.sys
-nasm src/bootsectors/pxestart.asm -o pxestart.sys
-cd src; nasm pure64.asm -o ../pure64.sys
+make[2]: Nothing to be done for 'all'.
 make[2]: Leaving directory '/root/Bootloader/Pure64'
 make[1]: Leaving directory '/root/Bootloader'
 cd Kernel; make all
 make[1]: Entering directory '/root/Kernel'
-nasm -felf64 loader.asm -o loader.o
-x86_64-linux-gnu-gcc -m64 -fno-exceptions -fno-asynchronous-unwind-tables -mno-mmx -mno-sse -mno-sse2 -fno-builtin-malloc -fno-builtin-free -fno-builtin-realloc -mno-red-zone -Wall -ffreestanding -nostdlib -fno-common -std=c99 -fno-pie -I./include -c kernel.c -o kernel.o
-In file included from [01m[Kkernel.c:5[m[K:
-[01m[K./include/idtLoader.h:9:[m[K [01;35m[Kwarning: [m[K"ACS_INT" redefined
-    9 | #define ACS_INT       0x8E    // P=1, DPL=0, type=14 (interrupt gate)
-      | 
-In file included from [01m[K./include/idtLoader.h:4[m[K:
-[01m[K./include/defs.h:10:[m[K [01;36m[Knote: [m[Kthis is the location of the previous definition
-   10 | #define ACS_INT         ( ACS_PRESENT | ACS_INT_386 )
-      | 
-x86_64-linux-gnu-gcc -m64 -fno-exceptions -fno-asynchronous-unwind-tables -mno-mmx -mno-sse -mno-sse2 -fno-builtin-malloc -fno-builtin-free -fno-builtin-realloc -mno-red-zone -Wall -ffreestanding -nostdlib -fno-common -std=c99 -fno-pie -I./include -c lib.c -o lib.o
-x86_64-linux-gnu-gcc -m64 -fno-exceptions -fno-asynchronous-unwind-tables -mno-mmx -mno-sse -mno-sse2 -fno-builtin-malloc -fno-builtin-free -fno-builtin-realloc -mno-red-zone -Wall -ffreestanding -nostdlib -fno-common -std=c99 -fno-pie -I./include -c moduleLoader.c -o moduleLoader.o
-x86_64-linux-gnu-gcc -m64 -fno-exceptions -fno-asynchronous-unwind-tables -mno-mmx -mno-sse -mno-sse2 -fno-builtin-malloc -fno-builtin-free -fno-builtin-realloc -mno-red-zone -Wall -ffreestanding -nostdlib -fno-common -std=c99 -fno-pie -I./include -c naiveConsole.c -o naiveConsole.o
-x86_64-linux-gnu-gcc -m64 -fno-exceptions -fno-asynchronous-unwind-tables -mno-mmx -mno-sse -mno-sse2 -fno-builtin-malloc -fno-builtin-free -fno-builtin-realloc -mno-red-zone -Wall -ffreestanding -nostdlib -fno-common -std=c99 -fno-pie -I./include -c drivers/keyboard.c -o drivers/keyboard.o
-x86_64-linux-gnu-gcc -m64 -fno-exceptions -fno-asynchronous-unwind-tables -mno-mmx -mno-sse -mno-sse2 -fno-builtin-malloc -fno-builtin-free -fno-builtin-realloc -mno-red-zone -Wall -ffreestanding -nostdlib -fno-common -std=c99 -fno-pie -I./include -c drivers/keys.c -o drivers/keys.o
-x86_64-linux-gnu-gcc -m64 -fno-exceptions -fno-asynchronous-unwind-tables -mno-mmx -mno-sse -mno-sse2 -fno-builtin-malloc -fno-builtin-free -fno-builtin-realloc -mno-red-zone -Wall -ffreestanding -nostdlib -fno-common -std=c99 -fno-pie -I./include -c drivers/rtc.c -o drivers/rtc.o
-x86_64-linux-gnu-gcc -m64 -fno-exceptions -fno-asynchronous-unwind-tables -mno-mmx -mno-sse -mno-sse2 -fno-builtin-malloc -fno-builtin-free -fno-builtin-realloc -mno-red-zone -Wall -ffreestanding -nostdlib -fno-common -std=c99 -fno-pie -I./include -c drivers/sound.c -o drivers/sound.o
-x86_64-linux-gnu-gcc -m64 -fno-exceptions -fno-asynchronous-unwind-tables -mno-mmx -mno-sse -mno-sse2 -fno-builtin-malloc -fno-builtin-free -fno-builtin-realloc -mno-red-zone -Wall -ffreestanding -nostdlib -fno-common -std=c99 -fno-pie -I./include -c drivers/video.c -o drivers/video.o
-x86_64-linux-gnu-gcc -m64 -fno-exceptions -fno-asynchronous-unwind-tables -mno-mmx -mno-sse -mno-sse2 -fno-builtin-malloc -fno-builtin-free -fno-builtin-realloc -mno-red-zone -Wall -ffreestanding -nostdlib -fno-common -std=c99 -fno-pie -I./include -c interruptions/exceptions.c -o interruptions/exceptions.o
-In file included from [01m[Kinterruptions/exceptions.c:3[m[K:
-[01m[K./include/idtLoader.h:9:[m[K [01;35m[Kwarning: [m[K"ACS_INT" redefined
-    9 | #define ACS_INT       0x8E    // P=1, DPL=0, type=14 (interrupt gate)
-      | 
-In file included from [01m[K./include/idtLoader.h:4[m[K:
-[01m[K./include/defs.h:10:[m[K [01;36m[Knote: [m[Kthis is the location of the previous definition
-   10 | #define ACS_INT         ( ACS_PRESENT | ACS_INT_386 )
-      | 
-x86_64-linux-gnu-gcc -m64 -fno-exceptions -fno-asynchronous-unwind-tables -mno-mmx -mno-sse -mno-sse2 -fno-builtin-malloc -fno-builtin-free -fno-builtin-realloc -mno-red-zone -Wall -ffreestanding -nostdlib -fno-common -std=c99 -fno-pie -I./include -c interruptions/idtLoader.c -o interruptions/idtLoader.o
-In file included from [01m[Kinterruptions/idtLoader.c:2[m[K:
-[01m[K./include/idtLoader.h:9:[m[K [01;35m[Kwarning: [m[K"ACS_INT" redefined
-    9 | #define ACS_INT       0x8E    // P=1, DPL=0, type=14 (interrupt gate)
-      | 
-In file included from [01m[K./include/idtLoader.h:4[m[K:
-[01m[K./include/defs.h:10:[m[K [01;36m[Knote: [m[Kthis is the location of the previous definition
-   10 | #define ACS_INT         ( ACS_PRESENT | ACS_INT_386 )
-      | 
-x86_64-linux-gnu-gcc -m64 -fno-exceptions -fno-asynchronous-unwind-tables -mno-mmx -mno-sse -mno-sse2 -fno-builtin-malloc -fno-builtin-free -fno-builtin-realloc -mno-red-zone -Wall -ffreestanding -nostdlib -fno-common -std=c99 -fno-pie -I./include -c interruptions/irqDispatcher.c -o interruptions/irqDispatcher.o
-x86_64-linux-gnu-gcc -m64 -fno-exceptions -fno-asynchronous-unwind-tables -mno-mmx -mno-sse -mno-sse2 -fno-builtin-malloc -fno-builtin-free -fno-builtin-realloc -mno-red-zone -Wall -ffreestanding -nostdlib -fno-common -std=c99 -fno-pie -I./include -c interruptions/syscalls.c -o interruptions/syscalls.o
-x86_64-linux-gnu-gcc -m64 -fno-exceptions -fno-asynchronous-unwind-tables -mno-mmx -mno-sse -mno-sse2 -fno-builtin-malloc -fno-builtin-free -fno-builtin-realloc -mno-red-zone -Wall -ffreestanding -nostdlib -fno-common -std=c99 -fno-pie -I./include -c interruptions/time.c -o interruptions/time.o
-x86_64-linux-gnu-gcc -m64 -fno-exceptions -fno-asynchronous-unwind-tables -mno-mmx -mno-sse -mno-sse2 -fno-builtin-malloc -fno-builtin-free -fno-builtin-realloc -mno-red-zone -Wall -ffreestanding -nostdlib -fno-common -std=c99 -fno-pie -I./include -c utils/font.c -o utils/font.o
-x86_64-linux-gnu-gcc -m64 -fno-exceptions -fno-asynchronous-unwind-tables -mno-mmx -mno-sse -mno-sse2 -fno-builtin-malloc -fno-builtin-free -fno-builtin-realloc -mno-red-zone -Wall -ffreestanding -nostdlib -fno-common -std=c99 -fno-pie -I./include -c utils/openDyslexicFont.c -o utils/openDyslexicFont.o
-nasm -felf64 asm/IO.asm -o asm/IO.o
-nasm -felf64 asm/interrupts.asm -o asm/interrupts.o
-nasm -felf64 asm/keyboard.asm -o asm/keyboard.o
-nasm -felf64 asm/libasm.asm -o asm/libasm.o
-x86_64-linux-gnu-ld --warn-common -z max-page-size=0x1000 -T kernel.ld -o kernel.bin loader.o kernel.o lib.o moduleLoader.o naiveConsole.o drivers/keyboard.o drivers/keys.o drivers/rtc.o drivers/sound.o drivers/video.o interruptions/exceptions.o interruptions/idtLoader.o interruptions/irqDispatcher.o interruptions/syscalls.o interruptions/time.o utils/font.o utils/openDyslexicFont.o asm/IO.o asm/interrupts.o asm/keyboard.o asm/libasm.o 
+make[1]: Nothing to be done for 'all'.
 make[1]: Leaving directory '/root/Kernel'
 cd Userland; make all
 make[1]: Entering directory '/root/Userland'
 cd ShellCodeModule; make
 make[2]: Entering directory '/root/Userland/ShellCodeModule'
-nasm -felf64 ../syscallsHelper.asm -o ../syscallsHelper.o
-nasm -felf64 lib/functions.asm -o lib/functions.o
 x86_64-linux-gnu-gcc -m64 -fno-exceptions -std=c99 -Wall -ffreestanding -nostdlib -fno-common -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -fno-builtin-malloc -fno-builtin-free -fno-builtin-realloc -fno-pie -msse -mfpmath=sse -I./include -T shell.ld _loader.c Main/shell.c Modules/pongisGolf.c Modules/songs.c lib/library.c lib/regs_snapshot.c ../syscallsHelper.o lib/functions.o -o ../0000-shell.bin
 make[2]: Leaving directory '/root/Userland/ShellCodeModule'
 printf "This is shell data." >> 0001-shellDataModule.bin && dd if=/dev/zero bs=1 count=1 >> 0001-shellDataModule.bin
 1+0 records in
 1+0 records out
-1 byte copied, 0.00166733 s, 0.6 kB/s
+1 byte copied, 0.00159462 s, 0.6 kB/s
 make[1]: Leaving directory '/root/Userland'
 cd Image; make all
 make[1]: Entering directory '/root/Image'

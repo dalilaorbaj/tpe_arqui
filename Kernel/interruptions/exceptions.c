@@ -2,8 +2,7 @@
 #include <video.h>
 #include <idtLoader.h>
 #include <syscalls.h>
-
-#define STDERR 1
+#include <keyboard.h>
 
 #define DEFAULT_MASTER_MASK 0xFC
 
@@ -16,8 +15,8 @@ extern void _hlt();
 extern void _sti();
 extern void _cli();
 
-static void printRegs(uint8_t * message, uint8_t cant_chars_message);
-static uint8_t * numToString(uint64_t num, uint64_t base);
+static void printRegs(char * message, uint8_t cant_chars_message);
+static char * numToString(uint64_t num, uint64_t base);
 static uint64_t strlen(const char *s);
 static void flushKeyboardBuffer();
 
@@ -26,21 +25,12 @@ static void flushKeyboardBuffer() {
     uint8_t buffer;
     uint64_t nbytes;
     
-    // Lee y descarta todas las teclas acumuladas en el buffer
     while ((nbytes = sys_read(0, &buffer, 1)) > 0) {
-        // Simplemente descartamos el valor leído
-        // El bucle continúa hasta que no haya más datos en el buffer
+        //descartamos el valor leído
     }
 }
 
-// void waitToReturn() {
-//     uint8_t c = 0;
-//     do {
-//         _hlt();
-//     } while (sys_read(0, &c, 1) <= 0);
-// }
 
-//(!) PROBLEMA: TE SACA DE LA PANTALLA PERO DEJA EN LA TERMINAL LA TECLA QUE USASTE PARA SALIR
 void waitToReturn() {
     getKey();
 }
@@ -53,7 +43,7 @@ static uint64_t strlen(const char *s) {
 
 
 void exceptionDispatcher(uint64_t exception) {
-    uint8_t * message = "";
+    char * message = "";
     uint8_t dim = 0;
 	
 
@@ -69,22 +59,21 @@ void exceptionDispatcher(uint64_t exception) {
     printRegs(message, dim);
 
     const char *promo = "\nPress any key to return to shell\n";
-    write((uint8_t*)promo, strlen(promo), (Color){255, 255, 255});
+    write((const char *)promo, strlen(promo), (Color){255, 255, 255});
 
-    // 4) Habilitar teclado y esperar la primera pulsación
     picMasterMask(0xFD);    // Solo IRQ1 (teclado)
     _sti();
     flushKeyboardBuffer();
-    waitToReturn();           // se bloqueará c/ hlt hasta recibir un byte
+    waitToReturn();           // se bloquea c/ hlt hasta recibir un byte
     _cli();
     picMasterMask(DEFAULT_MASTER_MASK);
 	flushKeyboardBuffer();
     empty_screen((Color){0,0,0});
 }
 
-static uint8_t * numToString(uint64_t num, uint64_t base) {
+static char * numToString(uint64_t num, uint64_t base) {
     static char buffer[64];
-    uint8_t * ptr = &buffer[63];
+    char * ptr = &buffer[63];
     *ptr = '\0';
     do {
         *--ptr = "0123456789abcdef"[num % base];
@@ -93,13 +82,12 @@ static uint8_t * numToString(uint64_t num, uint64_t base) {
     return ptr;
 }
 
-//(!)hacerla diferente
-static void printRegs(uint8_t * message, uint8_t cant_chars_message){
-    uint8_t * regs[] = {"RFLAGS", "RAX", "RBX", "RCX", "RDX", "RSI", "RDI", "RBP", "RSP", "R8", "R9", "R10", "R11", "R12", "R13", "R14", "R15", "RIP", "CS", "SS"};
+static void printRegs(char * message, uint8_t cant_chars_message){
+    char * regs[] = {"RFLAGS", "RAX", "RBX", "RCX", "RDX", "RSI", "RDI", "RBP", "RSP", "R8", "R9", "R10", "R11", "R12", "R13", "R14", "R15", "RIP", "CS", "SS"};
     empty_screen((Color){139,0,36});
 
     write(message, cant_chars_message, (Color){255,255,255});
-    uint8_t newline = '\n';
+    const char newline = '\n';
     for(int i=0; i<CANT_REGS;i++){
         write(regs[i], 10, (Color){255,255,255});
         write(": 0x", 4, (Color){255,255,255});

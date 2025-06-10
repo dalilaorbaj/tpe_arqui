@@ -8,7 +8,6 @@
 #define STDOUT  1
 #define STDERR  2
 #define ERROR -1
-#define BUFF_SIZE 8096
 
 #define DEFAULT 0
 #define DYSLEXIC 1
@@ -21,12 +20,9 @@
 #define SCANCODE_K 37
 #define SCANCODE_J 36
 #define SCANCODE_L 38
-#define SCANCODE_ESCAPE 1 // Tecla para salir del juego
+#define SCANCODE_ESCAPE 1
 #define SCANCODE_P 25
 #define SCANCODE_ENTER 28 
-#define SCANCODE_1 2
-#define SCANCODE_2 3
-#define SCANCODE_3 4
 
 int64_t clearScreen(void);
 
@@ -71,3 +67,7 @@ void flushKeyboardBuffer();
 void dyslexicMode();
 
 void defaultMode();
+
+void zoomIn();
+
+void zoomOut();

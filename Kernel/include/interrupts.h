@@ -17,16 +17,12 @@ void _exception8Handler(void);
 void _exception_invalidOpcodeHandler(void);
 
 void _cli(void);
-
 void _sti(void);
-
 void _hlt(void);
 
 void picMasterMask(uint8_t mask);
-
 void picSlaveMask(uint8_t mask);
 
-//Termina la ejecución de la cpu.
 void haltcpu(void);
 
-#endif /* INTERRUPTS_H_ */
+#endif

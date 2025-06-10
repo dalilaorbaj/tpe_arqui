@@ -1,6 +1,10 @@
+
+
 #include <stdint.h>
-#include "video.h"
-#include "regs_snapshot.h"
+#include <video.h>
+#include <regs_snapshot.h>
+
+#define STDERR  2
 
 typedef struct time {
     uint8_t seconds;
@@ -29,4 +33,3 @@ int64_t sys_zoom_in(void);
 int64_t sys_zoom_out(void);
 int64_t sys_switch_text_mode(uint64_t mode);
 int64_t sys_is_key_pressed(uint8_t scancode);
-

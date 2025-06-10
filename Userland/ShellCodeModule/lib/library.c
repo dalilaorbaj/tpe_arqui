@@ -1,9 +1,5 @@
 #include <library.h>
 
-//dsp revisar si estan definidas en otros archivos
-#ifndef ERROR
-#define ERROR   -1
-#endif
 #ifndef EOF
 #define EOF     -1
 #endif
@@ -12,12 +8,10 @@ extern int64_t sys_is_key_pressed(uint8_t scancode);
 
 extern void hlt(void);
 
-// Implementación de getKey
 uint8_t getKey() {
     return sys_get_key();
 }
 
-// Implementación de writeStr usando sys_write
 int64_t writeStr(int fd, const char *s) {
     uint64_t len = 0;
     while (s[len]) len++;
@@ -63,10 +57,8 @@ void flushKeyboardBuffer() {
     uint8_t buffer;
     uint64_t nbytes;
     
-    // Lee y descarta todas las teclas acumuladas en el buffer
     while ((nbytes = sys_read(0, &buffer, 1)) > 0) {
-        // Simplemente descartamos el valor leído
-        // El bucle continúa hasta que no haya más datos en el buffer
+        // descartamos el valor leído
     }
 }
 
@@ -116,7 +108,6 @@ int64_t get_screen_info(Screen *info) {
     }
     return sys_get_screen_info(info);
 }
-
 
 size_t strlen(const char *s) {
     const char *p = s;
@@ -211,7 +202,7 @@ float sqrtf(float number) {
     if (number <= 0.0f) return 0.0f;
     float x = number;
     float y = 1.0f;
-    float epsilon = 0.00001f; // Precisión deseada
+    float epsilon = 0.00001f;
 
     while ((x - y) > epsilon || (y - x) > epsilon) {
         x = 0.5f * (x + y);
@@ -239,37 +230,4 @@ int64_t draw_ball(uint64_t x, uint64_t y, uint64_t radius, uint64_t color) {
         }
     }
     return count;
-}
-
-void draw_golf_ball(uint64_t center_x, uint64_t center_y, uint64_t radius) {
-    const uint64_t BALL_COLOR_WHITE = 0xFFFFFF;
-    const uint64_t DIMPLE_COLOR = 0xC0C0C0;
-
-    draw_ball(center_x, center_y, radius, BALL_COLOR_WHITE);
-
-    uint64_t dimple_radius = radius / 6;
-    if (dimple_radius < 1) dimple_radius = 1; 
-
-    uint64_t dimple_spacing = (radius * 2) / 4;
-    if (dimple_spacing < dimple_radius * 2 + 2) {
-        dimple_spacing = dimple_radius * 2 + 2;
-    }
-
-    for (int64_t dy = -(int64_t)radius + (int64_t)dimple_spacing/2;
-         dy <= (int64_t)radius - (int64_t)dimple_spacing/2;
-         dy += (int64_t)dimple_spacing)
-    {
-        for (int64_t dx = -(int64_t)radius + (int64_t)dimple_spacing/2;
-             dx <= (int64_t)radius - (int64_t)dimple_spacing/2;
-             dx += (int64_t)dimple_spacing)
-        {
-            int64_t dist2 = dx*dx + dy*dy;
-            int64_t limit = (int64_t)(radius - dimple_radius);
-            if (dist2 <= limit * limit) {
-                uint64_t cx = (uint64_t)((int64_t)center_x + dx);
-                uint64_t cy = (uint64_t)((int64_t)center_y + dy);
-                draw_ball(cx, cy, dimple_radius, DIMPLE_COLOR);
-            }
-        }
-    }
 }

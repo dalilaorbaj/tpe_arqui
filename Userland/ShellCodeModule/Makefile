@@ -1,22 +1,26 @@
 include ../Makefile.inc
 
-MODULE=0000-shell.bin
-SOURCES=$(wildcard Main/*.c) ./lib/library.c ./lib/regs_snapshot.c ./Modules/pongisGolf.c ./Modules/songs.c
-OBJS=$(SOURCES:.c=.o)
-ASM_OBJS=../syscallsHelper.o ./lib/functions.o
+MODULE      := 0000-shell.bin
+SRC_DIRS    := Main Modules lib
+C_SRCS      := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.c))
+ASM_SRCS    := ../syscallsHelper.asm lib/functions.asm
+OBJS        := $(C_SRCS:.c=.o)
+ASM_OBJS    := $(ASM_SRCS:.asm=.o)
+
+INCLUDES    := -I./include
 
 all: $(MODULE)
 
-../syscallsHelper.o: ../syscallsHelper.asm
+%.o: %.c
+	$(GCC) $(GCCFLAGS) $(INCLUDES) -c $< -o $@
+
+%.o: %.asm
 	$(ASM) $(ASMFLAGS) $< -o $@
 
-./lib/functions.o: ./lib/functions.asm
-	$(ASM) $(ASMFLAGS) $< -o $@
-
-$(MODULE): _loader.c $(SOURCES) shell.ld $(ASM_OBJS)
-	$(GCC) $(GCCFLAGS) -I./include -T shell.ld _loader.c $(SOURCES) $(ASM_OBJS) -o ../$(MODULE)
+$(MODULE): _loader.c $(C_SRCS) shell.ld $(ASM_OBJS)
+	$(GCC) $(GCCFLAGS) $(INCLUDES) -T shell.ld _loader.c $(C_SRCS) $(ASM_OBJS) -o ../$(MODULE)
 
 clean:
-	rm -rf Main/*.o lib/*.o *.o ../syscallsHelper.o
+	rm -rf $(foreach dir,$(SRC_DIRS),$(dir)/*.o) *.o ../syscallsHelper.o lib/functions.o
 
 .PHONY: all clean print

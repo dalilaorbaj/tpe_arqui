@@ -2,6 +2,7 @@
 
 extern uint8_t rtc(uint8_t mode);
 
+// Convierte número BCD a decimal.
 static uint8_t bcd_decimal(uint8_t BCD) {
     return (BCD >> 4) * 10 + (BCD & 0x0F);
 }

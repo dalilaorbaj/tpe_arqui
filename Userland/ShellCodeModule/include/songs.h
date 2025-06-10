@@ -5,14 +5,14 @@
 
 #define MS_PER_TICK 55
 typedef struct {
-    uint32_t frequency; // Frecuencia de la nota en Hz
-    int duration;       // Duración en milisegundos
+    uint32_t frequency; // frecuencia en Hz
+    int duration;       // duracion en milisegundos
 } Note;
 
 typedef struct {
-    uint64_t note_count; // Cantidad de notas
-    Note* notes;         // Puntero al arreglo de notas
-    char* name;          // Nombre de la canción
+    uint64_t note_count; // cantidad de notas
+    Note* notes;         // puntero al arreglo de notas
+    char* name;          // nombre de la canción
 } Song;
 
 extern Note mortal_kombat_notes[];

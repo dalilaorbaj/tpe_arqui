@@ -213,12 +213,6 @@ Note mortal_kombat_notes[] = {
 };
 
 Note victory_sound_notes[] = {
-    //(!)este es mas cortito, despues elegir cual queremos
-    // {523, 150},  // C5
-    // {587, 150},  // D5
-    // {659, 150},  // E5
-    // {698, 150},  // F5
-    // {784, 300}   // G5
     {523, 200},  // C5
     {587, 200},  // D5
     {659, 200},  // E5
@@ -365,7 +359,6 @@ Note cockroach_notes[] = {
     {220, 250}, {196, 250}, {174, 1000}
 };
 
-// Definición de la canción usando el array anterior.
 Song mortal_kombat_theme = {
     .note_count = sizeof(mortal_kombat_notes) / sizeof(mortal_kombat_notes[0]),
     .notes = mortal_kombat_notes,
@@ -434,5 +427,5 @@ void play_song(const Song *song) {
         int ticks = note.duration / MS_PER_TICK;
         beep(note.frequency, ticks);
     }
-    flushKeyboardBuffer(); // Limpiar el buffer del teclado al finalizar la canción
+    flushKeyboardBuffer();
 }

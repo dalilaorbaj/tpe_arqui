@@ -5,7 +5,6 @@
 
 static void uint64ToHexString(uint64_t value, char* buffer);
 
-// Helper function to convert uint64_t to hex string
 static void uint64ToHexString(uint64_t value, char* buffer) {
     static const char hexChars[] = "0123456789ABCDEF";
     buffer[0] = '0';
@@ -18,9 +17,8 @@ static void uint64ToHexString(uint64_t value, char* buffer) {
 }
 
 
-// Imprime todos los registros del snapshot recibido
 void printRegsSnapshot(const RegsSnapshot *regs) {
-    char hexBuffer[19]; // "0x" + 16 hex digits + null terminator
+    char hexBuffer[19];
 
     writeStr(STDOUT, "Registro de CPU actual:\n");
 

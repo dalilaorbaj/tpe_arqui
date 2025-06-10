@@ -54,6 +54,4 @@ int64_t sys_switch_text_mode(uint64_t mode);
 // Teclado
 unsigned char sys_get_key(void);
 
-
-
 #endif

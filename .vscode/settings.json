@@ -10,6 +10,7 @@
         "idtloader.h": "c",
         "syscalls.h": "c",
         "pongisgolf.h": "c",
-        "font.h": "c"
+        "font.h": "c",
+        "stdlib.h": "c"
     }
 }

@@ -249,7 +249,7 @@ _irq04Handler:
 ;USB
 _irq05Handler:
 	irqHandlerMaster 5
-                ; vuelve a userland con RAX = retorno de syscall
+    ; vuelve a userland con RAX = retorno de syscall
 
 _irq80Handler:
     pushState
@@ -257,6 +257,7 @@ _irq80Handler:
     ; Pasar argumentos según la convención x86-64:
     ; rdi = syscall_num (rax), rsi = arg1 (rdi), rdx = arg2 (rsi), 
     ; rcx = arg3 (rdx), r8 = arg4 (rcx), r9 = arg5 (r8)
+	
     mov r9, r8      ; arg5 = r8
     mov r8, rcx     ; arg4 = rcx  
     mov rcx, rdx    ; arg3 = rdx

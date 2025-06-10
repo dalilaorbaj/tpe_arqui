@@ -6,6 +6,7 @@
 #include <video.h>
 #include <syscalls.h>
 #include <sound.h>
+#include <naiveConsole.h>
 
 extern uint8_t text;
 extern uint8_t rodata;
@@ -16,25 +17,16 @@ extern uint8_t endOfKernel;
 
 static const uint64_t PageSize = 0x1000;
 
-
-/* Dirección para la shell */
 static void * const shellCodeModuleAddress = (void*)0x400000;
 static void * const shellDataModuleAddress = (void*)0x500000;
 
-static void print_reg(const char *name, uint64_t value);
-
-
 typedef int (*EntryPoint)();
 
-
-
-void clearBSS(void * bssAddress, uint64_t bssSize)
-{
+void clearBSS(void * bssAddress, uint64_t bssSize){
 	memset(bssAddress, 0, bssSize);
 }
 
-void * getStackBase(void)
-{
+void * getStackBase(void){
 	return (void*)(
 		(uint64_t)&endOfKernel
 		+ PageSize * 8				//The size of the stack itself, 32KiB
@@ -42,8 +34,7 @@ void * getStackBase(void)
 	);
 }
 
-void * initializeKernelBinary()
-{
+void * initializeKernelBinary(){
 	char buffer[10];
 
 	ncPrint("[x64BareBones]");
@@ -91,16 +82,9 @@ void * initializeKernelBinary()
 
 
 int main(){	
-	
 	load_idt();
-// 	initKeyMappingMatrix();
-
-// //(!) esto creo que quedo obsoleto porque ahora write usa el argumento color
-// 	write("[Cargando la shell]\n", 20);
-
 	((EntryPoint)shellCodeModuleAddress)();
 	write("[Shell terminada]\n", 18, (Color){255, 158, 161});
-	
 	return 0;
 }
 

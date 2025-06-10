@@ -6,27 +6,11 @@
 #include <sound.h>
 #include <stddef.h>
 
-#define STDIN 0
-#define STDOUT 1
-#define STDERR 2
 #define STDOUT_FORMAT ((Color){255, 255, 255}) // White color for standard output
 
 int64_t registersArray[CANT_REGS]; 
 int64_t registersArrayAux[CANT_REGS];
 int64_t registersArrayException[CANT_REGS];
-
-void get_snapshot();
-
-
-// | Argumento número      | Registro usado |
-// | --------------------- | -------------- |
-// | 1 (primer argumento)  | `rdi`          |
-// | 2 (segundo argumento) | `rsi`          |
-// | 3 (tercer argumento)  | `rdx`          |
-// | 4 (cuarto argumento)  | `rcx`          |
-// | 5 (quinto argumento)  | `r8`           |
-// | 6 (sexto argumento)   | `r9`           |
-
 
 int64_t syscallDispatcher(uint64_t syscall_num, uint64_t arg1, uint64_t arg2, uint64_t arg3, uint64_t arg4, uint64_t arg5, uint64_t arg6) {
     switch (syscall_num) {
@@ -73,7 +57,6 @@ int64_t sys_is_key_pressed(uint8_t scancode) {
     return is_key_currently_pressed(scancode);
 }
 
-//	unsigned int fd	char __user *buf	size_t count (de la syscall table de linux)
 int64_t sys_read(uint64_t fd, uint16_t * buf, uint64_t count){
     if(fd != STDIN) return -1;
     int64_t i = 0;
@@ -121,22 +104,12 @@ int64_t sys_clear_screen(void){
     return 0;
 }
 
-// int64_t sys_beep(uint32_t freq, int time) {
-//     if (time == 0 || freq < 20 || freq > 20000) {
-//         return -1;
-//     }
-//     beep(freq, time);
-//     return 0;
-// }
-
 int64_t sys_beep(uint64_t freq, uint64_t time) {
-    //sys_write(STDOUT, "[sys_beep] called\n", 17);
     if (time == 0 || freq < 20 || freq > 20000) {
         sys_write(STDOUT, "[sys_beep] invalid args\n", 24);
         return -1;
     }
     beep(freq, time);
-    //sys_write(STDOUT, "[sys_beep] finished beep\n", 24);
     return 0;
 }
 
@@ -176,35 +149,13 @@ int64_t sys_draw_pixel(uint64_t x, uint64_t y, uint64_t color) {
     Color c = { (uint8_t)(color >> 16), (uint8_t)(color >> 8), (uint8_t)color };
     return draw_pixel(x, y, c);
 }
-/*
-void scale_screen(uint64_t factor) {
-    // Crear buffer temporal
-    uint8_t* temp_buffer = allocate_screen_buffer();
-    
-    // Copiar pantalla actual
-    copy_framebuffer_to_buffer(temp_buffer);
-    
-    // Limpiar pantalla
-    clear_screen();
-    
-    // Re-dibujar escalado
-    for (uint32_t y = 0; y < screen_height; y += factor) {
-        for (uint32_t x = 0; x < screen_width; x += factor) {
-            Color pixel = get_pixel_from_buffer(temp_buffer, x/factor, y/factor);
-            draw_scaled_pixel(x, y, pixel, factor);
-        }
-    }
-    
-    free_buffer(temp_buffer);
-}
-    */
+
 int64_t sys_draw_letter(uint64_t x, uint64_t y, uint64_t letter, uint64_t color, uint64_t size) { 
     Color c = { (uint8_t)(color >> 16), (uint8_t)(color >> 8), (uint8_t)color };
     return draw_font(x, y, (char)letter, c, size);
 }
 
 int64_t sys_get_screen_info(Screen *info) {
-    // esto no se si va 
     if (info == NULL) {
         return -1;
     }
@@ -245,7 +196,5 @@ int64_t sys_switch_text_mode(uint64_t mode) {
 void getSnapshot(){
     for(int i=0 ; i < CANT_REGS ; i++){
         registersArray[i] = registersArrayAux[i];
-        //(!)creo que esto no esta bien
-        registersArrayException[i] = registersArrayException[i];
     }
 }

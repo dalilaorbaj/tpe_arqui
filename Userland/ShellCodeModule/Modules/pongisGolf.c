@@ -1,19 +1,14 @@
 #include <pongisGolf.h>
 
-// Configuraciones de los 5 niveles
 static LevelConfig levels[MAX_LEVELS] = {
     // Nivel 1: Pelota centro, hoyo arriba centro
     {0.5f, 0.5f, 0.5f, 0.25f, 40},
-    
     // Nivel 2: Pelota alineada con hoyo pero más lejos
     {0.5f, 0.8f, 0.5f, 0.2f, 30},
-    
     // Nivel 3: Pelota desalineada, hoyo en otra posición
     {0.3f, 0.7f, 0.7f, 0.3f, 20},
-    
     // Nivel 4: Pelota en borde lateral, hoyo en esquina opuesta
     {0.1f, 0.5f, 0.8f, 0.2f, 15},
-    
     // Nivel 5: Pelota en esquina, hoyo en esquina opuesta
     {0.1f, 0.1f, 0.9f, 0.9f, 12}
 };
@@ -33,12 +28,8 @@ static void draw_player(Player *player);
 static float my_sin(float x);
 static float my_cos(float x);
 static float my_fabs(float x);
-static float my_sqrt(float x);
 
 Screen screen;
-uint64_t baseY;
-uint64_t verticalSpacing;
-uint64_t currentY;
 uint64_t screenWidth;
 uint64_t screenHeight;
 uint64_t numberOfPlayers;
@@ -66,26 +57,19 @@ static void printString(const char *str, uint64_t x, uint64_t y, uint64_t size, 
     
     uint64_t i = 0;
     while (str[i] != '\0' && x + i * FONT_WIDTH * size < width) {
-        draw_letter(x + i * FONT_WIDTH * size, y, str[i], 0xFF7F50, size);
+        draw_letter(x + i * FONT_WIDTH * size, y, str[i], COLOR_TANGERINE, size);
         i++;
     }
-}
-
-static void moveCurrentY(uint64_t verticalSpacing) {
-    currentY += verticalSpacing;
 }
 
 void startPongisGolf(){
     puts("Starting Pongis Golf...");
 
-    if(get_screen_info(&screen) <0 ){
+    if(sys_get_screen_info(&screen) <0 ){
         puts("Failed to get screen info.");
         return;
     }
 
-    baseY = screen.height / 3;
-    verticalSpacing = FONT_HEIGHT * 3;
-    currentY = baseY;
     screenWidth = screen.width;
     screenHeight = screen.height;
 
@@ -96,7 +80,7 @@ void startPongisGolf(){
 
 static void mainMenu(){
     flushKeyboardBuffer();
-    draw_rectangle(0, 0, screenWidth, screenHeight, 0x9EFFDC);
+    draw_rectangle(0, 0, screenWidth, screenHeight, COLOR_CYAN);
     printString("Pongis Golf", screenWidth / 2, screenHeight / 2 - 200, 5, screenWidth, screenHeight, ALIGN_CENTER);
 
     printString("Choose how many players: ", screenWidth/2, screenHeight/2 - 60, 3, screenWidth, screenHeight, ALIGN_CENTER);
@@ -131,7 +115,7 @@ static void mainMenu(){
 
 static void showLevelInfo(int level, uint32_t width, uint32_t height) {
     clearScreen();
-    draw_rectangle(0, 0, width, height, 0x9EFFDC);
+    draw_rectangle(0, 0, width, height, COLOR_CYAN);
     
     if (level == 0) {
         printString("LEVEL 1", width/2, height/2 - 60, 4, width, height, ALIGN_CENTER);
@@ -156,7 +140,7 @@ static void showLevelInfo(int level, uint32_t width, uint32_t height) {
     }
     
     printString("Starting in 2 seconds...", width/2, height/2 + 80, 2, width, height, ALIGN_CENTER);
-    sys_nano_sleep(50); // 2 segundos
+    sys_nano_sleep(50);
 }
 
 static void singlePlayer(uint32_t width, uint32_t height) {
@@ -165,7 +149,6 @@ static void singlePlayer(uint32_t width, uint32_t height) {
     player1_wins = 0;
     
     while (current_level < MAX_LEVELS) {
-        // Mostrar información del nivel
         showLevelInfo(current_level, width, height);
 
         // Solo un jugador en el centro
@@ -186,9 +169,8 @@ static void singlePlayer(uint32_t width, uint32_t height) {
         int hole_radius = config.hole_radius;
 
         int attempts = 0;
-        int max_attempts = 10; // Máximo 10 intentos por nivel
+        int max_attempts = 10;
         
-        // Variables para guardar posiciones previas
         float prev_player_x = players[0].x;
         float prev_player_y = players[0].y;
         float prev_ball_x = ball_x;
@@ -196,17 +178,17 @@ static void singlePlayer(uint32_t width, uint32_t height) {
         
         clearScreen();
         
-        // Mostrar controles para single player
+        // Mostrar controles en single player
         printString("Player controls: w=forward, s=back, a=rotate left, d=rotate right", width/2, height/2 - 40, 2, width, height, ALIGN_CENTER);
         printStringf(width/2, height/2 + 40, 2, width, height, ALIGN_CENTER, "Attempts remaining: %d", max_attempts);
         printString("Starting in 1 second...", width/2, height/2 + 100, 2, width, height, ALIGN_CENTER);
 
-        sys_nano_sleep(40); // 1 segundo
+        sys_nano_sleep(40);
         
-        // Dibujo inicial completo
-        draw_rectangle(0, 0, width, height, 0x9EFFDC);
-        draw_ball((uint64_t)hole_x, (uint64_t)hole_y, (uint64_t)hole_radius, HOLE_COLOR);
-        draw_ball((uint64_t)ball_x, (uint64_t)ball_y, (uint64_t)BALL_RADIUS, BALL_COLOR);
+        // Dibujo inicial
+        draw_rectangle(0, 0, width, height, COLOR_CYAN);
+        draw_ball((uint64_t)hole_x, (uint64_t)hole_y, (uint64_t)hole_radius, COLOR_BLACK);
+        draw_ball((uint64_t)ball_x, (uint64_t)ball_y, (uint64_t)BALL_RADIUS, COLOR_WHITE);
         draw_player(&players);
 
         // Game loop para este nivel
@@ -216,19 +198,16 @@ static void singlePlayer(uint32_t width, uint32_t height) {
             int ballHits = 0;
             
             while (!attempt_success && !level_completed) {
-                // Guardar posiciones previas
                 prev_player_x = players[0].x;
                 prev_player_y = players[0].y;
                 prev_ball_x = ball_x;
                 prev_ball_y = ball_y;
                 
-                // Retornar al menú principal si se presiona 'ESC'
                 if(isKeyPressed(SCANCODE_ESCAPE)) {
                     mainMenu();
                     return;
                 }
 
-                // Procesar movimientos del jugador
                 processPlayerMovements(&players, width, height);
 
                 // Detectar colisión jugador–pelota
@@ -239,11 +218,11 @@ static void singlePlayer(uint32_t width, uint32_t height) {
                 if (dist2 <= minDist*minDist) {
                     ballHits++;
 
-                    // Calcular velocidad del jugador
+                    // velocidad del jugador
                     float player_vx = players[0].x - prev_player_x;
                     float player_vy = players[0].y - prev_player_y;
                     
-                    // Si el jugador se está moviendo, usar su dirección de movimiento
+                    // si el jugador se está moviendo, usamos su dirección de movimiento
                     if (player_vx != 0.0f || player_vy != 0.0f) {
                         float speed = sqrtf(player_vx*player_vx + player_vy*player_vy);
                         if (speed > 0.0f) {
@@ -251,20 +230,17 @@ static void singlePlayer(uint32_t width, uint32_t height) {
                             ball_vy = (player_vy / speed) * BALL_HIT_SPEED;
                         }
                     } else {
-                        // Si el jugador está quieto, usar la dirección desde el centro del jugador hacia la pelota
+                        // y si el jugador está quieto, usamos la dirección desde el centro del jugador hacia la pelota
                         float norm = sqrtf(dx*dx + dy*dy);
                         if (norm == 0.0f) norm = 1.0f;
                         ball_vx = (dx / norm) * BALL_HIT_SPEED;
                         ball_vy = (dy / norm) * BALL_HIT_SPEED;
                     }
-                    
-                    // Separar la pelota del jugador
                     float separation_factor = (minDist + 3.0f) / sqrtf(dist2);
                     ball_x = players[0].x + dx * separation_factor;
                     ball_y = players[0].y + dy * separation_factor;
                 }
 
-                // Actualizar posición y velocidad de la pelota
                 ball_x += ball_vx;
                 ball_y += ball_vy;
                 ball_vx *= BALL_FRICTION;
@@ -288,7 +264,7 @@ static void singlePlayer(uint32_t width, uint32_t height) {
                     ball_vy = -ball_vy * 0.5f;
                 }
 
-                // Verificar si la pelota entra en el hoyo
+                // chequeamos si pelota entra en el hoyo
                 float dxh = ball_x - hole_x;
                 float dyh = ball_y - hole_y;
                 float dist2h = dxh*dxh + dyh*dyh;
@@ -299,27 +275,25 @@ static void singlePlayer(uint32_t width, uint32_t height) {
                     break;
                 }
                 
-                //Chequear si se agotaron los intentos
+                //Chequeaamo si se le terminaron los intentos
                 if(ballHits == MAX_HITS && is_stopped(ball_vx, ball_vy) || ballHits > MAX_HITS) {
-                    // Si se golpeó la pelota 3 veces y no entró en el hoyo ó se la golpea más de 3 veces, se considera un intento no exitoso
                     attempt_success = 1;
                     attempts++;
                 }
                 
-                // Rendering selectivo (igual que multiplayer)
+                // Rendering selectivo
                 if ((uint64_t)prev_ball_x != (uint64_t)ball_x || (uint64_t)prev_ball_y != (uint64_t)ball_y) {
-                    draw_ball((uint64_t)prev_ball_x, (uint64_t)prev_ball_y, (uint64_t)BALL_RADIUS, 0x9EFFDC);
+                    draw_ball((uint64_t)prev_ball_x, (uint64_t)prev_ball_y, (uint64_t)BALL_RADIUS, COLOR_CYAN);
                 }
                 
                 if ((uint64_t)prev_player_x != (uint64_t)players[0].x || (uint64_t)prev_player_y != (uint64_t)players[0].y) {
-                    draw_ball((uint64_t)prev_player_x, (uint64_t)prev_player_y, (uint64_t)players[0].radius, 0x9EFFDC);
+                    draw_ball((uint64_t)prev_player_x, (uint64_t)prev_player_y, (uint64_t)players[0].radius, COLOR_CYAN);
                 }
                 
-                // Redibujar hoyo si es necesario
                 int redraw_hole = 0;
                 float hole_dist_threshold = hole_radius + BALL_RADIUS + 5;
                 
-                // Verificar si el hoyo se superpone con la posición anterior de la pelota
+                // chequeamos si el hoyo se superpone con la posición anterior de la pelota
                 if ((uint64_t)prev_ball_x != (uint64_t)ball_x || (uint64_t)prev_ball_y != (uint64_t)ball_y) {
                     float dx_hole_ball = prev_ball_x - hole_x;
                     float dy_hole_ball = prev_ball_y - hole_y;
@@ -328,7 +302,7 @@ static void singlePlayer(uint32_t width, uint32_t height) {
                     }
                 }
                 
-                // Verificar si el hoyo se superpone con la posición anterior de el jugador
+                // chequeamos si el hoyo se superpone con la posición anterior del jugador
                 if ((uint64_t)prev_player_x != (uint64_t)players[0].x || (uint64_t)prev_player_y != (uint64_t)players[0].y) {
                     float dx_hole_player = prev_player_x - hole_x;
                     float dy_hole_player = prev_player_y - hole_y;
@@ -339,39 +313,38 @@ static void singlePlayer(uint32_t width, uint32_t height) {
                 }
                 
                 if (redraw_hole) {
-                    draw_ball((uint64_t)hole_x, (uint64_t)hole_y, (uint64_t)hole_radius, HOLE_COLOR);
+                    draw_ball((uint64_t)hole_x, (uint64_t)hole_y, (uint64_t)hole_radius, COLOR_BLACK);
                 }
                 
-                // Dibujar nuevas posiciones
-                draw_ball((uint64_t)ball_x, (uint64_t)ball_y, (uint64_t)BALL_RADIUS, BALL_COLOR);
+                // nuevas posiciones
+                draw_ball((uint64_t)ball_x, (uint64_t)ball_y, (uint64_t)BALL_RADIUS, COLOR_WHITE);
                 draw_player(&players);
 
-                // Mostrar información del nivel y intentos
                 printSinglePlayerInfo(attempts, max_attempts, ballHits);
 
                 sys_nano_sleep(1);
             }
             
-            // Si se agotó un intento, reiniciar posiciones
+            // reiniciar posiciones
             if (attempt_success && !level_completed) {
                 ball_x = width * config.ball_x_ratio;
                 ball_y = height * config.ball_y_ratio;
                 ball_vx = 0;
                 ball_vy = 0;
                 
-                // Mostrar mensaje de intento fallido
+                // mensaje de intento fallido
                 clearScreen();
-                draw_rectangle(0, 0, width, height, 0x9EFFDC);
+                draw_rectangle(0, 0, width, height, COLOR_CYAN);
                 printStringf(width/2, height/2, 3, width, height, ALIGN_CENTER, "Attempt %d failed!", attempts);
                 printStringf(width/2, height/2 + 40, 2, width, height, ALIGN_CENTER, "Attempts remaining: %d", max_attempts - attempts);
                 
                 if (attempts < max_attempts) {
-                    sys_nano_sleep(40); // Esperar 1 segundo antes de reiniciar
+                    sys_nano_sleep(40); // Esperar antes de reiniciar
                     
-                    // Redibujar el campo
-                    draw_rectangle(0, 0, width, height, 0x9EFFDC);
-                    draw_ball((uint64_t)hole_x, (uint64_t)hole_y, (uint64_t)hole_radius, HOLE_COLOR);
-                    draw_ball((uint64_t)ball_x, (uint64_t)ball_y, (uint64_t)BALL_RADIUS, BALL_COLOR);
+                    // Redibujar campo
+                    draw_rectangle(0, 0, width, height, COLOR_CYAN);
+                    draw_ball((uint64_t)hole_x, (uint64_t)hole_y, (uint64_t)hole_radius, COLOR_BLACK);
+                    draw_ball((uint64_t)ball_x, (uint64_t)ball_y, (uint64_t)BALL_RADIUS, COLOR_WHITE);
 
                     //reinicializar jugador
                     players[0].x = width / 2;
@@ -385,7 +358,7 @@ static void singlePlayer(uint32_t width, uint32_t height) {
 
         // Mostrar resultado del nivel
         clearScreen();
-        draw_rectangle(0, 0, width, height, 0x9EFFDC);
+        draw_rectangle(0, 0, width, height, COLOR_CYAN);
         
         if (level_completed) {
             printStringf(width/2, height/2 - 20, 3, width, height, ALIGN_CENTER, "Level %d completed!", current_level + 1);
@@ -394,7 +367,7 @@ static void singlePlayer(uint32_t width, uint32_t height) {
             printStringf(width/2, height/2 - 20, 3, width, height, ALIGN_CENTER, "Level %d failed!", current_level + 1);
             printString("All attempts used. Game Over!", width/2, height/2 + 20, 2, width, height, ALIGN_CENTER);
             
-            // Game Over - volver al menú
+            // volver al menú
             printString("Press any key to return to main menu...", width/2, height/2 + 100, 2, width, height, ALIGN_CENTER);
             getChar();
             mainMenu();
@@ -403,14 +376,13 @@ static void singlePlayer(uint32_t width, uint32_t height) {
         
         printString("Press 'esc' to return to main menu", width/2, height/2 + 100, 1, width, height, ALIGN_CENTER);
         printString("Press 'enter' to go to the next level", width/2, height/2 + 120, 1, width, height, ALIGN_CENTER);
-         while (1) {
+        while (1) {
             if (isKeyPressed(SCANCODE_ESCAPE)) {
                 mainMenu();
                 flushKeyboardBuffer();
                 return;
             }
             else if( isKeyPressed(SCANCODE_ENTER)) {
-                // Si se presiona 'enter', avanzar al siguiente nivel
                 break;
             }
         }
@@ -418,7 +390,7 @@ static void singlePlayer(uint32_t width, uint32_t height) {
 
         sys_nano_sleep(10); 
 
-        // Avanzar al siguiente nivel
+        // siguiente nivel
         current_level++;
         
         if (current_level < MAX_LEVELS) {
@@ -428,7 +400,7 @@ static void singlePlayer(uint32_t width, uint32_t height) {
             printString("CONGRATULATIONS! You are a champion!", width/2, height/2 + 100, 2, width, height, ALIGN_CENTER);
         }
 
-        sys_nano_sleep(40); // 1 segundo
+        sys_nano_sleep(40); 
 
         clearScreen();
     }
@@ -444,25 +416,23 @@ static void multiPlayer(uint32_t width, uint32_t height) {
     player2_wins = 0;
     
     while (current_level < MAX_LEVELS) {
-        // Mostrar información del nivel
         showLevelInfo(current_level, width, height);
 
         Player players[2] = {
             {
                 width / 4, height/2, PLAYER_RADIUS, PLAYER1_COLOR,
-                0.0f,    // ángulo inicial (apuntando a la derecha)
-                0.0f,    // velocidad inicial
+                0.0f,  
+                0.0f,   
                 SCANCODE_W, SCANCODE_S, SCANCODE_A, SCANCODE_D
             },
             {
                 width * 3 / 4, height/2, PLAYER_RADIUS, PLAYER2_COLOR,
-                M_PI,    // ángulo inicial (apuntando a la izquierda)
-                0.0f,    // velocidad inicial
+                M_PI,   
+                0.0f, 
                 SCANCODE_I, SCANCODE_K, SCANCODE_J, SCANCODE_L
             }
         };
         
-        // Configurar posiciones según el nivel actual
         config = levels[current_level];
         float ball_x = width * config.ball_x_ratio;
         float ball_y = height * config.ball_y_ratio;
@@ -474,7 +444,6 @@ static void multiPlayer(uint32_t width, uint32_t height) {
         int last_hit = -1;
         int winner = -1;
         
-        // Variables para guardar posiciones previas de los jugadores y la pelota
         float prev_player_x[2] = {players[0].x, players[1].x};
         float prev_player_y[2] = {players[0].y, players[1].y};
         float prev_ball_x = ball_x;
@@ -482,24 +451,22 @@ static void multiPlayer(uint32_t width, uint32_t height) {
         
         clearScreen();
         
-        // Mostrar controles para multiplayer
+        // controles para multiplayer
         printString("Player 1: w=up, s=down, a=rotate left, d= rotate right", width/2, height/2 - 40, 2, width, height, ALIGN_CENTER);
         printString("Player 2: i=up, k=down, j=rotate left, l=rotate right", width/2, height/2 + 40, 2, width, height, ALIGN_CENTER);
         printString("Starting in 1 second...", width/2, height/2 + 100, 2, width, height, ALIGN_CENTER);
 
-        sys_nano_sleep(40); // 1 segundo
+        sys_nano_sleep(40);
         
-        // Dibujo inicial completo
-        draw_rectangle(0, 0, width, height, 0x9EFFDC);
-        draw_ball((uint64_t)hole_x, (uint64_t)hole_y, (uint64_t)hole_radius, HOLE_COLOR);
-        draw_ball((uint64_t)ball_x, (uint64_t)ball_y, (uint64_t)BALL_RADIUS, BALL_COLOR);
+        draw_rectangle(0, 0, width, height, COLOR_CYAN);
+        draw_ball((uint64_t)hole_x, (uint64_t)hole_y, (uint64_t)hole_radius, COLOR_BLACK);
+        draw_ball((uint64_t)ball_x, (uint64_t)ball_y, (uint64_t)BALL_RADIUS, COLOR_WHITE);
         for (int i = 0; i < 2; i++) {
             draw_ball((uint64_t)players[i].x, (uint64_t)players[i].y, (uint64_t)players[i].radius, players[i].color);
         }
 
-        // Game loop para este nivel
+        // Game loop
         while (1) {
-            // Guardar posiciones previas antes de procesar movimientos
             for (int i = 0; i < 2; i++) {
                 prev_player_x[i] = players[i].x;
                 prev_player_y[i] = players[i].y;
@@ -507,7 +474,7 @@ static void multiPlayer(uint32_t width, uint32_t height) {
             prev_ball_x = ball_x;
             prev_ball_y = ball_y;
             
-            // Retornar al menú principal si se presiona 'ESC'
+            // vuelve al menú principal si se presiona 'ESC'
             if(isKeyPressed(SCANCODE_ESCAPE)) { 
                 mainMenu();
                 return;
@@ -517,18 +484,18 @@ static void multiPlayer(uint32_t width, uint32_t height) {
 
             resolvePlayerCollisions(players, width, height);
 
-            // Detectar colisión jugador–pelota con física mejorada
+            // Detectar colisión jugador–pelota
             for (int i = 0; i < 2; i++) {
                 float dx = ball_x - players[i].x;
                 float dy = ball_y - players[i].y;
                 float dist2 = dx*dx + dy*dy;
                 float minDist = players[i].radius + BALL_RADIUS;
                 if (dist2 <= minDist*minDist) {
-                    // Calcular velocidad del jugador
+                    // velocidad del jugador
                     float player_vx = players[i].x - prev_player_x[i];
                     float player_vy = players[i].y - prev_player_y[i];
                     
-                    // Si el jugador se está moviendo, usar su dirección de movimiento
+                    // Si el jugador se mueve, usamos su dirección de movimiento
                     if (player_vx != 0.0f || player_vy != 0.0f) {
                         float speed = sqrtf(player_vx*player_vx + player_vy*player_vy);
                         if (speed > 0.0f) {
@@ -589,13 +556,13 @@ static void multiPlayer(uint32_t width, uint32_t height) {
             // PINTADO SELECTIVO - Borrar posiciones anteriores si son diferentes
             // Primero borrar la pelota anterior si se movió
             if ((uint64_t)prev_ball_x != (uint64_t)ball_x || (uint64_t)prev_ball_y != (uint64_t)ball_y) {
-                draw_ball((uint64_t)prev_ball_x, (uint64_t)prev_ball_y, (uint64_t)BALL_RADIUS, 0x9EFFDC);
+                draw_ball((uint64_t)prev_ball_x, (uint64_t)prev_ball_y, (uint64_t)BALL_RADIUS, COLOR_CYAN);
             }
             
             // Borrar jugadores anteriores si se movieron
             for (int i = 0; i < 2; i++) {
                 if ((uint64_t)prev_player_x[i] != (uint64_t)players[i].x || (uint64_t)prev_player_y[i] != (uint64_t)players[i].y) {
-                    draw_ball((uint64_t)prev_player_x[i], (uint64_t)prev_player_y[i], (uint64_t)players[i].radius, 0x9EFFDC);
+                    draw_ball((uint64_t)prev_player_x[i], (uint64_t)prev_player_y[i], (uint64_t)players[i].radius, COLOR_CYAN);
                 }
             }
             
@@ -625,11 +592,11 @@ static void multiPlayer(uint32_t width, uint32_t height) {
             }
             
             if (redraw_hole) {
-                draw_ball((uint64_t)hole_x, (uint64_t)hole_y, (uint64_t)hole_radius, HOLE_COLOR);
+                draw_ball((uint64_t)hole_x, (uint64_t)hole_y, (uint64_t)hole_radius, COLOR_BLACK);
             }
             
             // Dibujar nuevas posiciones
-            draw_ball((uint64_t)ball_x, (uint64_t)ball_y, (uint64_t)BALL_RADIUS, BALL_COLOR);
+            draw_ball((uint64_t)ball_x, (uint64_t)ball_y, (uint64_t)BALL_RADIUS, COLOR_WHITE);
             for (int i = 0; i < 2; i++) {
                 draw_player(&players[i]);
             }
@@ -642,7 +609,7 @@ static void multiPlayer(uint32_t width, uint32_t height) {
 
         // Mostrar resultado del nivel
         clearScreen();
-        draw_rectangle(0, 0, width, height, 0x9EFFDC);
+        draw_rectangle(0, 0, width, height, COLOR_CYAN);
         
         if (winner == 0) {
             player1_wins++;
@@ -690,7 +657,6 @@ static void multiPlayer(uint32_t width, uint32_t height) {
                 return;
             }
             else if( isKeyPressed(SCANCODE_ENTER)) {
-                // Si se presiona 'enter', avanzar al siguiente nivel
                 break;
             }
         }
@@ -702,7 +668,7 @@ static void multiPlayer(uint32_t width, uint32_t height) {
 static void setExit(){
     clearScreen();
     printString("Exiting Pongis Golf...", screenWidth/2, screenHeight/2, 2, screenWidth, screenHeight, ALIGN_CENTER);
-    sys_nano_sleep(40); // 1 segundo
+    sys_nano_sleep(40);
     clearScreen();
     flushKeyboardBuffer();
 }
@@ -711,7 +677,6 @@ static void processPlayerMovements(Player *players, uint32_t width, uint32_t hei
     for (int i = 0; i < numberOfPlayers; i++) {
         Player *player = &players[i];
         
-        // Procesar rotación
         if (isKeyPressed(player->rotate_left)) {
             player->angle -= ROTATION_SPEED;
         }
@@ -719,11 +684,9 @@ static void processPlayerMovements(Player *players, uint32_t width, uint32_t hei
             player->angle += ROTATION_SPEED;
         }
         
-        // Normalizar el ángulo (mantenerlo entre 0 y 2*PI)
         while (player->angle < 0) player->angle += 2 * M_PI;
         while (player->angle >= 2 * M_PI) player->angle -= 2 * M_PI;
         
-        // Procesar aceleración/desaceleración
         if (isKeyPressed(player->forward)) {
             player->speed += PLAYER_ACCELERATION;
             if (player->speed > PLAYER_MAX_SPEED) {
@@ -735,44 +698,38 @@ static void processPlayerMovements(Player *players, uint32_t width, uint32_t hei
                 player->speed = -PLAYER_MAX_SPEED / 2; // Retroceso más lento
             }
         } else {
-            // Desaceleración gradual cuando no se presiona nada
             player->speed *= PLAYER_DECELERATION;
             if (my_fabs(player->speed) < 0.1f) {
                 player->speed = 0.0f;
             }
         }
         
-        // Calcular nueva posición basada en ángulo y velocidad
         float dx = my_cos(player->angle) * player->speed;
         float dy = my_sin(player->angle) * player->speed;
         
         float new_x = player->x + dx;
         float new_y = player->y + dy;
         
-        // Verificar límites
         if (new_x >= player->radius && new_x <= width - player->radius) {
             player->x = new_x;
         } else {
-            player->speed *= -0.3f; // Rebote suave contra paredes
+            player->speed *= -0.3f;
         }
         
         if (new_y >= player->radius && new_y <= height - player->radius) {
             player->y = new_y;
         } else {
-            player->speed *= -0.3f; // Rebote suave contra paredes
+            player->speed *= -0.3f; 
         }
     }
 }
 
-// Función para resolver colisiones entre dos jugadores
 static void resolvePlayerCollisions(Player *players, uint32_t width, uint32_t height) {
-    // Chequear que se está en modo multi-player
     if (numberOfPlayers < 2) return;
     
     Player *player1 = &players[0];
     Player *player2 = &players[1];
     
-    // Calcular distancia entre centros
     float dx = player2->x - player1->x;
     float dy = player2->y - player1->y;
     float distance_squared = dx*dx + dy*dy;
@@ -780,13 +737,11 @@ static void resolvePlayerCollisions(Player *players, uint32_t width, uint32_t he
     
     // Si hay colisión (distancia menor que la suma de radios)
     if (distance_squared < min_distance * min_distance && distance_squared > 0.0f) {
-        float distance = my_sqrt(distance_squared);
+        float distance = sqrtf(distance_squared);
         
-        // Vector unitario de separación
         float nx = dx / distance;  // Normal x
         float ny = dy / distance;  // Normal y
         
-        // Separar los jugadores
         float overlap = min_distance - distance;
         float separation = overlap * 0.5f + 1.0f; // Cada jugador se mueve la mitad + 1 pixel extra
         
@@ -809,44 +764,32 @@ static void resolvePlayerCollisions(Player *players, uint32_t width, uint32_t he
         if (player2->y < player2->radius) player2->y = player2->radius;
         if (player2->y > height - player2->radius) player2->y = height - player2->radius;
         
-        // Reducir velocidad al colisionar (efecto de rebote suave)
         player1->speed *= 0.7f;
         player2->speed *= 0.7f;
     }
 }
 
 static void draw_player(Player *player) {
-    // Dibujar el círculo del jugador
     draw_ball((uint64_t)player->x, (uint64_t)player->y, (uint64_t)player->radius, player->color);
-    
-    // Dibujar una línea para mostrar la dirección
     float line_length = player->radius * 0.8f;
-    float end_x = player->x + my_cos(player->angle) * line_length;
-    float end_y = player->y + my_sin(player->angle) * line_length;
-    
-    // Dibujar línea direccional
-    // Usando puntos pequeños para simular una línea
     for (int i = 0; i < (int)line_length; i += 2) {
         float point_x = player->x + my_cos(player->angle) * i;
         float point_y = player->y + my_sin(player->angle) * i;
-        draw_ball((uint64_t)point_x, (uint64_t)point_y, 1, 0x000000); // Línea negra
+        draw_ball((uint64_t)point_x, (uint64_t)point_y, 1, COLOR_BLACK); // Línea negra
     }
 }
 
 
-/*======= Detector de movimiento =======*/
 static int is_stopped(float vx, float vy) {
     const float STOP_THRESHOLD = 0.1f; // Velocidad mínima para considerar la pelota detenida
     return (my_fabs(vx) < STOP_THRESHOLD && my_fabs(vy) < STOP_THRESHOLD);
 }
 
-/*======= Mostrar información del nivel =======*/
+/*======= Mostrar info del nivel =======*/
 // Multi-player
 static void printCurrentLevelInfo(){
     printStringf(2, 2, 2, screenWidth, screenHeight, ALIGN_LEFT, "LEVEL %d", current_level + 1);
-
     printStringf(2,26, 2, screenWidth, screenHeight, ALIGN_LEFT, "Hole size: %d", config.hole_radius);
-
     printString("Press 'esc' to return to main menu", 2, 55, 1.5, screenWidth, screenHeight, ALIGN_LEFT);
 }
 
@@ -855,27 +798,22 @@ static void printSinglePlayerInfo(int attempts, int max_attempts, int hits) {
     printStringf(2, 2, 2, screenWidth, screenHeight, ALIGN_LEFT, "LEVEL %d", current_level + 1);
     printStringf(2, 26, 2, screenWidth, screenHeight, ALIGN_LEFT, "Hole size: %d", config.hole_radius);
     
-    // Mostrar hits como asteriscos
     char hit_str[20] = "";
     for (int i = 0; i < hits && hits <= MAX_HITS; i++) {
         hit_str[i] = '*';
     }
-    hit_str[hits] = '\0'; // Terminar el string
+    hit_str[hits] = '\0'; 
     printStringf(2, 50, 2, screenWidth, screenHeight, ALIGN_LEFT, "Hits: %s", hit_str);
 
     printStringf(2, 74, 1, screenWidth, screenHeight, ALIGN_LEFT, "Attempts: %d/%d", attempts, max_attempts);
     printString("Press 'esc' to return to main menu", 1, 90, 1, screenWidth, screenHeight, ALIGN_LEFT);
 }
 
-/*======= Funciones matemáticas necesarias =======*/
-
-// Aproximación simple de seno usando serie de Taylor
+/*======= Funciones matemáticas que necesitabamos =======*/
 static float my_sin(float x) {
-    // Normalizar x al rango [-PI, PI]
     while (x > M_PI) x -= 2 * M_PI;
     while (x < -M_PI) x += 2 * M_PI;
     
-    // Serie de Taylor: sin(x) ≈ x - x³/6 + x⁵/120 - x⁷/5040
     float x2 = x * x;
     float x3 = x2 * x;
     float x5 = x3 * x2;
@@ -884,7 +822,6 @@ static float my_sin(float x) {
     return x - (x3 / 6.0f) + (x5 / 120.0f) - (x7 / 5040.0f);
 }
 
-// Coseno usando la identidad: cos(x) = sin(x + PI/2)
 static float my_cos(float x) {
     return my_sin(x + M_PI / 2.0f);
 }
@@ -892,20 +829,8 @@ static float my_cos(float x) {
 static float my_fabs(float x) {
     return (x < 0.0f) ? -x : x;
 }
-
-static float my_sqrt(float x) {
-    if (x <= 0.0f) return 0.0f;
-    
-    float guess = x / 2.0f;
-    for (int i = 0; i < 10; i++) {
-        guess = (guess + x / guess) / 2.0f;
-    }
-    return guess;
-}
-
 /*===================================================*/
 
-// Función auxiliar para convertir enteros a string
 static int int_to_string(int value, char *buffer) {
     if (value == 0) {
         buffer[0] = '0';
@@ -915,14 +840,13 @@ static int int_to_string(int value, char *buffer) {
     
     int is_negative = 0;
     int length = 0;
-    char temp[12]; // Suficiente para un int
+    char temp[12];
     
     if (value < 0) {
         is_negative = 1;
         value = -value;
     }
     
-    // Convertir dígitos (en orden inverso)
     while (value > 0) {
         temp[length++] = '0' + (value % 10);
         value /= 10;
@@ -930,7 +854,7 @@ static int int_to_string(int value, char *buffer) {
     
     int total_length = length + is_negative;
     
-    // Copiar al buffer en el orden correcto
+    // Copiar buffer en orden correcto
     if (is_negative) {
         buffer[0] = '-';
     }
@@ -943,14 +867,14 @@ static int int_to_string(int value, char *buffer) {
     return total_length;
 }
 
-// Función auxiliar para formatear strings
+// para formatear strings
 static void simple_sprintf(char *buffer, const char *format, va_list args) {
     char *buf_ptr = buffer;
     const char *fmt_ptr = format;
     
     while (*fmt_ptr != '\0') {
         if (*fmt_ptr == '%') {
-            fmt_ptr++; // Saltar el '%'
+            fmt_ptr++;
             
             switch (*fmt_ptr) {
                 case 'd': {
@@ -984,19 +908,14 @@ static void simple_sprintf(char *buffer, const char *format, va_list args) {
         }
         fmt_ptr++;
     }
-    *buf_ptr = '\0'; // Terminar el string
+    *buf_ptr = '\0';
 }
 
 void printStringf(uint64_t x, uint64_t y, uint64_t size, uint32_t width, uint32_t height, int alignment, const char *format, ...) {
     char buffer[256]; // Buffer para el string formateado
     va_list args;
-    
-    // Inicializar la lista de argumentos variables
     va_start(args, format);
-    
     simple_sprintf(buffer, format, args);
-    
     va_end(args);
-    
     printString(buffer, x, y, size, width, height, alignment);
 }

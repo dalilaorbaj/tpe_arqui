@@ -1,7 +1,5 @@
-// Created from bdf2c Version 3, (c) 2009, 2010 by Lutz Sammer
-//	License AGPLv3: GNU Affero General Public License version 3
-
-#include "openDyslexicFont.h"
+// Modificamos a mano 
+#include <openDyslexicFont.h>
 
 unsigned char dyslexic_font_bitmap[] = {
 //   0 $00 'char0'
@@ -3480,6 +3478,6 @@ unsigned char dyslexic_font_bitmap[] = {
 	________,
 };
 
-unsigned char * dyslexicFontPixelMap(unsigned char c) {
-	return dyslexic_font_bitmap + FONT_HEIGHT * (c-31);
-}
+// unsigned char * dyslexicFontPixelMap(unsigned char c) {
+// 	return dyslexic_font_bitmap + FONT_HEIGHT * (c-31);
+// }

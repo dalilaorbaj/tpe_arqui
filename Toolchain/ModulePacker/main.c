@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <argp.h>
 
-#include "modulePacker.h"
+#include <modulePacker.h>
 
 //Parser elements
 const char *argp_program_version =

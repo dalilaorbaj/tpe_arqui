@@ -1,11 +1,11 @@
+#ifndef RTC_H
+#define RTC_H
+
 #include <stdint.h>
 
 #define RTC_SECONDS         0x00
-#define RTC_SECONDS_ALARM   0x01
 #define RTC_MINUTES         0x02
-#define RTC_MINUTES_ALARM   0x03
 #define RTC_HOURS           0x04
-#define RTC_HOURS_ALARM     0x05
 #define RTC_DAY_OF_WEEK     0x06
 #define RTC_DAY_OF_MONTH    0x07
 #define RTC_MONTH           0x08
@@ -18,3 +18,5 @@ uint8_t getRTCDayOfWeek();
 uint8_t getRTCDayOfMonth();
 uint8_t getRTCMonth();
 uint8_t getRTCYear();
+
+#endif

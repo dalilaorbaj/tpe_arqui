@@ -1,36 +1,18 @@
 #include <stdint.h>
 #include <keyboard.h>
 
-#define BUFFER_SIZE 1024
-#define UNPRESSED_BIT   0x80 //indica si la tecla esta presionada o no
-#define UPPER 1
-#define LOWER 0
-#define KEY_BITS_MASK   0x7F // mascara para obtener el valor de la tecla sin el bit de presionada
-#define LSHIFT          0x2A
-#define RSHIFT          0x36
-#define CPS_LOCK        0x3A
-#define SNAPSHOT_KEY    0x43 // tecla para tomar un snapshot de los registros
-#define RIGHT_CONTROL   0xE01D
-#define LEFT_CONTROL    0x1D
-#define DELTA ('a' - 'A')
-#define KEY_MAPPING_MATRIX_ROWS 2
-#define KEY_MAPPING_MATRIX_COLS 128
+static uint64_t key_states[256] = {0}; 
 
-
-static uint64_t key_states[256] = {0}; // Array para rastrear estado de teclas
-
-/* El tratamiento del buffer de teclado es circular */
 static uint8_t buffer[BUFFER_SIZE];
-static uint8_t map = LOWER; //mapa de teclas actual
-static uint8_t buffer_dim = 0; //cantidad de elementos en el buffer
-static uint8_t buffer_last = 0; //ultimo elemento agregado al buffer
-static uint8_t buffer_first = 0; //primer elemento del buffer
-static uint8_t registersFlag = 0; //bandera para indicar si se debe guardar los registros
+static uint8_t map = LOWER;
+static uint8_t buffer_dim = 0; 
+static uint8_t buffer_last = 0; 
+static uint8_t buffer_first = 0; 
+static uint8_t registersFlag = 0; 
 static uint8_t capsLock = 0;
 static uint8_t cntrlPressed = 0;
 
 extern int8_t keyMappingMatrix[KEY_MAPPING_MATRIX_ROWS][KEY_MAPPING_MATRIX_COLS];
-
 extern uint8_t sys_getKey();
 
 static uint8_t isReleased(uint8_t key){
@@ -71,7 +53,6 @@ static int isAlphaKey(uint8_t key){
 
 static uint8_t handlekey(uint8_t key){
     uint8_t scancode = keyValue(key);
-    // Actualizar estado de la tecla
     key_states[scancode] = isPressed(key);
 
     registersFlag = 0;
@@ -114,14 +95,12 @@ int emptyBuffer(){
     return buffer_dim == 0;
 }
 
-
 void keyboardHandler() {
     uint8_t key = handlekey(sys_getKey());
     
     if (key == 0) {
         return; 
     }
-    //Agregamos la tecla al buffer
     buffer[buffer_last++] = key;
     buffer_last = buffer_last % BUFFER_SIZE;
     buffer_dim++;
@@ -144,4 +123,3 @@ static uint8_t next(){
 uint8_t getChar(){
     return next();
 }
-

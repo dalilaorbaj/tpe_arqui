@@ -3,13 +3,13 @@
 #include <defs.h>
 #include <interrupts.h>
 
-#pragma pack(push)		/* Push de la alineación actual */
-#pragma pack (1) 		/* Alinear las siguiente estructuras a 1 byte */
+#pragma pack(push)
+#pragma pack (1) 
 
 extern void _lidt(void*);
+static void setup_IDT_entry(int index, uint64_t offset);
 
 
-/* Descriptor de interrupcion (entrada de la IDT)*/
 typedef struct {
   uint16_t offset_l, selector;
   uint8_t cero, access;
@@ -17,7 +17,7 @@ typedef struct {
   uint32_t offset_h, other_cero;
 } DESCR_INT;
 
-#pragma pack(pop)		/* Reestablece la alinceación actual */
+#pragma pack(pop)
 
 #define IDT_ENTRIES 256
 static DESCR_INT idt[IDT_ENTRIES];
@@ -33,11 +33,6 @@ static IDTR idtr = {
   .limit = sizeof(idt) - 1,
   .base  = (uint64_t)&idt
 };
-
-
-
-static void setup_IDT_entry (int index, uint64_t offset);
-
 
 void load_idt() {
 
@@ -59,18 +54,14 @@ void load_idt() {
 
   _lidt(&idtr);
 
-
-	//Solo interrupcion timer tick y keyboard habilitadas
+	//Solo timer tick y keyboard habilitadas
 	picMasterMask(0xFC); 
 	picSlaveMask(0xFF);
       
-  //habilitar interrupciones a nivel de CPU
 	_sti();
 }
 
-//offset: dirección de la función manejadora de la interrupción
-//index: número de la interrupción
-//selector: segmento de código (0x08 para el kernel)
+
 static void setup_IDT_entry (int index, uint64_t offset) {
   idt[index].selector = 0x08;
   idt[index].offset_l = offset & 0xFFFF;

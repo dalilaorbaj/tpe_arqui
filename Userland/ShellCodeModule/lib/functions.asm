@@ -4,11 +4,9 @@ global hlt
 global divZero
 global invOpcode
 
-
 hlt:
     hlt
     ret
-
 
 invOpcode:
     push rbp
@@ -19,7 +17,6 @@ invOpcode:
     mov rsp, rbp
     pop rbp
     ret
-
 
 divZero:
     push rbp

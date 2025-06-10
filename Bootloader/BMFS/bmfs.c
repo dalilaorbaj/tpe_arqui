@@ -37,8 +37,8 @@ char s_write[] = "write";
 char s_delete[] = "delete";
 struct BMFSEntry entry;
 void *pentry = &entry;
-char *BlockMap;
-char *FileBlocks;
+//char *BlockMap;
+//char *FileBlocks;
 char Directory[4096];
 char DiskInfo[512];
 

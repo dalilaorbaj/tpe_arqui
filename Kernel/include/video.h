@@ -2,20 +2,21 @@
 #define VIDEO_DRIVER_H
 
 #include <stdint.h>
+#include <font.h>
+#include <openDyslexicFont.h>
 
-static const uint64_t MIN_FONT_SIZE = 1;
-static const uint64_t MAX_FONT_SIZE = 5;
-static const uint64_t FONT_SIZE_STEP = 1;
-#define COLOR_OFF 0
-#define COLOR_ON 255
+#define BLACK 0
+#define WHITE 255
 
 #define ERROR -1
-#define EARLY_EXIT 0
 #define OK 1
 
 #define STDIN   0
 #define STDOUT  1
-#define STDERR  2
+
+#define FIRST_ASCII 32
+#define LAST_ASCII 126
+#define MAX_CHARS 8000 
 
 typedef struct{
     uint64_t x;
@@ -46,15 +47,15 @@ typedef struct vbe_mode_info_structure * VBEInfoPtr;
 void clear_video_buffers(void);
 int64_t draw_rectangle(uint64_t x, uint64_t y, uint64_t width, uint64_t height, Color color);
 int64_t get_screen_info(Screen * screen); 
-//uint64_t write(const char * buf, int64_t size, Color color);
 int64_t draw_font(uint64_t x, uint64_t y, uint8_t ch, Color color, uint64_t size); 
 int64_t draw_pixel(uint64_t x, uint64_t y, Color color);
-void set_font_color(Color color);
 void empty_screen(Color newBgColor);
 void resetScreen(Color newBgColor);
 void switch_to_dyslexic_font(void);
 void switch_to_default_font(void);
-
+void increaseFontSize(void);
+void decreaseFontSize(void);
+uint64_t write(const char * buf, int64_t size, Color color);
 
 struct vbe_mode_info_structure {
     uint16_t attributes;	// deprecated, only bit 7 should be of interest to you, and it indicates the mode supports a linear frame buffer.

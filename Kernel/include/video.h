@@ -52,6 +52,8 @@ int64_t draw_pixel(uint64_t x, uint64_t y, Color color);
 void set_font_color(Color color);
 void empty_screen(Color newBgColor);
 void resetScreen(Color newBgColor);
+void switch_to_dyslexic_font(void);
+void switch_to_default_font(void);
 
 
 struct vbe_mode_info_structure {

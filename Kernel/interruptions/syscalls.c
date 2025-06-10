@@ -62,6 +62,8 @@ int64_t syscallDispatcher(uint64_t syscall_num, uint64_t arg1, uint64_t arg2, ui
             return sys_zoom_out();
         case 20:
             return sys_get_key();
+        case 21:
+            return sys_switch_text_mode(arg1);
         default:
             return -1;
     }
@@ -229,6 +231,16 @@ int64_t sys_zoom_out(void) {
     decreaseFontSize();
     return 0;
 }
+
+int64_t sys_switch_text_mode(uint64_t mode) {
+    switch (mode){
+        case 0: switch_to_default_font(); break;
+        case 1: switch_to_dyslexic_font(); break;
+        default: return -1; // Invalid mode
+    }
+    return 0;
+}
+
 
 void getSnapshot(){
     for(int i=0 ; i < CANT_REGS ; i++){

@@ -41,6 +41,14 @@ void zoomOut() {
     return sys_zoom_out();
 }
 
+void dyslexicMode() {
+    return sys_switch_text_mode(DYSLEXIC);
+}
+
+void defaultMode() {
+    return sys_switch_text_mode(DEFAULT);
+}
+
 int64_t clearScreen(void) {
     return sys_clear_screen();
 }

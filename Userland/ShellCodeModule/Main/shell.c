@@ -13,6 +13,8 @@ int64_t writeStr(int fd, const char *s);
 static void clearCommand();
 static void zoomInCommand();
 static void zoomOutCommand();
+static void dyslexicModeCommand();
+static void defaultModeCommand();
 static void utcToMinusUtc3(time_struct *time);
 static void clearKeyboardBuffer();
 
@@ -31,7 +33,9 @@ static Option options[] = {
     {"zoomOut", zoomOutCommand},
     {"MK", play_mortal_kombat_theme},
     {"GOT", play_got_theme},
-    {"cockroach", play_cockroach_song}
+    {"cockroach", play_cockroach_song}, 
+    {"dyslexicMode", dyslexicModeCommand}, 
+    {"defaultMode", defaultModeCommand}
 };
 
 // Punto de entrada del módulo
@@ -76,6 +80,10 @@ static void helpCommand() {
     puts("- Zoom out the screen");
     writeStrColor("  echo [text] ", (Color){129, 243, 255});
     puts("- Display the provided text");
+    writeStrColor("  dyslexicMode ", (Color){129, 243, 255});
+    puts("- Switch to dyslexic mode (changes font)");
+    writeStrColor("  defaultMode ", (Color){129, 243, 255});
+    puts("- Switch to default mode (changes font)");
     writeStrColor("  time ", (Color){129, 243, 255});
     puts("- Show current date and time");
     writeStrColor("  regs ", (Color){129, 243, 255});
@@ -94,8 +102,6 @@ static void helpCommand() {
     puts("- Plays the Game Of Thrones Theme");
     writeStrColor("  cockroach ", (Color){129, 243, 255});
     puts("- Plays the Cockroach Song");
-    puts(" (press ESC to stop the song)");
-    puts(" (press P to pause/unpause the song)");
 }
 
 static void clearCommand() {
@@ -136,7 +142,7 @@ static void shellLoop() {
 
     clearScreen();
     
-    writeStrColor("====Welcome to the Simple Shell====\n", (Color){158, 255, 220});
+    writeStrColor("====Welcome to the DyOS====\n", (Color){158, 255, 220});
     timeCommand();  // Mostrar hora al iniciar
 
     puts("");
@@ -246,5 +252,10 @@ static void zoomOutCommand() {
     zoomOut();
 }
 
+static void dyslexicModeCommand() {
+    dyslexicMode();
+}
 
-
+static void defaultModeCommand() {
+    defaultMode();
+}

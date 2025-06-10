@@ -13,6 +13,9 @@
 #define RIGHT_CONTROL   0xE01D
 #define LEFT_CONTROL    0x1D
 #define DELTA ('a' - 'A')
+#define KEY_MAPPING_MATRIX_ROWS 2
+#define KEY_MAPPING_MATRIX_COLS 128
+
 
 static uint64_t key_states[256] = {0}; // Array para rastrear estado de teclas
 
@@ -26,7 +29,7 @@ static uint8_t registersFlag = 0; //bandera para indicar si se debe guardar los 
 static uint8_t capsLock = 0;
 static uint8_t cntrlPressed = 0;
 
-extern int8_t keyMappingMatrix[2][128];
+extern int8_t keyMappingMatrix[KEY_MAPPING_MATRIX_ROWS][KEY_MAPPING_MATRIX_COLS];
 
 extern uint8_t sys_getKey();
 

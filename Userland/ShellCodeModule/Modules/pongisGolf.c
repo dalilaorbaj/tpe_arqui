@@ -23,6 +23,7 @@ static void singlePlayer(uint32_t width, uint32_t height);
 static void multiPlayer(uint32_t width, uint32_t height);
 static void printString(const char *str, uint64_t x, uint64_t y, uint64_t size, uint32_t width, uint32_t height, int alignment);
 static void processPlayerMovements(Player *players, uint32_t width, uint32_t height);
+static void resolvePlayerCollisions(Player *players, uint32_t width, uint32_t height);
 static void printStringf(uint64_t x, uint64_t y, uint64_t size, uint32_t width, uint32_t height, int alignment, const char *format, ...);
 static void setExit();
 static void printCurrentLevelInfo();
@@ -32,6 +33,7 @@ static void draw_player(Player *player);
 static float my_sin(float x);
 static float my_cos(float x);
 static float my_fabs(float x);
+static float my_sqrt(float x);
 
 Screen screen;
 uint64_t baseY;
@@ -481,8 +483,8 @@ static void multiPlayer(uint32_t width, uint32_t height) {
         clearScreen();
         
         // Mostrar controles para multiplayer
-        printString("Player 1: w=up, s=down, a=left, d=right", width/2, height/2 - 40, 2, width, height, ALIGN_CENTER);
-        printString("Player 2: i=up, k=down, j=left, l=right", width/2, height/2 + 40, 2, width, height, ALIGN_CENTER);
+        printString("Player 1: w=up, s=down, a=rotate left, d= rotate right", width/2, height/2 - 40, 2, width, height, ALIGN_CENTER);
+        printString("Player 2: i=up, k=down, j=rotate left, l=rotate right", width/2, height/2 + 40, 2, width, height, ALIGN_CENTER);
         printString("Starting in 1 second...", width/2, height/2 + 100, 2, width, height, ALIGN_CENTER);
 
         sys_nano_sleep(40); // 1 segundo
@@ -512,6 +514,8 @@ static void multiPlayer(uint32_t width, uint32_t height) {
             }
 
             processPlayerMovements(players, width, height);
+
+            resolvePlayerCollisions(players, width, height);
 
             // Detectar colisión jugador–pelota con física mejorada
             for (int i = 0; i < 2; i++) {
@@ -760,6 +764,57 @@ static void processPlayerMovements(Player *players, uint32_t width, uint32_t hei
     }
 }
 
+// Función para resolver colisiones entre dos jugadores
+static void resolvePlayerCollisions(Player *players, uint32_t width, uint32_t height) {
+    // Chequear que se está en modo multi-player
+    if (numberOfPlayers < 2) return;
+    
+    Player *player1 = &players[0];
+    Player *player2 = &players[1];
+    
+    // Calcular distancia entre centros
+    float dx = player2->x - player1->x;
+    float dy = player2->y - player1->y;
+    float distance_squared = dx*dx + dy*dy;
+    float min_distance = player1->radius + player2->radius + 2.0f; // +2 para separación mínima
+    
+    // Si hay colisión (distancia menor que la suma de radios)
+    if (distance_squared < min_distance * min_distance && distance_squared > 0.0f) {
+        float distance = my_sqrt(distance_squared);
+        
+        // Vector unitario de separación
+        float nx = dx / distance;  // Normal x
+        float ny = dy / distance;  // Normal y
+        
+        // Separar los jugadores
+        float overlap = min_distance - distance;
+        float separation = overlap * 0.5f + 1.0f; // Cada jugador se mueve la mitad + 1 pixel extra
+        
+        // Mover jugadores en direcciones opuestas
+        player1->x -= nx * separation;
+        player1->y -= ny * separation;
+        player2->x += nx * separation;
+        player2->y += ny * separation;
+        
+        // Verificar que no salgan de los límites después de la separación
+        // Player 1
+        if (player1->x < player1->radius) player1->x = player1->radius;
+        if (player1->x > width - player1->radius) player1->x = width - player1->radius;
+        if (player1->y < player1->radius) player1->y = player1->radius;
+        if (player1->y > height - player1->radius) player1->y = height - player1->radius;
+        
+        // Player 2
+        if (player2->x < player2->radius) player2->x = player2->radius;
+        if (player2->x > width - player2->radius) player2->x = width - player2->radius;
+        if (player2->y < player2->radius) player2->y = player2->radius;
+        if (player2->y > height - player2->radius) player2->y = height - player2->radius;
+        
+        // Reducir velocidad al colisionar (efecto de rebote suave)
+        player1->speed *= 0.7f;
+        player2->speed *= 0.7f;
+    }
+}
+
 static void draw_player(Player *player) {
     // Dibujar el círculo del jugador
     draw_ball((uint64_t)player->x, (uint64_t)player->y, (uint64_t)player->radius, player->color);
@@ -834,9 +889,18 @@ static float my_cos(float x) {
     return my_sin(x + M_PI / 2.0f);
 }
 
-// Añadir al principio de pongisGolf.c, junto con my_sin y my_cos
 static float my_fabs(float x) {
     return (x < 0.0f) ? -x : x;
+}
+
+static float my_sqrt(float x) {
+    if (x <= 0.0f) return 0.0f;
+    
+    float guess = x / 2.0f;
+    for (int i = 0; i < 10; i++) {
+        guess = (guess + x / guess) / 2.0f;
+    }
+    return guess;
 }
 
 /*===================================================*/

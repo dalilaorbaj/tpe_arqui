@@ -10,6 +10,9 @@
 #define ERROR -1
 #define BUFF_SIZE 8096
 
+#define DEFAULT 0
+#define DYSLEXIC 1
+
 #define SCANCODE_W 17
 #define SCANCODE_S 31  
 #define SCANCODE_A 30
@@ -64,3 +67,7 @@ int64_t draw_letter(uint64_t x, uint64_t y, uint64_t letter, uint64_t color, uin
 int64_t draw_ball(uint64_t x, uint64_t y, uint64_t radius, uint64_t color);
 
 void flushKeyboardBuffer();
+
+void dyslexicMode();
+
+void defaultMode();

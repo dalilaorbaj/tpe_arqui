@@ -1,5 +1,6 @@
 #include <video.h>
 #include <font.h>
+#include <openDyslexicFont.h>
 #include <stddef.h>
 
 //Estructura que contiene información sobre el modo de video (resolución, bits por píxel, etc.)
@@ -9,7 +10,7 @@ static VBEInfoPtr VBE_info = (VBEInfoPtr) 0x0000000000005C00;
 #define HEIGHT VBE_info->height
 #define BPP VBE_info->bpp
 #define PITCH VBE_info->pitch
-      
+
 #define CHAR_ROWS_FONT_MIN 25
 #define CHAR_COLS_FONT_MIN 80
 #define FIRST_ASCII 32
@@ -21,8 +22,10 @@ static VBEInfoPtr VBE_info = (VBEInfoPtr) 0x0000000000005C00;
 static Point current_point = {0,0};
 static Character buffer[MAX_CHARS];
 
-extern unsigned char font_bitmap[4096];
+extern unsigned char default_font_bitmap[4096];
+extern unsigned char dyslexic_font_bitmap[4096];
 static uint64_t char_index = 0;
+unsigned char * font_bitmap = default_font_bitmap;
 
 static Color bg_color = {COLOR_OFF, COLOR_OFF, COLOR_OFF};
 static Color font_color = {COLOR_ON, COLOR_ON, COLOR_ON};
@@ -46,6 +49,20 @@ static void append_char(char c, Color color);
 static void simpleScroll();
 static void rewriteFromRawText();
 static void calculateCursorFromText();
+
+
+void switch_to_dyslexic_font(void) {
+    font_bitmap = dyslexic_font_bitmap;
+    updateCache();
+    empty_screen(bg_color);
+    rewriteFromRawText();
+}
+void switch_to_default_font(void) {
+    font_bitmap = default_font_bitmap;
+    updateCache();
+    empty_screen(bg_color);
+    rewriteFromRawText();
+}
 
 // Actualizar cache de cálculos
 static void updateCache() {
@@ -425,7 +442,7 @@ uint64_t write(const char * buf, int64_t size, Color color) {
 int64_t draw_font(uint64_t x, uint64_t y, uint8_t ch, Color color, uint64_t size) {
     if (ch < FIRST_ASCII || ch > LAST_ASCII) return ERROR;
 
-    unsigned char *glyph = fontPixelMap(ch);
+    unsigned char *glyph = fontPixelMap(ch, font_bitmap);
     for (uint64_t row = 0; row < FONT_HEIGHT; row++) {
         unsigned char bits = glyph[row];
         for (uint64_t col = 0; col < FONT_WIDTH; col++) {
@@ -474,6 +491,7 @@ void decreaseFontSize(void) {
         rewriteFromRawText();
     }
 }
+
 
 void resetScreen(Color newBgColor) {
     // Guardar el color de fondo anterior solo si no es de excepción

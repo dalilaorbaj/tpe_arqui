@@ -9,6 +9,7 @@
         "stdarg.h": "c",
         "idtloader.h": "c",
         "syscalls.h": "c",
-        "pongisgolf.h": "c"
+        "pongisgolf.h": "c",
+        "font.h": "c"
     }
 }

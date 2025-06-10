@@ -1,7 +1,7 @@
 #ifndef FONT_H
 #define FONT_H
 
-unsigned char *fontPixelMap(unsigned char c);
+unsigned char *fontPixelMap(unsigned char c, unsigned char * bitmap);
 
 #define FONT_WIDTH 8
 #define FONT_HEIGHT 16

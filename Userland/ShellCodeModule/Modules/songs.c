@@ -410,7 +410,8 @@ void play_got_theme() {
 void play_song(const Song *song) {
     int paused = 0;
     int prev_key_state = 0; 
-    
+    puts(" (press ESC to stop the song)");
+    puts(" (press P to pause/unpause the song)");
     for (int i = 0; i < song->note_count && !isKeyPressed(SCANCODE_ESCAPE); i++) {
         
         int current_key_state = isKeyPressed(SCANCODE_P);

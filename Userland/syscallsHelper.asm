@@ -14,6 +14,8 @@ global sys_write_color
 global sys_zoom_in
 global sys_zoom_out
 global sys_is_key_pressed
+global sys_switch_text_mode
+
 
 
 section .text
@@ -47,4 +49,4 @@ sys_write_color:      base_syscall 12
 sys_zoom_in:          base_syscall 13
 sys_zoom_out:         base_syscall 14
 sys_get_key:          base_syscall 20
-
+sys_switch_text_mode: base_syscall 21

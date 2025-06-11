@@ -58,7 +58,7 @@ void exceptionDispatcher(uint64_t exception) {
 	resetScreen((Color){139,0,36});
     printRegs(message, dim);
 
-    const char *promo = "\nPress any key to return to shell\n";
+    const char *promo = "\nPress any letter key to return to shell\n";
     write((const char *)promo, strlen(promo), (Color){255, 255, 255});
 
     picMasterMask(0xFD);    // Solo IRQ1 (teclado)
